@@ -163,7 +163,7 @@ class furSwarmPatterns {
   void displayPumpData(bool red, bool green, bool blue);
   void initializeRandom(uint8_t low, uint8_t high, uint8_t red, uint8_t green, uint8_t blue, bool single);
   void initializeHeartbeatPattern(uint8_t red, uint8_t green, uint8_t blue);
-  void initializeCylon(uint8_t red, uint8_t green, uint8_t blue);
+  void initializeCylon(uint8_t red, uint8_t green, uint8_t blue, bool twoSided);
   int cylonIndexMap (int i, int frameIndex);
   void fillMatrix(int ledPosition, int framePosition, float proportion, bool accum);
   void iterateFrameStep(uint8_t upperFrameNumber);

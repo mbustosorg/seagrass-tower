@@ -53,9 +53,16 @@ void clearDisplay() {
 }
 
 //! Display the current operating details
-void displayOperatingDetails(int pattern, int timeStamp, int frameRate, int temp) {
+void displayOperatingDetails(int pattern, int timeStamp, int frameRate, unsigned long rtcTime, float lat, float lon) {
+  uint8_t hours = rtcTime / 3600;
+  uint8_t minutes = (uint8_t) (((float) rtcTime / 3600.0 - (float) hours) * 60.0);
+  uint8_t seconds = rtcTime - hours * 3600 - minutes * 60;
+  if (seconds == 60) {
+	seconds = 0;
+	minutes = minutes + 1;
+  }
   display.clearDisplay();
-  display.setTextSize(2);
+  display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(0,0);
   display.print("Patt:");
@@ -66,8 +73,17 @@ void displayOperatingDetails(int pattern, int timeStamp, int frameRate, int temp
   display.print("FRat:");
   display.print(frameRate);
   display.println("Hz");
-  display.print("Temp:");
-  display.println(temp);
+  display.print("RTC:");
+  if (hours < 10) display.print ("0");
+  display.print(hours); display.print(":"); 
+  if (minutes < 10) display.print ("0");
+  display.print(minutes); display.print(":"); 
+  if (seconds < 10) display.print ("0");
+  display.println(seconds); 
+  display.print("lat:");
+  display.println(lat);
+  display.print("lon:");
+  display.println(lon);
   display.display();
 }
 
@@ -87,6 +103,43 @@ void displayTiltParameters(int hue, int saturation, bool isShaking, bool isCalib
   if (isShaking) {
 	display.print("SHK");
   }
+  display.display();  
+}
+
+//! Display GPS data
+void displayGPSdata(float lat, float lon, unsigned long time) {
+  uint8_t hours = time / 3600;
+  uint8_t minutes = (uint8_t) (((float) time / 3600.0 - (float) hours) * 60.0);
+  uint8_t seconds = time - hours * 3600 - minutes * 60;
+  if (seconds == 60) {
+	seconds = 0;
+	minutes = minutes + 1;
+  }
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.print("lat:");
+  display.println(lat);
+  display.print("lon:");
+  display.println(lon);
+  display.print("time:");
+  if (hours < 10) display.print ("0");
+  display.print(hours); display.print(":"); 
+  if (minutes < 10) display.print ("0");
+  display.print(minutes); display.print(":"); 
+  if (seconds < 10) display.print ("0");
+  display.println(seconds); 
+  display.display();  
+}
+
+//! Display message
+void displayMessage (const char* message) {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println(message);
   display.display();  
 }
 

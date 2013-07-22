@@ -381,7 +381,7 @@ void furSwarmPatterns::initializeHeartbeatPattern(uint8_t red, uint8_t green, ui
 }
 
 //! Initialize the Cylon pattern
-void furSwarmPatterns::initializeCylon(uint8_t red, uint8_t green, uint8_t blue) {
+void furSwarmPatterns::initializeCylon(uint8_t red, uint8_t green, uint8_t blue, bool twoSided) {
   int redHolder = red;
   int greenHolder = green;
   int blueHolder = blue;
@@ -1218,7 +1218,7 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 		frameIndex = 0;
 		frameRelease = patternSpeed;
 	  }
-	  initializeCylon(data [2], data [3], data [4]);
+	  initializeCylon(data [2], data [3], data [4], false);
 	}
 	pattern = data [0];
 	break;

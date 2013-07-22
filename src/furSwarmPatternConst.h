@@ -72,7 +72,10 @@
 #define FS_ID_BOUNCING_BALL (0x23)
 #define FS_ID_SPECTRUM_ANALYZER (0x24)
 #define FS_ID_FOREST_RUN (0x25)
-#define FS_ID_MAX_ID (0x25)
+#define FS_ID_SEARCHING_EYE (0x26)
+#define FS_ID_BUBBLE_WAVE (0x27)
+#define FS_ID_BROKEN (0x28)
+#define FS_ID_MAX_ID (0x28)
 
 #define FS_NAME_FULL_COLOR "Full Color"
 #define FS_NAME_SPARKLE "Sparkle"
@@ -109,6 +112,9 @@
 #define FS_NAME_BOUNCING_BALL "Bouncing"
 #define FS_NAME_SPECTRUM_ANALYZER "Spectrum"
 #define FS_NAME_FOREST_RUN "Forest"
+#define FS_NAME_SEARCHING_EYE "Search"
+#define FS_NAME_BUBBLE_WAVE "Bubble"
+#define FS_NAME_BROKEN "Broken"
 
 #define FS_TYPE_VEST (0x01)
 #define FS_TYPE_HAT (0x02)

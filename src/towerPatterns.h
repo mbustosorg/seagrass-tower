@@ -37,6 +37,8 @@
 
 #include "furSwarmPatterns.h"
 #include "furSwarmPatternConst.h"
+#include "towerAnimations.h"
+#include <XBee.h>
 
 #define tiltThreshold (15)
 #define tiltCalThreshold (5)
@@ -53,6 +55,8 @@
 
 #ifdef NOT_EMBEDDED
 typedef float float32_t;
+#define min(a,b) ((a)<(b)?(a):(b))
+#define max(a,b) ((a)>(b)?(a):(b))
 #else
 #define ARM_MATH_CM4
 #include "arm_math.h"
@@ -62,6 +66,10 @@ typedef float float32_t;
 #define TEST_LENGTH_SAMPLES (2 * FFT_LEN)
 #define BUCKET_COUNT (51)
 #define BUCKET_FACTOR (1.03)
+
+const int MAX_TOWER_COUNT = 35;
+
+#define PATTERN_START_MOD (5) // Second interval to start patterns for synchronization
 
 class towerPatterns : public furSwarmPatterns {
 
@@ -95,7 +103,15 @@ class towerPatterns : public furSwarmPatterns {
   void iterateSpectrumAnalyzer();
   void updateFrequencyBuckets();
   void updateSpectrumLevels();
+  void iterateSearchingEye();
+  void iterateBubbleWave();
+  void iterateBroken();
 
+  // GPS data
+  int32_t latitude = 0;
+  int32_t longitude = 0;
+
+  // Accelerometer data
   float xTilt, xShakeTilt;
   float yTilt, yShakeTilt, yLastTiltCal;
   float zTilt, zShakeTilt, zLastTiltCal;
@@ -113,6 +129,7 @@ class towerPatterns : public furSwarmPatterns {
   uint32_t shakingTimestamp = 0;
   uint8_t releaseCounter = 1;
   uint8_t timeToDrop = 0;
+  uint8_t timeToDrop2 = 0;
   uint8_t timeToDropInitial = 0;
   uint8_t timeToDropRed = 0;
   uint8_t sparkleDrops[7] = {0, 0, 0, 0, 0, 0, 0};
@@ -136,6 +153,11 @@ class towerPatterns : public furSwarmPatterns {
   uint8_t bladeHeightLow, bladeHeightHigh;
   uint8_t cycleSpot = 0;
 
+  // Animation data
+  XBeeAddress64 towerAddresses[MAX_TOWER_COUNT];
+  towerAnimations animations;
+
+  // Audio data
   uint32_t audioSampleInputIndex = 0;
   float32_t audioSampleInput[2 * FFT_LEN];
   float32_t audioMagnitudeOutput[FFT_LEN]; 
@@ -209,6 +231,7 @@ class towerPatterns : public furSwarmPatterns {
 	 0.6910, 0.4122, 0.1910, 0.0489, 0.0000, 
 	 0.0489, 0.1910, 0.4122, 0.6910, 1.0000}; 
   */
+
 };
 
 #endif

@@ -31,7 +31,7 @@
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include<stdint.h>
+#include <stdint.h>
 
 // Prototype to divorce us from Arduino.h
 #ifdef __cplusplus
@@ -52,6 +52,7 @@ extern int zTiltSetting;
 #define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))
 
+unsigned long rtc_get();
 uint32_t random(uint32_t);
 uint32_t random(uint32_t, uint32_t);
 void randomSeed(unsigned int);

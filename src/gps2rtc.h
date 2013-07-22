@@ -9,7 +9,7 @@
 //  or remove the RTC battery.  The battery is not required.
 //
 //  To use this software it is only necessary to create an instance of the class and call 'begin' specifying the serial port,
-//  the baud rate and the pin that is connected to the 1pps pin:
+//  the baud rate and the pin that is c/Users/mauricio/Documents/development/installations/cil-1.7.2/bin/cilly --merge --save_tempsonnected to the 1pps pin:
 //      #include <TinyGPS.h>
 //      #include "gps2rtc.h"
 //      const int gps_1pps_pin = 9;
@@ -33,127 +33,143 @@
 //#define DUMP_RAW_NMEA
 
 enum GPS_TO_RTC_STATE
-{
+  {
 	looking_for_serial_data = 0,
 	waiting_for_1pps = 1,
 	set_rtc_compensation = 2,
 	done = 3
-};
+  };
 
 const int sample_time_secs = 10;              // We will check the RTC after 10 seconds to see how far off it is from the GPS receiver.
 
 class GPS2RTC
 {
-public:
-	void begin(HardwareSerial* a_gps_serial, int a_baud_rate, int a_gps_1pps_pin)
-        // This began life as a constructor but it couldn't handle the HardwareSerial.
-	{
-		gps_serial = a_gps_serial;
-		gps_1pps_pin = a_gps_1pps_pin;
+ public:
+  void begin(HardwareSerial* a_gps_serial, int a_baud_rate, int a_gps_1pps_pin)
+  // This began life as a constructor but it couldn't handle the HardwareSerial.
+  {
+	gps_serial = a_gps_serial;
+	gps_1pps_pin = a_gps_1pps_pin;
 
-		gps_serial->begin(a_baud_rate);				// Initialize the serial port (both pins) and set the baud rate.
-		pinMode_input_with_pulldown(gps_1pps_pin);	        // The 1PPS signal from the GPS receiver is connected to this pin.
-									// We need the pull-down because the receiver is sometimes disconnected.
-		gps_serial->set_rx_isr(&handle_gps_receiver_data);
-                state = looking_for_serial_data;
-                delay(1000);                                            // Wait one second for the RTC to come up to speed.
-		attachInterrupt(gps_1pps_pin, gps_1pps_isr, RISING);
-	};
+	gps_serial->begin(a_baud_rate);				// Initialize the serial port (both pins) and set the baud rate.
+	pinMode_input_with_pulldown(gps_1pps_pin);	        // The 1PPS signal from the GPS receiver is connected to this pin.
+	// We need the pull-down because the receiver is sometimes disconnected.
+	gps_serial->set_rx_isr(&handle_gps_receiver_data);
+	state = looking_for_serial_data;
+	rtc_time_set = false;
+	receiving_serial_data = false;
+	delay(1000);                                            // Wait one second for the RTC to come up to speed.
+	attachInterrupt(gps_1pps_pin, gps_1pps_isr, RISING);
+  };
 
-	static void pinMode_input_with_pulldown(uint8_t pin)
-        // Sets pin 'pin' as an input with a pulldown resistor.
-	{
-		volatile uint32_t *config;
+  static void pinMode_input_with_pulldown(uint8_t pin)
+  // Sets pin 'pin' as an input with a pulldown resistor.
+  {
+	volatile uint32_t *config;
 
-		*portModeRegister(pin) = 0;
-		config = portConfigRegister(pin);
-		*config = PORT_PCR_MUX(1) | PORT_PCR_PE; // Pull-down.
-	}
+	*portModeRegister(pin) = 0;
+	config = portConfigRegister(pin);
+	*config = PORT_PCR_MUX(1) | PORT_PCR_PE; // Pull-down.
+  }
 
-	static void handle_gps_record()
-	// Handle one record sent from the GPS receiver.
-	{
-		unsigned long l_gps_time;
-		unsigned long l_new_gps_time;
-		long l_latitude;		// In decimal degrees * 100000.
-		long l_longitude;		// In decimal degrees * 100000.
-		unsigned long l_fix_age;	// Milliseconds since the last fix.
+  static void handle_gps_record()
+  // Handle one record sent from the GPS receiver.
+  {
+	  unsigned long l_gps_time;
+	  unsigned long l_new_gps_time;
+	  long l_latitude;		// In decimal degrees * 100000.
+	  long l_longitude;		// In decimal degrees * 100000.
+	  unsigned long l_fix_age;	// Milliseconds since the last fix.
 
-		// Try to get the time.
-		gps.get_datetime(NULL, &l_gps_time, &l_fix_age);
+	  last_sentence_receipt = millis();
 
-		// If it's available and recent, convert it to seconds since midnight and save it.
-		if (state == looking_for_serial_data && l_gps_time != 0 && l_fix_age != TinyGPS::GPS_INVALID_AGE && l_fix_age <= 2000)
+	  // Try to get the time.
+	  gps.get_datetime(NULL, &l_gps_time, &l_fix_age);
+
+	  // If it's available and recent, convert it to seconds since midnight and save it.
+	  if (state == looking_for_serial_data && l_gps_time != 0 && l_fix_age != TinyGPS::GPS_INVALID_AGE && l_fix_age <= 2000)
 		{
-			l_gps_time = l_gps_time / 100;				    // Convert HHMMSS00 to HHMMSS.
-			l_new_gps_time = l_gps_time % 100;			    // Get SS.
-			l_gps_time = l_gps_time / 100;				    // Convert HHMMSS to HHMM.
-			l_new_gps_time = l_new_gps_time + (l_gps_time % 100) * 60;  // Get MM and convert to seconds.
-			l_gps_time = l_gps_time / 100;				    // Convert HHMM to HH.
-			gps_time = l_new_gps_time + (l_gps_time % 100) * 3600;	    // Get HH and convert to seconds.
-			state = waiting_for_1pps;				    // This enables (or reenables) 'gps_1pps_isr'.
+		  l_gps_time = l_gps_time / 100;				    // Convert HHMMSS00 to HHMMSS.
+		  l_new_gps_time = l_gps_time % 100;			    // Get SS.
+		  l_gps_time = l_gps_time / 100;				    // Convert HHMMSS to HHMM.
+		  l_new_gps_time = l_new_gps_time + (l_gps_time % 100) * 60;  // Get MM and convert to seconds.
+		  l_gps_time = l_gps_time / 100;				    // Convert HHMM to HH.
+		  gps_time = l_new_gps_time + (l_gps_time % 100) * 3600;	    // Get HH and convert to seconds.
+		  state = waiting_for_1pps;				    // This enables (or reenables) 'gps_1pps_isr'.
 		}
 
-		// Try to get the position.
-		gps.get_position(&l_latitude, &l_longitude, &l_fix_age);
+	  // Try to get the position.
+	  gps.get_position(&l_latitude, &l_longitude, &l_fix_age);
 
-		// If it's available and recent, save it.
-		if (l_fix_age != TinyGPS::GPS_INVALID_AGE && l_fix_age <= 2000)
+	  // If it's available and recent, save it.
+	  if (l_fix_age != TinyGPS::GPS_INVALID_AGE && l_fix_age <= 2000)
 		{
-			latitude = l_latitude;
-			longitude = l_longitude;
+		  latitude = l_latitude;
+		  longitude = l_longitude;
 		}
-	}
-
+  }
+  
 	static void handle_gps_receiver_data(char a_char)
 	// Handle one character of data from the GPS receiver. 
 	{
-		#ifdef DUMP_RAW_NMEA
-			Serial.print(a_char);
-		#endif
-
-                if (gps.encode(a_char))
-			handle_gps_record();
+#ifdef DUMP_RAW_NMEA
+	  Serial.print(a_char);
+#endif
+	  if (!receiving_serial_data) RTC_TCR = 0;
+	  receiving_serial_data = true;
+	  if (gps.encode(a_char))
+		handle_gps_record();
 	}
 
 	static void gps_1pps_isr()
 	// Handle an interrupt generated by the rising edge of the 1PPS signal from the GPS receiver.
 	{
-		int l_new_time;
-		static int l_count;
+	  int l_new_time;
+	  static int l_count;
 
-                switch (state)
-                {
-                  case waiting_for_1pps:
-                    l_new_time = gps_time + 1;          // This is the start of a new second.
+	  if (handle_interrupts) {
+		switch (state)
+		  {
+		  case waiting_for_1pps:
+			l_new_time = gps_time + 1;          // This is the start of a new second.
 
-                    if (l_new_time >= seconds_per_day)
-                      l_new_time = 0;
+			if (l_new_time >= seconds_per_day)
+			  l_new_time = 0;
 
-                    rtc_set(l_new_time);		// This also sets the Time Prescale Register (RTC_TPR) to 0.  This syncs the RTC seconds with the 1PPS.
+			rtc_set(l_new_time);		// This also sets the Time Prescale Register (RTC_TPR) to 0.  This syncs the RTC seconds with the 1PPS.
+			rtc_time_set = true;
 
-                    if (RTC_TCR == 0)
-                    {
-                      l_count = 0;
-                      state = set_rtc_compensation;
-                    }
-                    else
-                      state = looking_for_serial_data;  // The compensation has already been set.
+			if (RTC_TCR == 0)
+			  {
+				l_count = 0;
+				state = set_rtc_compensation;
+			  }
+			else
+			  state = looking_for_serial_data;  // The compensation has already been set.
 
-                    break;
-                  case set_rtc_compensation:
-                    l_count++;
-                    if (l_count == sample_time_secs)
-                    {
-                      RTC_TCR = ((sample_time_secs - 1) << 8) | ((-RTC_TPR) & 0xff);		// Compensation of -RTC_TPR ticks every 10th second.
-                      state = looking_for_serial_data;
-                    }
+			break;
+		  case set_rtc_compensation:
+			l_count++;
+			if (l_count == sample_time_secs)
+			  {
+				RTC_TCR = ((sample_time_secs - 1) << 8) | ((-RTC_TPR) & 0xff);		// Compensation of -RTC_TPR ticks every 10th second.
+				state = looking_for_serial_data;
+			  }
 
-                    break;
-				default:
-				  break;
-                }
+			break;
+		  default:
+			break;
+		  }
+	  }
 	}
+
+	static bool handle_interrupts;
+
+	static bool receiving_serial_data;
+
+	static unsigned long last_sentence_receipt;
+
+	static bool rtc_time_set;
 
 	static enum GPS_TO_RTC_STATE state;             // See enum GPS_TO_RTC_STATE.
 
@@ -170,5 +186,5 @@ public:
 	static unsigned long longitude;			// In decimal degrees * 100000.
 
 	static const int seconds_per_day = 86400;	// Number of seconds in a day.
-};
+  };
 

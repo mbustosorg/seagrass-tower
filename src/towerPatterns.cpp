@@ -55,6 +55,10 @@ towerPatterns::towerPatterns() : furSwarmPatterns(){
   uint32_t ifftFlag = 0; 
   uint32_t doBitReverse = 1; 
 
+  for (int i = 0; i < MAX_TOWER_COUNT; i++) {
+	towerAddresses[i] = XBeeAddress64(0x00000000, 0x00000000);
+  }
+
 #ifndef NOT_EMBEDDED
   arm_cfft_radix4_instance_f32 fft_inst;  /* CFFT Structure instance */
   arm_cfft_radix4_init_f32(&fft_inst, FFT_LEN, ifftFlag, doBitReverse);
@@ -76,6 +80,7 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   //}
   // Disable Timer 3 used for audio sampling, let the request turn it back on
   PIT_TCTRL3 &= ~(1 << 0);
+  animations.isAnimating = false;
   messageType = (int) data[0];
   patternSpeed = (int) data[1];
   switch (messageType) {
@@ -138,6 +143,21 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	}
  	pattern = data [0];
 	break;
+  case FS_ID_ANIMATE_1:
+	animations.startAnimation(millis());
+	initializePattern(animations.currentPattern(), 6);
+	animations.isAnimating = true;
+	break;
+  case FS_ID_SEARCHING_EYE:
+ 	pattern = data [0];
+	setPatternSpeedWithFactor(10);
+	patternSpeed = random (patternSpeed, patternSpeed + 2);
+	setBasicParameters(data[5], data[2], data[3], data[4]);
+	break;
+  case FS_ID_BUBBLE_WAVE:
+	break;
+  case FS_ID_BROKEN:
+	break;
   default:
 	furSwarmPatterns::initializePattern(data, dataLength);
 	break;
@@ -198,9 +218,28 @@ void towerPatterns::continuePatternDisplay() {
 	}
 	displayData(unadjustedRed != 0, unadjustedGreen != 0, unadjustedBlue != 0);
 	break;
+  case FS_ID_SEARCHING_EYE:
+	iterateSearchingEye();
+	displayData(true, true, true);		
+	break;
+  case FS_ID_BUBBLE_WAVE:
+	iterateBubbleWave();
+	displayData(true, true, true);		
+	break;
+  case FS_ID_BROKEN:
+	iterateBroken();
+	displayData(true, true, true);		
+	break;
   default:
 	furSwarmPatterns::continuePatternDisplay();
 	break;
+  }
+  // Check if we're in animation mode and what to do next
+  if (animations.isAnimating) {
+	if (animations.nextPattern(millis())) {
+	  initializePattern(animations.currentPattern(), 6);
+	}
+	animations.isAnimating = true;
   }
 }
 
@@ -633,4 +672,59 @@ void towerPatterns::updateFrequencyBuckets() {
 	}
 	audioMagnitudeBuckets[i] = accum / total;
   }
+}
+
+//! Update the searching eye pattern
+void towerPatterns::iterateSearchingEye() {
+  uint8_t nextCycleSpot = 0;
+  if (timeToDrop == 0 && timeToDrop2 == 0) {
+	timeToDrop = patternSpeed;
+	if (patternForward) {
+	  cycleSpot++;
+	  cycleSpot++;
+	  cycleSpot++;
+	  if (cycleSpot >= LED_COUNT) {
+		patternForward = false;
+		cycleSpot = LED_COUNT - 1;
+		timeToDrop2 = unadjustedIntensity;
+	  }
+	} else {
+	  if (cycleSpot == 0) {
+		patternForward = true;
+		timeToDrop2 = unadjustedIntensity;
+	  } else {
+		cycleSpot--;
+		if (cycleSpot != 0) {
+		  cycleSpot--;
+		  if (cycleSpot != 0) {
+			cycleSpot--;
+		  }
+		}
+	  }
+	}
+  } else {
+	if (timeToDrop2 == 0) {
+	  timeToDrop--;
+	} else {
+	  timeToDrop2--;
+	}
+  }
+  for (int i = 0; i < LED_COUNT; i++) {
+	ledRed[i] = 0;
+	ledGreen[i] = 0;
+	ledBlue[i] = 0;
+	if (i == cycleSpot) {
+	  ledRed[i] = adjustedRed;
+	  ledGreen[i] = adjustedGreen;
+	  ledBlue[i] = adjustedBlue;
+	}
+  }
+}
+
+//! Update the bubble wave pattern
+void towerPatterns::iterateBubbleWave() {
+}
+
+//! Update the broken display pattern
+void towerPatterns::iterateBroken() {
 }

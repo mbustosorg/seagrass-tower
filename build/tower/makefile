@@ -8,7 +8,7 @@ DFLAGS=-DTEENSY -DUSE_TCL -DTCL_DIO -DFS_TOWER
 include /Users/mauricio/Documents/development/furSwarmMember/build/common/arm_common_dev.txt
 
 APP_CPP_SOURCES=main.cpp TCL.cpp towerPatterns.cpp colorUtilities.cpp furSwarmControlMachine.cpp \
-furSwarmMember.cpp furSwarmPatterns.cpp xBeeConfiguration.cpp oledControl.cpp gps2rtc.cpp TinyGPS.cpp
+furSwarmMember.cpp furSwarmPatterns.cpp xBeeConfiguration.cpp oledControl.cpp gps2rtc.cpp towerAnimations.cpp
 APP_OBJECTS=$(addprefix $(OBJECT_DIR),$(APP_CPP_SOURCES:.cpp=.o))
 
 default: build 

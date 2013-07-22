@@ -1,8 +1,8 @@
 //
 //  furSwarmMember.ino
 //
-//  $Date: 2013-06-21 21:38:58 -0700 (Fri, 21 Jun 2013) $
-//  $Rev: 984 $
+//  $Date: 2013-06-21 22:33:10 -0700 (Fri, 21 Jun 2013) $
+//  $Rev: 1011 $
 //  $Author: mauricio $
 //
 //  Copyright (c) 2012, Mauricio Bustos
@@ -47,7 +47,13 @@
 #ifdef TEENSY
 #include "oledControl.h"
 #include "towerPatterns.h"
+#include "TinyGPS.h"  
+#include "gps2rtc.h"
 int displayUpdateCount = 0;
+const int gps_1pps_pin = 9;
+GPS2RTC gps2rtc;
+unsigned long gpsTimeStamp = 0;
+#define GPS_DISPLAY_TIME (10000)
 #else
 #include "furSwarmPatterns.h"
 #endif
@@ -83,21 +89,28 @@ uint8_t heartbeatPayload[] = {
   0,          // Byte 9: Failed messages (2 bytes)
   0,
 #ifdef TEENSY
-  0,          // Byte 11: Lattitude (2 bytes)
+  0,          // Byte 11: Latitude (4 bytes)
   0,
-  0,          // Byte 13: Longitude (2 bytes)
+  0,
+  0,
+  0,          // Byte 15: Longitude (4 bytes)
+  0,
+  0,
   0
 #endif
 };
+uint8_t heartbeatCount = 0;
+#define FULL_HEARTBEAT_PERIOD (2)
 #define frameCountPosition (2)
 #define patternPosition (4)
 #define voltagePosition (5)
 #define frameRatePosition (7)
 #define failedMessagePosition (9)
-
+#define latitudePosition (11)
+#define longitudePosition (15)
 // XBee data
 XBee xbee = XBee();
-const uint32_t XBeeBaudRate = 19200;
+const uint32_t XBeeBaudRate = 57600;
 const uint32_t XBeePANID = 0x2014;
 XBeeAddress64 addr64 = XBeeAddress64(0x00000000, 0x00000000); // Coord ID free
 ZBTxRequest heartbeatMessage = ZBTxRequest(addr64, heartbeatPayload, sizeof(heartbeatPayload));
@@ -126,6 +139,11 @@ int frameStarted = 0;
 towerPatterns Control;
 uint32_t heartbeatTimestampStart;
 int frameLate = 0;
+const int latitudeStartByte = 0;
+const int longitudeStartByte = 4;
+#define MAX_DATA_LENGTH (10) // Maximum expected number of bytes in incoming message
+uint8_t lastData[MAX_DATA_LENGTH];
+uint8_t lastDataLength;
 #else
 furSwarmPatterns Control;
 #endif
@@ -153,6 +171,7 @@ Adafruit_WS2801 strip = Adafruit_WS2801(lpdCount, lpdDataPin, lpdClockPin);
 #endif
 
 //! Prototypes
+unsigned long readEepromLong(const int startByte);
 void updateDisplay();
 void setupRadio();
 void setupTimers();
@@ -184,6 +203,8 @@ void setup() {
 	pinMode(11, INPUT_PULLUP); // Left
 	pinMode(12, INPUT_PULLUP); // Right
 	pinMode(13, INPUT_PULLUP); // Center
+	Control.latitude = readEepromLong(latitudeStartByte);
+	Control.longitude = readEepromLong(longitudeStartByte);
 #else
 	Control.audioAnalogPin = 9;
 #endif
@@ -210,6 +231,7 @@ void setup() {
 #ifdef TEENSY
   setupOLEDdisplay();
   Control.randomSeedPin = 12;
+  gps2rtc.begin(&Serial3, 9600, gps_1pps_pin);      // Required.
 #endif
   // Initialize the radio
   setupRadio();
@@ -228,6 +250,39 @@ void setup() {
 //! Set up the frame rate timers
 void setupTimers() {
   // Do nothing
+}
+
+//! Long value from EEPROM starting at `startByte'
+unsigned long readEepromLong(const int startByte) {
+  unsigned long storedValue = 0;
+  uint8_t retrievedByte; 
+  retrievedByte = EEPROM.read (startByte);
+  memcpy ((char *)&storedValue, &retrievedByte, sizeof (uint8_t));
+  retrievedByte = EEPROM.read (startByte + 1);
+  memcpy ((char *)&storedValue + 1, &retrievedByte, sizeof (uint8_t));
+  retrievedByte = EEPROM.read (startByte + 2);
+  memcpy ((char *)&storedValue + 2, &retrievedByte, sizeof (uint8_t));
+  retrievedByte = EEPROM.read (startByte + 3);
+  memcpy ((char *)&storedValue + 3, &retrievedByte, sizeof (uint8_t));
+  return storedValue;
+}
+
+//! Write long value to EEPROM starting at `startByte'
+int writeEepromLong(unsigned long writeValue, const int startByte) {
+  uint8_t writeByte = 0;
+  memcpy (&writeByte, (char *)&writeValue, sizeof (uint8_t));
+  EEPROM.write (startByte, writeByte);
+  memcpy (&writeByte, (char *)&writeValue + 1, sizeof (uint8_t));
+  EEPROM.write (startByte + 1, writeByte);
+  memcpy (&writeByte, (char *)&writeValue + 2, sizeof (uint8_t));
+  EEPROM.write (startByte + 2, writeByte);
+  memcpy (&writeByte, (char *)&writeValue + 3, sizeof (uint8_t));
+  EEPROM.write (startByte + 3, writeByte);
+  if (readEepromLong(startByte) == writeValue) {
+	return 1;
+  } else {
+	return 0;
+  }
 }
 
 extern "C" {
@@ -426,25 +481,46 @@ void loop() {
   processIncoming();
 }
 
+void updateGPSdata() {
+  if (gps2rtc.rtc_time_set) {
+	if (writeEepromLong (gps2rtc.latitude, latitudeStartByte) && writeEepromLong (gps2rtc.longitude, longitudeStartByte)) {
+	  Control.latitude = readEepromLong(latitudeStartByte);
+	  Control.longitude = readEepromLong(longitudeStartByte);
+	  gpsTimeStamp = millis();
+	} else {
+	  displayMessage ("Could not write GPS data");
+	}
+  } else {
+	displayMessage ("Waiting for 1pps GPS data");
+  }
+}
+
 //! Update the status display
 void updateDisplay() {
 #ifdef TEENSY
   if (displayUpdateCount == 0) {
+	unsigned long timeStamp = millis();
 	if (Control.pattern == FS_ID_TILT) {
 	  int hue = atan2(Control.zTilt, Control.yTilt) * 360.0 / (2.0 * 3.14159);
 	  int saturation = sqrt((Control.yTilt / 200) * (Control.yTilt / 200) + (Control.zTilt / 200) * (Control.zTilt / 200)) * 100;
 	  displayTiltParameters(hue, saturation, Control.isShaking, Control.zTiltCal != 0);
+	} else if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp < GPS_DISPLAY_TIME) {
+	  unsigned long rtcTime = rtc_get();
+	  displayGPSdata ((float) Control.latitude / 100000.0, (float) Control.longitude / 100000.0, rtcTime);
+	} else if (gps2rtc.receiving_serial_data && timeStamp - gps2rtc.last_sentence_receipt < GPS_DISPLAY_TIME / 2 && 
+			   gpsTimeStamp == 0 && gps2rtc.last_sentence_receipt != 0) {
+	  updateGPSdata();
 	} else {
-	  unsigned long timeStamp = millis();
 	  float frameRate = (float) frameRateCount / (float) (timeStamp - heartbeatTimestamp) * 1000.0 + 0.5;
-	  float Vtemp = analogRead(38) * 0.0029296875;
-	  float Temp1;
-	  if (Vtemp >= 0.7012) {
-		Temp1 = 25 - ((Vtemp - 0.7012) / 0.001646);
-	  } else {
-		Temp1 = 25 - ((Vtemp - 0.7012) / 0.001749);
-	  }
-	  displayOperatingDetails(Control.pattern, timeStamp / 1000, frameRate, frameLate);//Temp1);
+	  //float Vtemp = analogRead(38) * 0.0029296875;
+	  //float Temp1;
+	  //if (Vtemp >= 0.7012) {
+	  //Temp1 = 25 - ((Vtemp - 0.7012) / 0.001646);
+	  //} else {
+	  //Temp1 = 25 - ((Vtemp - 0.7012) / 0.001749);
+	  //}
+	  unsigned long rtcTime = rtc_get();
+	  displayOperatingDetails(Control.pattern, timeStamp / 1000, frameRate, rtcTime, Control.latitude / 100000.0, Control.longitude / 100000.0);
 	}
   }
 #endif
@@ -472,6 +548,11 @@ void processIncoming() {
 #if TEENSY
   } else if (digitalRead(12) == 0) {
 	digitalWrite(commandOffPin, LOW);
+  } else if (lastDataLength != 0) {
+	if (rtc_get() % PATTERN_START_MOD) {
+	  Control.initializePattern(lastData, lastDataLength);
+	  lastDataLength = 0;
+	}
 #endif
   } else if (powerShutdown) {
 	// In shutdown mode, set all to zero
@@ -508,7 +589,16 @@ void processRXResponse() {
   } else {
 	heartbeatPeriod = defaultHeartbeatPeriod;
   }
+#ifdef TEENSY
+  memcpy (lastData, data, dataLength);
+  lastDataLength = dataLength;
+  if (rtc_get() % PATTERN_START_MOD) {
+	Control.initializePattern(data, dataLength);
+	lastDataLength = 0;
+  }
+#else
   Control.initializePattern(data, dataLength);
+#endif
 }
 
 //! Broadcast a heartbeat if it's been long enough since the last one
@@ -518,30 +608,41 @@ void sendHeartbeat() {
   unsigned long currentTimestamp = millis();
   unsigned long sinceLastHeartbeat = currentTimestamp - heartbeatTimestamp;
   if (sinceLastHeartbeat > heartbeatPeriod) {
-	frameRate = (float) frameRateCount / (float) (sinceLastHeartbeat) * 1000.0;
-	frameRateByte = (uint8_t) (frameRate + 0.5);
-	uint16_t batteryVoltage = analogRead(batteryVoltagePin);
-	if (batteryVoltage < batteryLimit) {
-	  if (lowBatteryTime == 0) {
-		lowBatteryTime = millis();
-	  } else {
-		unsigned long lowBatteryNow = millis();
-		if (lowBatteryNow - lowBatteryTime > lowBatteryTimeThreshold) {
-		  powerShutdown = true;
+	heartbeatCount++;
+	if (heartbeatCount % FULL_HEARTBEAT_PERIOD != 0) {
+	  uint8_t heartbeatShortPayload[] = {0x02, versionId};  // Short heartbeat
+	  ZBTxRequest heartbeatShortMessage = ZBTxRequest(addr64, heartbeatShortPayload, sizeof(heartbeatShortPayload));
+	  xbee.send(heartbeatShortMessage);
+	} else {
+	  frameRate = (float) frameRateCount / (float) (sinceLastHeartbeat) * 1000.0;
+	  frameRateByte = (uint8_t) (frameRate + 0.5);
+	  uint16_t batteryVoltage = analogRead(batteryVoltagePin);
+	  if (batteryVoltage < batteryLimit / 2) {
+		// Probably running off external power
+	  } else if (batteryVoltage < batteryLimit) {
+		if (lowBatteryTime == 0) {
+		  lowBatteryTime = millis();
+		} else {
+		  unsigned long lowBatteryNow = millis();
+		  if (lowBatteryNow - lowBatteryTime > lowBatteryTimeThreshold) {
+			powerShutdown = true;
+		  }
 		}
 	  }
-	}
-    memcpy (&heartbeatPayload[frameCountPosition], &frameCount, sizeof(frameCount));
-    memcpy (&heartbeatPayload[patternPosition], &Control.pattern, sizeof(Control.pattern));
-	memcpy (&heartbeatPayload[voltagePosition], &batteryVoltage, sizeof(batteryVoltage));
-	memcpy (&heartbeatPayload[frameRatePosition], &frameRateByte, sizeof(frameRateByte));
-	memcpy (&heartbeatPayload[failedMessagePosition], &Control.failedMessageCount, sizeof(Control.failedMessageCount));
-	xbee.send(heartbeatMessage);
-	frameRateCount = 0;
+	  memcpy (&heartbeatPayload[frameCountPosition], &frameCount, sizeof(frameCount));
+	  memcpy (&heartbeatPayload[patternPosition], &Control.pattern, sizeof(Control.pattern));
+	  memcpy (&heartbeatPayload[voltagePosition], &batteryVoltage, sizeof(batteryVoltage));
+	  memcpy (&heartbeatPayload[frameRatePosition], &frameRateByte, sizeof(frameRateByte));
+	  memcpy (&heartbeatPayload[failedMessagePosition], &Control.failedMessageCount, sizeof(Control.failedMessageCount));
 #ifdef TEENSY
-	heartbeatTimestampStart = currentTimestamp;
+	  heartbeatTimestampStart = currentTimestamp;
+	  memcpy (&heartbeatPayload[latitudePosition], &Control.latitude, sizeof(Control.latitude));
+	  memcpy (&heartbeatPayload[longitudePosition], &Control.longitude, sizeof(Control.longitude));
 #endif
-    heartbeatTimestamp = millis();
+	  xbee.send(heartbeatMessage);
+	}
+	frameRateCount = 0;
+	heartbeatTimestamp = millis();
   }
 }
 

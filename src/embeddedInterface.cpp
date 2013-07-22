@@ -56,6 +56,10 @@ int analogRead(uint8_t val) {
   }
 }
 
+unsigned long rtc_get() {
+  return millis() / 1000;
+}
+
 uint32_t random(uint32_t val) {
   float result = ofRandom(1.0) * val;
   return (uint32_t) result;
