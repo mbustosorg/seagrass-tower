@@ -75,7 +75,10 @@
 #define FS_ID_SEARCHING_EYE (0x26)
 #define FS_ID_BUBBLE_WAVE (0x27)
 #define FS_ID_BROKEN (0x28)
-#define FS_ID_MAX_ID (0x28)
+#define FS_ID_PONG (0x29)
+#define FS_ID_GIANT_SPECTRUM (0x2a)
+#define FS_ID_FLAME (0x2b)
+#define FS_ID_MAX_ID (0x2b)
 
 #define FS_NAME_FULL_COLOR "Full Color"
 #define FS_NAME_SPARKLE "Sparkle"
@@ -115,6 +118,9 @@
 #define FS_NAME_SEARCHING_EYE "Search"
 #define FS_NAME_BUBBLE_WAVE "Bubble"
 #define FS_NAME_BROKEN "Broken"
+#define FS_NAME_PONG "Pong"
+#define FS_NAME_GIANT_SPECTRUM "GSpectrum"
+#define FS_NAME_FLAME "Flame"
 
 #define FS_TYPE_VEST (0x01)
 #define FS_TYPE_HAT (0x02)

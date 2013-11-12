@@ -80,7 +80,6 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   //}
   // Disable Timer 3 used for audio sampling, let the request turn it back on
   PIT_TCTRL3 &= ~(1 << 0);
-  animations.isAnimating = false;
   messageType = (int) data[0];
   patternSpeed = (int) data[1];
   switch (messageType) {
@@ -126,6 +125,7 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	break;
   case FS_ID_SPECTRUM_ANALYZER:
  	pattern = data [0];
+	updateSoundActivateParameters(data[1], data[5], data[5]);
 	PIT_TCTRL3 |= 0x1;
 	break;
   case FS_ID_FOREST_RUN:
@@ -146,7 +146,6 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   case FS_ID_ANIMATE_1:
 	animations.startAnimation(millis());
 	initializePattern(animations.currentPattern(), 6);
-	animations.isAnimating = true;
 	break;
   case FS_ID_SEARCHING_EYE:
  	pattern = data [0];
@@ -155,8 +154,44 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	setBasicParameters(data[5], data[2], data[3], data[4]);
 	break;
   case FS_ID_BUBBLE_WAVE:
+ 	pattern = data [0];
+	setPatternSpeedWithFactor(10);
+	patternSpeed = random (patternSpeed, patternSpeed + 2);
+	setBasicParameters(data[5], data[2], data[3], data[4]);
 	break;
   case FS_ID_BROKEN:
+ 	pattern = data [0];
+	initializeBroken();
+	for (int i = 0; i < 7; i++) {
+	  brokenBits[i] = random (0, 255);
+	  unBrokenBits[i] = random (0, 255);
+	}
+	break;
+  case FS_ID_PONG:
+	if (pattern != data[0]) {
+	  ball.initialize(data[2], data[3]);
+	}
+	setBasicParameters(data[5], data[2], data[3], data[4]);
+	if (ball.xSpeed != 0.0 && ball.ySpeed != 0.0) {
+	  ball.setSpeed (((float) data [1]) / 20.0 * (ball.xSpeed / abs (ball.xSpeed)), ((float) data [1]) / 30.0 * (ball.ySpeed / abs (ball.ySpeed)));
+	} else {
+	  ball.setSpeed (((float) data [1]) / 20.0, ((float) data [1]) / 30.0);
+	}
+	pattern = data [0];
+	break;
+  case FS_ID_GIANT_SPECTRUM:
+ 	pattern = data [0];
+	spectrumTowerId = data[2];
+	spectrumTowerCount = data[3];
+	updateSoundActivateParameters(data[1], data[5], data[5]);
+	PIT_TCTRL3 |= 0x1;
+	break;
+  case FS_ID_FLAME:
+	setBasicParameters(data[5], data[2], data[3], data[4]);
+	if (pattern != data[0]) {
+	  initializeFlame();
+	}
+	pattern = data [0];
 	break;
   default:
 	furSwarmPatterns::initializePattern(data, dataLength);
@@ -164,8 +199,24 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   }
 }
 
+//! Check the delay stopwatch and initialize the last request
+void towerPatterns::checkLatestData() {
+  if (lastDataLength != 0 && (rtc_get() % PATTERN_START_MOD == 0 || rtc_get() % PATTERN_START_MOD == 1)) {
+	delayStopwatch = lastData[6] * FS_DELAY_FACTOR + millis();
+	lastDelayFactor = lastData[6];
+  }
+  if (delayStopwatch > 0) {
+	if (millis() >= delayStopwatch) {
+	  initializePattern(lastData, lastDataLength);
+	  lastDataLength = 0;
+	  delayStopwatch = 0;
+	}
+  }
+}
+
 //! Continue pattern display
 void towerPatterns::continuePatternDisplay() {
+  checkLatestData();
   // Continue with pattern display
   switch (pattern) {
   case FS_ID_TILT:
@@ -201,6 +252,7 @@ void towerPatterns::continuePatternDisplay() {
 	displayData(true, true, true);		
 	break;
   case FS_ID_SPECTRUM_ANALYZER:
+	iterateSoundActivate();
 	iterateSpectrumAnalyzer();
 	displayData(true, true, true);		
 	break;
@@ -230,6 +282,19 @@ void towerPatterns::continuePatternDisplay() {
 	iterateBroken();
 	displayData(true, true, true);		
 	break;
+  case FS_ID_PONG:
+	iteratePong();
+	displayData(true, true, true);
+	break;
+  case FS_ID_GIANT_SPECTRUM:
+	iterateSoundActivate();
+	iterateSpectrumAnalyzer();
+	displaySoundActivate();
+	break;
+  case FS_ID_FLAME:
+	iterateFlame();
+	displayData(true, true, true);
+	break;
   default:
 	furSwarmPatterns::continuePatternDisplay();
 	break;
@@ -237,9 +302,13 @@ void towerPatterns::continuePatternDisplay() {
   // Check if we're in animation mode and what to do next
   if (animations.isAnimating) {
 	if (animations.nextPattern(millis())) {
-	  initializePattern(animations.currentPattern(), 6);
+	  uint8_t animationData[MAX_DATA_LENGTH];
+	  memcpy (animationData, animations.currentPattern(), ANIMATION_COMMAND_LENGTH);
+	  if (lastDelayFactor > 0) {
+		animationData[ANIMATION_COMMAND_LENGTH - 1] = lastDelayFactor;
+	  }
+	  setPatternData(animationData, ANIMATION_COMMAND_LENGTH);
 	}
-	animations.isAnimating = true;
   }
 }
 
@@ -533,19 +602,25 @@ void towerPatterns::iterateBouncingBall() {
   if (useTiltForBounceColor) {
 	currentRGBOut = tiltColor();
   }
+  int index;
   for (int i = 0; i < LED_COUNT; i++) {
-	ledRed[i] = 0;
-	ledGreen[i] = 0;
-	ledBlue[i] = 0;
+	if (reverseBounce) {
+	  index = LED_COUNT - i - 1;
+	} else {
+	  index = i;
+	}
+	ledRed[index] = 0;
+	ledGreen[index] = 0;
+	ledBlue[index] = 0;
     if (i == (uint8_t)thisBallLocation || i == (uint8_t)nextBallLocation) {
 	  if (useTiltForBounceColor) {
-		ledRed[i] = (uint8_t) (currentRGBOut.r * 255.0);
-		ledGreen[i] = (uint8_t) (currentRGBOut.g * 255.0);
-		ledBlue[i] = (uint8_t) (currentRGBOut.b * 255.0);
+		ledRed[index] = (uint8_t) (currentRGBOut.r * 255.0);
+		ledGreen[index] = (uint8_t) (currentRGBOut.g * 255.0);
+		ledBlue[index] = (uint8_t) (currentRGBOut.b * 255.0);
 	  } else {
-		ledRed[i] = unadjustedRed;
-		ledGreen[i] = unadjustedGreen;
-		ledBlue[i] = unadjustedBlue;
+		ledRed[index] = unadjustedRed;
+		ledGreen[index] = unadjustedGreen;
+		ledBlue[index] = unadjustedBlue;
 	  }
 	}
   }
@@ -602,19 +677,97 @@ void towerPatterns::iterateRadioTower() {
   }
 }
 
+//! Update sound parameters
+// thresholdData is controlled the pattern speed slider
+// sampleData and averageData is controlled by intensity slider
+void towerPatterns::updateSoundActivateParameters(uint8_t thresholdData, uint8_t sampleData, uint8_t averageData) {
+  if (pattern == FS_ID_SOUND_ACTIVATE) {
+	return furSwarmPatterns::updateSoundActivateParameters(thresholdData, sampleData, averageData);
+  } else {
+	float newThreshold;
+	float newSampleNumber;
+	float newAveragedOver;
+	newThreshold = (float) thresholdData;
+	newThreshold = 100 + newThreshold * 900.0 / 255.0; // Threshold can range from 100 to 1000
+	newSampleNumber = (float) sampleData;
+	newSampleNumber = 100 + newSampleNumber * 250.0 / 255.0; // Number of samples can range from 1 to 350
+	newAveragedOver = (float) averageData;
+	newAveragedOver = 12 - (float) newAveragedOver * 11.0 / 255.0; // Averaged over count can range from 12 to 1
+	saThreshold = (long) newThreshold;
+	saTargetThreshold = saThreshold * 0.90;
+	saNumberOfSamples = (int) newSampleNumber;
+	saAveragedOver = (int) newAveragedOver;
+  }
+}
+
+//! Sum of squared audio signal
+float towerPatterns::sumOfSquareAudio() {
+  if (pattern == FS_ID_SOUND_ACTIVATE) {
+	saNumberOfSamples = 350;
+	return furSwarmPatterns::sumOfSquareAudio();
+  } else { 
+	saNumberOfSamples = TEST_LENGTH_SAMPLES / 2;
+	saThreshold = 300.0;
+	saTargetThreshold = saThreshold * 0.90;
+	saMovingAverageCount = 25;
+	saAveragedOver = 2;
+	float saSumOfSquare = 0;
+ 	for (int i = 0; i < TEST_LENGTH_SAMPLES / 2; i++) {
+	  saSumOfSquare += audioSampleInput[i * 2] * audioSampleInput[i * 2] * saGain;
+	}
+	return saSumOfSquare;
+  }
+}
+
 //! Iterate the spectrum analyzer pattern
 void towerPatterns::iterateSpectrumAnalyzer() {
   if (audioSampleInputIndex == 0) {
 #ifndef NOT_EMBEDDED
+	/*
+	Serial.print ("* ");
+	Serial.print (saTargetThreshold);
+	Serial.print (", ");
+	Serial.print (saMovingAverage);
+	Serial.print (", ");
+	Serial.print (saGain);
+	Serial.print (", ");
+	Serial.print (saRunningAverage);
+	Serial.print(",^");
+	*/
 	uint32_t ifftFlag = 0; 
 	uint32_t doBitReverse = 1; 
 	arm_cfft_radix4_instance_f32 fft_inst;  /* CFFT Structure instance */
 	arm_cfft_radix4_init_f32(&fft_inst, FFT_LEN, ifftFlag, doBitReverse);
+	
+	//*************** Determine if we want to apply a HAMM filter on audioSampleInput,
+	//*************** Currently using a triangle filter
+	for (int i = 0; i < FFT_LEN / 2; i++) {
+	  audioSampleInput [i * 2] = audioSampleInput [i * 2] * ((float) i / ((float) (FFT_LEN / 2)));
+	}
+	for (int i = FFT_LEN / 2; i < FFT_LEN; i++) {
+	  audioSampleInput [i * 2] = audioSampleInput [i * 2] * ((float) (FFT_LEN - i) / ((float) (FFT_LEN / 2)));
+	}
+	//***************
+	
 	/* Process the data through the CFFT/CIFFT module */ 
 	arm_cfft_radix4_f32(&fft_inst, audioSampleInput);
 	/* Process the data through the Complex Magnitude Module for  
 	   calculating the magnitude at each bin */ 
 	arm_cmplx_mag_f32(audioSampleInput, audioMagnitudeOutput, FFT_LEN);  
+	/**********************
+	Serial.println ("*");
+	for (int i = 0; i < FFT_LEN; i++) {
+	  Serial.print (audioSampleInput [i * 2]);
+	  Serial.print (",");
+	  if (i < FFT_LEN / 2) {
+		Serial.print (audioMagnitudeOutput [i]);
+		Serial.println (",");
+	  } else {
+		Serial.println (",");
+	  }
+	}
+	*/
+	//***********************
 	updateFrequencyBuckets();
 	updateSpectrumLevels();
   	for (int i = 0; i < TEST_LENGTH_SAMPLES; i++) {
@@ -629,74 +782,120 @@ void towerPatterns::iterateSpectrumAnalyzer() {
   }  
 }
 
-//! Update the LED levels based on the latest magnitudes
-void towerPatterns::updateSpectrumLevels() {
-  float32_t magnitude;
-  for (int i = 0; i < LED_COUNT; i++) {
-	magnitude = min(1.0, audioMagnitudeBuckets[i] / 100.0);
-	ledGreen[i] = (uint8_t) (magnitude * 255.0);
-	ledBlue[i] = (uint8_t) ((1.0 - magnitude) * 255.0);
-	if (magnitude == 1.0) {
-	  ledRed[i] = 0xFF;
-	  ledGreen[i] = 0x80;
-	} else if (magnitude > 0.95) {
-	  ledRed[i] = 0x7F;
-	} else {
-	  ledRed[i] = 0x00;
-	}
-  }
-}
-
 //! Aggregate frequencies into their proper buckets
 void towerPatterns::updateFrequencyBuckets() {
-  // Compute frequency buckets
-  audioMagnitudeBuckets[0] = (int)(BUCKET_FACTOR);
+  float32_t binWidth = AUDIO_SAMPLE_RATE / FFT_LEN;
+  int movingWindow = 4;
+  float32_t buckets[BUCKET_COUNT];
+
+  // 256 real observations going into 25 buckets
+  buckets[0] = (int)(BUCKET_FACTOR);
   for (int i = 1; i < BUCKET_COUNT; i++) {
-	audioMagnitudeBuckets[i] = audioMagnitudeBuckets[i - 1] * BUCKET_FACTOR;
+	buckets[i] = buckets[i - 1] * BUCKET_FACTOR;
   }
   for (int i = 1; i < BUCKET_COUNT; i++) {
-	audioMagnitudeBuckets[i] = audioMagnitudeBuckets[i - 1] + (int)(audioMagnitudeBuckets[i]);
+	buckets[i] = min(FFT_LEN / 2, buckets[i - 1] + (int)(buckets[i]));
   }
   for (int i = 0; i < BUCKET_COUNT; i++) {
 	float32_t accum = 0.0;
-	uint16_t total = 0;
-	uint16_t upper;
-	if (i == BUCKET_COUNT - 1) {
-	  upper = FFT_LEN / 2;
+	float32_t total = 0;
+	uint16_t upper, lower;
+	// Second half of result is imaginary space, that's why we used FFT_LEN / 2
+	upper = min((uint16_t) buckets [i + 1], FFT_LEN / 2);
+	if (i >= movingWindow) {
+	  lower = buckets[i - movingWindow];
 	} else {
-	  upper = (uint16_t) audioMagnitudeBuckets [i + 1];
+	  lower = buckets[i];
 	}
-	for (int j = audioMagnitudeBuckets[i]; j < upper; j++) {
-	  accum += audioMagnitudeOutput[j];
+	for (int j = lower; j < upper; j++) {
+	  accum += abs(audioMagnitudeOutput[j]);
 	  total++;
 	}
-	audioMagnitudeBuckets[i] = accum / total;
+    if (total > 0) {
+        audioMagnitudeBuckets[i] = accum / total;
+    } else {
+        audioMagnitudeBuckets[i] = 0.0;
+    }
+  }
+}
+
+//! Update the LED levels based on the latest magnitudes
+void towerPatterns::updateSpectrumLevels() {
+  float32_t magnitude;
+  float32_t maximum = 0.0;
+  float32_t maximumLevel = log10 (11.0);
+  float32_t maxLevelFactor = 0.85;
+  float32_t runningValue = 0.0;
+  float32_t runningCount = 0.0;
+
+  for (int i = 1; i < BUCKET_COUNT; i++) {
+	maximum = max(maximum, audioMagnitudeBuckets[i]);
+  } 
+  if (pattern == FS_ID_GIANT_SPECTRUM) {
+	for (int i = 0; i < BUCKET_COUNT; i++) {
+	  magnitude = min(1.0, log10 (10.0 * audioMagnitudeBuckets[i] / (maximum * maxLevelFactor) + 1.0) / maximumLevel);
+	  if (i / (BUCKET_COUNT / spectrumTowerCount) + 1 == spectrumTowerId) {
+		runningValue += magnitude;
+		runningCount++;
+	  }
+	}
+	if (runningCount > 0 && maximum > 0.0) {
+	  saRunningAverage = ((runningValue / runningCount) / maximum) * (float) saThreshold;
+	} else {
+	  saRunningAverage = 0.0;
+	}
+  } else {
+	ledRed[0] = 0;
+	ledGreen[0] = 0;
+	ledBlue[0] = 200;
+	for (int i = 1; i < LED_COUNT; i++) {
+	  magnitude = min(1.0, log10 (10.0 * audioMagnitudeBuckets[i / 2] / (maximum * maxLevelFactor) + 1.0) / maximumLevel);
+	  //magnitude = min(1.0, audioMagnitudeBuckets[i / 2] / maximum);
+	  magnitude = max(magnitude, 0.0);
+	  ledGreen[i] = (uint8_t) (magnitude * 255.0);
+	  ledBlue[i] = (uint8_t) ((1.0 - magnitude) * 255.0);
+	  if (magnitude == 1.0) {
+		ledRed[i] = 0xFF;
+		ledGreen[i] = 0x10;
+	  } else if (magnitude > 0.99) {
+		ledRed[i] = 0xFF;
+		ledGreen[i] = 0x40;
+	  } else if (magnitude > 0.95) {
+		ledRed[i] = 0xFF;
+		ledGreen[i] = 0x80;
+	  } else if (magnitude > 0.90) {
+		ledRed[i] = 0x7F;
+	  } else {
+		ledRed[i] = 0x00;
+	  }
+	}
   }
 }
 
 //! Update the searching eye pattern
 void towerPatterns::iterateSearchingEye() {
-  uint8_t nextCycleSpot = 0;
   if (timeToDrop == 0 && timeToDrop2 == 0) {
 	timeToDrop = patternSpeed;
 	if (patternForward) {
 	  cycleSpot++;
 	  cycleSpot++;
 	  cycleSpot++;
-	  if (cycleSpot >= LED_COUNT) {
+	  if (cycleSpot >= maxEye) {
 		patternForward = false;
-		cycleSpot = LED_COUNT - 1;
+		cycleSpot = maxEye - 1;
 		timeToDrop2 = unadjustedIntensity;
+		maxEye = random (minEye, LED_COUNT);
 	  }
 	} else {
-	  if (cycleSpot == 0) {
+	  if (cycleSpot == minEye) {
 		patternForward = true;
 		timeToDrop2 = unadjustedIntensity;
+		minEye = random (0, maxEye);
 	  } else {
 		cycleSpot--;
-		if (cycleSpot != 0) {
+		if (cycleSpot != minEye) {
 		  cycleSpot--;
-		  if (cycleSpot != 0) {
+		  if (cycleSpot != minEye) {
 			cycleSpot--;
 		  }
 		}
@@ -713,7 +912,7 @@ void towerPatterns::iterateSearchingEye() {
 	ledRed[i] = 0;
 	ledGreen[i] = 0;
 	ledBlue[i] = 0;
-	if (i == cycleSpot) {
+	if (i == cycleSpot || i == cycleSpot - 1) {
 	  ledRed[i] = adjustedRed;
 	  ledGreen[i] = adjustedGreen;
 	  ledBlue[i] = adjustedBlue;
@@ -725,6 +924,71 @@ void towerPatterns::iterateSearchingEye() {
 void towerPatterns::iterateBubbleWave() {
 }
 
+//! Initialize the broken display pattern
+void towerPatterns::initializeBroken() {
+  brokenOff = millis() + random (200, 4000);
+  brokenOn = brokenOff + random (200, 250);
+}
+
 //! Update the broken display pattern
 void towerPatterns::iterateBroken() {
+  unsigned long timestamp = millis();
+  if (timestamp > brokenOn) {
+	initializeBroken();
+  } else if (timestamp > brokenOff) {
+	for (int i = 0; i < LED_COUNT; i++) {
+	  if (((1 << (7 - i % 8)) & unBrokenBits[i / 8]) || ((1 << (7 - i % 8)) & brokenBits[i / 8])) {
+		ledRed[i] = 100; ledGreen[i] = 100; ledBlue[i] = 100;
+	  } else {
+		ledRed[i] = 0; ledGreen[i] = 0; ledBlue[i] = 0;
+	  }
+	}
+  } else {
+	for (int i = 0; i < LED_COUNT; i++) {
+	  if ((1 << (7 - i % 8)) & brokenBits[i / 8]) {
+		ledRed[i] = 0; ledGreen[i] = 0; ledBlue[i] = 0;
+	  }
+	}
+  }
 }
+
+//! Iterate the pong pattern
+void towerPatterns::iteratePong() {
+  ball.step();
+  for (int i = 0; i < LED_COUNT; i++) {
+	if (ball.yourTurn(i)) {
+	  ledRed[i] = adjustedRed; ledGreen[i] = adjustedGreen; ledBlue[i] = adjustedBlue;
+	} else {
+	  ledRed[i] = 0; ledGreen[i] = 0; ledBlue[i] = 0;
+	}
+  }
+}
+
+//! Initialize the flame animation pattern
+void towerPatterns::initializeFlame() {
+  for (int i = 0; i < LED_COUNT; i++) {
+	ledRed[i] = 0;
+	ledGreen[i] = 0;
+	ledBlue[i] = 0;
+  }
+  frameRelease = patternSpeed;
+  frameIndex = random (0, 19);
+}
+
+//! Iterate the flame animation
+void towerPatterns::iterateFlame() {
+  iterateFrameStep(19);
+  float iterationProportion = (float) frameRelease / (float) patternSpeed;
+  int previousFrameIndex = frameIndex - 1;
+  if (previousFrameIndex < 0) previousFrameIndex = 19;
+
+  for (int i = 0; i < LED_COUNT; i++) {
+	ledRed[LED_COUNT - 1 - i] = (float) flameFrames [frameIndex][i * 3] * (1.0 - iterationProportion) + 
+	  (float) flameFrames [previousFrameIndex][i * 3] * iterationProportion;
+	ledGreen[LED_COUNT - 1 - i] = (float) flameFrames [frameIndex][i * 3 + 1] * (1.0 - iterationProportion) + 
+	  (float) flameFrames [previousFrameIndex][i * 3 + 1] * iterationProportion;
+	ledBlue[LED_COUNT - 1 - i] = (float) flameFrames [frameIndex][i * 3 + 2] * (1.0 - iterationProportion) + 
+	  (float) flameFrames [previousFrameIndex][i * 3 + 2] * iterationProportion;
+  }
+}
+

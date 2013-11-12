@@ -71,6 +71,10 @@ const int lpdClockPin = 11;
 #define pumpLowerLevel (10)
 #define starfieldUpperLevel (1)
 
+#define MAX_DATA_LENGTH (10) // Maximum expected number of bytes in incoming message
+#define FS_DELAY_FACTOR (20)
+#define PATTERN_START_MOD (5) // Second interval to start patterns for synchronization
+
 class furSwarmPatterns {
  public:
   furSwarmPatterns();
@@ -79,6 +83,10 @@ class furSwarmPatterns {
   uint8_t pattern;
   uint8_t triggerPattern;
   uint16_t failedMessageCount;
+  uint8_t lastData[MAX_DATA_LENGTH];
+  uint8_t lastDataLength;
+  unsigned long delayStopwatch;
+  uint8_t lastDelayFactor;
   
   int randomSeedPin;
   
@@ -120,6 +128,9 @@ class furSwarmPatterns {
   float prismHue;
   float prismValue;
  
+  // Searching eye pattern variables
+  uint8_t maxEye, minEye;
+
   // Sound Activate pattern variables
   uint8_t audioAnalogPin;
   long saThreshold;
@@ -144,6 +155,8 @@ class furSwarmPatterns {
  
   virtual void initializePattern(uint8_t *data, uint8_t dataLength);
   virtual void continuePatternDisplay();
+  void setPatternData(uint8_t *data, uint8_t dataLength);
+  virtual void checkLatestData();
   void setPatternSpeedWithFactor(int factor);
   void sendStartFrame();
   void sendEndFrame();
@@ -176,6 +189,7 @@ class furSwarmPatterns {
   void initializeBitmapPattern(uint8_t red, uint8_t green, uint8_t blue, int index, bool accum, uint8_t patternId);
   void displayBitmapPattern(uint8_t patternID);
   void initializeFlash(uint8_t red, uint8_t green, uint8_t blue);
+  virtual float sumOfSquareAudio();
   void iterateSoundActivate();
   void displaySoundActivate();
   void iteratePrismColor(bool force);
@@ -183,7 +197,7 @@ class furSwarmPatterns {
   void displayMatrix();
   void initializeHSVstrand();
   void iterateStrandByHSV();
-  void updateSoundActivateParameters(long newThreshold, int newSampleNumber, int newAveragedOver);
+  virtual void updateSoundActivateParameters(uint8_t thresholdData, uint8_t sampleData, uint8_t averageData);
   void advancePatternIntensity(uint8_t pattern);
   void triggerPatternChange();
   void advancePatternSpeed();

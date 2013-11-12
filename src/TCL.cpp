@@ -26,6 +26,7 @@ void TclClass::begin() {
 #endif
 #ifdef TCL_DIO
   pinMode(TCL_CLOCKPIN, OUTPUT);
+  pinMode(TCL2_CLOCKPIN, OUTPUT);
   pinMode(TCL_DATAPIN, OUTPUT);
   //clkport     = portOutputRegister(digitalPinToPort(TCL_CLOCKPIN));
   //clkpinmask  = digitalPinToBitMask(TCL_CLOCKPIN);
@@ -73,6 +74,8 @@ void TclClass::dioWrite(uint8_t c) {
 	}
 	digitalWrite(TCL_CLOCKPIN, HIGH);
 	digitalWrite(TCL_CLOCKPIN, LOW);
+	digitalWrite(TCL2_CLOCKPIN, HIGH);
+	digitalWrite(TCL2_CLOCKPIN, LOW);
   }
 }
 #endif

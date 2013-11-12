@@ -54,9 +54,11 @@ void clearDisplay() {
 
 //! Display the current operating details
 void displayOperatingDetails(int pattern, int timeStamp, int frameRate, unsigned long rtcTime, float lat, float lon) {
-  uint8_t hours = rtcTime / 3600;
-  uint8_t minutes = (uint8_t) (((float) rtcTime / 3600.0 - (float) hours) * 60.0);
-  uint8_t seconds = rtcTime - hours * 3600 - minutes * 60;
+  unsigned long days = rtcTime / (3600 * 24);
+  unsigned long running = rtcTime - days * 3600 * 24;
+  unsigned long hours = running / 3600;
+  unsigned long minutes = ((float) running / 3600.0 - hours) * 60.0;
+  unsigned long seconds = running - hours * 3600 - minutes * 60;
   if (seconds == 60) {
 	seconds = 0;
 	minutes = minutes + 1;
@@ -108,9 +110,11 @@ void displayTiltParameters(int hue, int saturation, bool isShaking, bool isCalib
 
 //! Display GPS data
 void displayGPSdata(float lat, float lon, unsigned long time) {
-  uint8_t hours = time / 3600;
-  uint8_t minutes = (uint8_t) (((float) time / 3600.0 - (float) hours) * 60.0);
-  uint8_t seconds = time - hours * 3600 - minutes * 60;
+  unsigned long days = time / (3600 * 24);
+  unsigned long running = time - days * 3600 * 24;
+  unsigned long hours = running / 3600;
+  unsigned long minutes = ((float) running / 3600.0 - hours) * 60.0;
+  unsigned long seconds = running - hours * 3600 - minutes * 60;
   if (seconds == 60) {
 	seconds = 0;
 	minutes = minutes + 1;

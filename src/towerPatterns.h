@@ -38,7 +38,9 @@
 #include "furSwarmPatterns.h"
 #include "furSwarmPatternConst.h"
 #include "towerAnimations.h"
+#include "towerBall.h"
 #include <XBee.h>
+#include "flameFrames.h"
 
 #define tiltThreshold (15)
 #define tiltCalThreshold (5)
@@ -62,14 +64,15 @@ typedef float float32_t;
 #include "arm_math.h"
 #endif
 
+#define CPU_SPEED (48000000)
+#define AUDIO_SAMPLE_RATE (40000)
+#define FRAME_RATE (60)
 #define FFT_LEN (256)
 #define TEST_LENGTH_SAMPLES (2 * FFT_LEN)
-#define BUCKET_COUNT (51)
-#define BUCKET_FACTOR (1.03)
+#define BUCKET_FACTOR (1.17)
+#define BUCKET_COUNT (LED_COUNT / 2)
 
 const int MAX_TOWER_COUNT = 35;
-
-#define PATTERN_START_MOD (5) // Second interval to start patterns for synchronization
 
 class towerPatterns : public furSwarmPatterns {
 
@@ -80,6 +83,7 @@ class towerPatterns : public furSwarmPatterns {
   // Redefinitions
   void initializePattern(uint8_t *data, uint8_t dataLength);
   void continuePatternDisplay();
+  void checkLatestData();
 
   void calibrateTilt();
   bool checkShaking();
@@ -100,12 +104,24 @@ class towerPatterns : public furSwarmPatterns {
   void setBasicParameters(uint8_t intensity, uint8_t red, uint8_t green, uint8_t blue);
   void initializeRadioTower();
   void iterateRadioTower();
+  float sumOfSquareAudio();
+  void updateSoundActivateParameters(uint8_t thresholdData, uint8_t sampleData, uint8_t averageData);
   void iterateSpectrumAnalyzer();
   void updateFrequencyBuckets();
   void updateSpectrumLevels();
   void iterateSearchingEye();
   void iterateBubbleWave();
+  void initializeBroken();
   void iterateBroken();
+  void iteratePong();
+  void initializeFlame();
+  void iterateFlame();
+
+  // Bounce
+  bool reverseBounce = false;
+
+  // Pong
+  towerBall ball;
 
   // GPS data
   int32_t latitude = 0;
@@ -157,7 +173,14 @@ class towerPatterns : public furSwarmPatterns {
   XBeeAddress64 towerAddresses[MAX_TOWER_COUNT];
   towerAnimations animations;
 
+  // Broken pattern
+  uint32_t brokenOff;
+  uint32_t brokenOn;
+  uint8_t brokenBits[7], unBrokenBits[7];
+
   // Audio data
+  uint8_t spectrumTowerId = 0;
+  uint8_t spectrumTowerCount = 0;
   uint32_t audioSampleInputIndex = 0;
   float32_t audioSampleInput[2 * FFT_LEN];
   float32_t audioMagnitudeOutput[FFT_LEN]; 

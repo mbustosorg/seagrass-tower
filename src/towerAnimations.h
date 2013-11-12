@@ -39,6 +39,8 @@
 #include "furSwarmPatternConst.h"
 #include "embeddedInterface.h"
 
+#define ANIMATION_COMMAND_LENGTH (7)
+
 class towerAnimations {
 
  public:

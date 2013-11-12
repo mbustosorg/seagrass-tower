@@ -42,9 +42,14 @@ furSwarmPatterns::furSwarmPatterns() {
   pattern = 1;
   triggerPattern = 0;
   failedMessageCount = 0;
+  delayStopwatch = 0;
+  lastDelayFactor = 0;
+  lastDataLength = 0;
   frameIndex = 0;
   prismHue = 0.0;
   characterIndexUpper = 26;
+  maxEye = LED_COUNT;
+  minEye = 0;
 
   ledChangeRate = 3;
   flashLedChangeRate = 3;
@@ -55,12 +60,12 @@ furSwarmPatterns::furSwarmPatterns() {
   saLowResetThreshold = false;
   // Sound Activate - Gain
   saGain = 1.0;
-#define saGainUpper 20.0
-#define saGainLower 0.2
-#define saPressureMax 12.0
-#define saThresholdAdjustment 0.90
+
+#define SA_GAIN_UPPER 20.0
+#define SA_GAIN_LOWER 0.2
+#define SA_PRESSURE_MAX 12.0
   // Sound Activate - Sampling
-#define saMiddleValue 512 // 0.5 * 1024
+#define SA_MIDDLE_VALUE 512 // 0.5 * 1024
   saMovingAverage = 15000;
   // Sound Activate - Running Average
   saRunningAverage = 15000;
@@ -1028,37 +1033,53 @@ void furSwarmPatterns::displaySoundActivate() {
 #endif
 }
  
-//! Update parameters
-void furSwarmPatterns::updateSoundActivateParameters(long newThreshold, int newSampleNumber, int newAveragedOver) {
-  saThreshold = newThreshold;
+//! Update sound parameters
+// thresholdData is controlled the pattern speed slider
+// sampleData and averageData is controlled by intensity slider
+void furSwarmPatterns::updateSoundActivateParameters(uint8_t thresholdData, uint8_t sampleData, uint8_t averageData) {
+  float newThreshold;
+  float newSampleNumber;
+  float newAveragedOver;
+  newThreshold = (float) thresholdData;
+  newThreshold = 10000 + newThreshold * 10000.0 / 255.0; // Threshold can range from 10k to 20k
+  newSampleNumber = (float) sampleData;
+  newSampleNumber = 78 + newSampleNumber * 32.0 / 255.0; // Number of samples can range from 78 to 110
+  newAveragedOver = (float) averageData;
+  newAveragedOver = 12 - (float) newAveragedOver * 11.0 / 255.0; // Averaged over count can range from 12 to 1
+  saThreshold = (long) newThreshold;
   saTargetThreshold = saThreshold * 0.90;
-  saNumberOfSamples = newSampleNumber;
-  saAveragedOver = newAveragedOver;
+  saNumberOfSamples = (int) newSampleNumber;
+  saAveragedOver = (int) newAveragedOver;
 }
 
-//! Display the sound activate pattern
-void furSwarmPatterns::iterateSoundActivate() {
+//! Sum of squared audio signal
+float furSwarmPatterns::sumOfSquareAudio() {
   float saSumOfSquare = 0;
   int saSample;
   float saSignal;
-  float saAverageReading;
   for (int i = 0; i < saNumberOfSamples; i++) {
 	saSample = analogRead(audioAnalogPin);
-	saSignal = (saSample - saMiddleValue);
+	saSignal = (saSample - SA_MIDDLE_VALUE);
 	if (saSignal < 0) {
 	  saSignal = 0;
 	}
 	saSignal *= saSignal;
 	saSumOfSquare += saSignal * saGain;
   }
-	
+  return saSumOfSquare;
+}
+
+//! Display the sound activate pattern
+void furSwarmPatterns::iterateSoundActivate() {
+  float saSumOfSquare = sumOfSquareAudio();
+  float saAverageReading;
+
   saAverageReading = saSumOfSquare / saNumberOfSamples;
   float saPrevRunningAverage = saRunningAverage;
   saRunningAverage = (((saAveragedOver - 1) * saRunningAverage) + saAverageReading) / saAveragedOver;
   saMovingAverage = saMovingAverage + saRunningAverage / saMovingAverageCount - saMovingAverage / saMovingAverageCount;
   
   // PID Controller
-  
   float saProportional = (saMovingAverage - saTargetThreshold) / 1000.0;
   float saDamper = (saRunningAverage - saPrevRunningAverage) / 500.0;
   float saPressure = 0;
@@ -1077,18 +1098,30 @@ void furSwarmPatterns::iterateSoundActivate() {
   if (saPressure < 0.0) {
 	saPressure *= -1.0;
   }
-  if (saPressure > saPressureMax) {
-    saPressure = saPressureMax;
+  if (saPressure > SA_PRESSURE_MAX) {
+    saPressure = SA_PRESSURE_MAX;
   }
   if (saMovingAverage > saTargetThreshold) {
     saGain -= 0.01 * saPressure;
   } else if (saMovingAverage < saTargetThreshold) {
     saGain += 0.01 * saPressure;
   }
-  if (saGain > saGainUpper) {
-    saGain = saGainUpper;
-  } else if (saGain < saGainLower) {
-    saGain = saGainLower;
+  if (saGain > SA_GAIN_UPPER) {
+    saGain = SA_GAIN_UPPER;
+  } else if (saGain < SA_GAIN_LOWER) {
+    saGain = SA_GAIN_LOWER;
+  }
+}
+
+//! Set pattern data in preparation for initialization
+void furSwarmPatterns::setPatternData(uint8_t *data, uint8_t dataLength) {
+  memcpy (lastData, data, dataLength);
+  if (lastData [0] == pattern) {
+	lastDataLength = 0;
+	delayStopwatch = 0;
+	initializePattern(data, dataLength);
+  } else {
+	lastDataLength = dataLength;
   }
 }
 
@@ -1102,10 +1135,7 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   // data [3] - green
   // data [4] - blue
   // data [5] - aux (usually intensity)
-  // data [6] - delay in ms
-  //  if (dataLength > 6) {
-  //for (unsigned long stopWatch = millis(); (millis() - stopWatch) < ((unsigned long) data [6] * 10); ) {}
-  //}
+  // data [6] - delay in ms / FS_DELAY_FACTOR;
   messageType = (int) data[0];
   patternSpeed = (int) data[1];
   switch (messageType) {
@@ -1271,17 +1301,8 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	pattern = data [0];
 	break;
   case FS_ID_SOUND_ACTIVATE:
-	float newThreshold;
-	float newSampleNumber;
-	float newAveragedOver;
 	initializeFlash(data [2], data [3], data [4]);
-	newThreshold = (float) data [1];
-	newThreshold = 10000 + newThreshold * 10000 / 255; // Threshold can range from 10k to 20k
-	newSampleNumber = (float) data [5];
-	newSampleNumber = 78 + newSampleNumber * 32 / 255; // Number of samples can range from 78 to 110
-	newAveragedOver = (float) data [5];
-	newAveragedOver = 12 - newAveragedOver * 11 / 255; // Averaged over count can range from 12 to 1
-	updateSoundActivateParameters((long) newThreshold, (int) newSampleNumber, (int) newAveragedOver);
+	updateSoundActivateParameters(data[1], data[5], data[5]);
 	displayPumpData(true, true, true);
 	pattern = data [0];
 	break;
@@ -1400,8 +1421,24 @@ void furSwarmPatterns::setPatternSpeedWithFactor(int factor) {
   }
 }
 
+//! Check the delay stopwatch and initialize the last request
+void furSwarmPatterns::checkLatestData() {
+  if (lastDataLength != 0 && delayStopwatch == 0) {
+	delayStopwatch = lastData[6] * FS_DELAY_FACTOR + millis();
+	lastDelayFactor = lastData[6];
+  }
+  if (delayStopwatch > 0) {
+	if (millis() >= delayStopwatch) {
+	  initializePattern(lastData, lastDataLength);
+	  lastDataLength = 0;
+	  delayStopwatch = 0;
+	}
+  }
+}
+
 //! Continue pattern display
 void furSwarmPatterns::continuePatternDisplay() {
+  checkLatestData();
   // Continue with pattern display
   unsigned long hbTimeStamp = millis();
   switch (pattern) {

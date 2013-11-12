@@ -1,8 +1,8 @@
 //
 //  furSwarmMember.ino
 //
-//  $Date: 2013-06-21 22:33:10 -0700 (Fri, 21 Jun 2013) $
-//  $Rev: 1011 $
+//  $Date: 2013-11-10 23:06:15 -0800 (Sun, 10 Nov 2013) $
+//  $Rev: 1100 $
 //  $Author: mauricio $
 //
 //  Copyright (c) 2012, Mauricio Bustos
@@ -113,6 +113,7 @@ XBee xbee = XBee();
 const uint32_t XBeeBaudRate = 57600;
 const uint32_t XBeePANID = 0x2014;
 XBeeAddress64 addr64 = XBeeAddress64(0x00000000, 0x00000000); // Coord ID free
+//XBeeAddress64 addr64 = XBeeAddress64(0x0013A200, 0x407C73CD); // Coord ID free
 ZBTxRequest heartbeatMessage = ZBTxRequest(addr64, heartbeatPayload, sizeof(heartbeatPayload));
 ZBTxStatusResponse txStatus = ZBTxStatusResponse();
 ZBRxResponse rxResponse = ZBRxResponse();
@@ -134,6 +135,10 @@ int commandOffPin;
 uint16_t frameCount = 0;
 unsigned long frameRateCount = 0;
 int frameStarted = 0;
+bool daytimeShutdown = false;
+bool allowDaytimeShutdown = false;
+#define TEN_MINUTES (600) // 10 Minutes in seconds
+#define DORMANT_TIME_LIMIT (1200) // 20 Minutes in seconds
 
 #ifdef TEENSY
 towerPatterns Control;
@@ -141,9 +146,7 @@ uint32_t heartbeatTimestampStart;
 int frameLate = 0;
 const int latitudeStartByte = 0;
 const int longitudeStartByte = 4;
-#define MAX_DATA_LENGTH (10) // Maximum expected number of bytes in incoming message
-uint8_t lastData[MAX_DATA_LENGTH];
-uint8_t lastDataLength;
+unsigned long lastMessageReceipt = 0;
 #else
 furSwarmPatterns Control;
 #endif
@@ -179,6 +182,7 @@ void setStartupPattern();
 void sendHeartbeat();
 void processIncoming();
 void processRXResponse();
+void synchronizeToRTC();
 
 //! Initialize the system
 void setup() {
@@ -232,6 +236,7 @@ void setup() {
   setupOLEDdisplay();
   Control.randomSeedPin = 12;
   gps2rtc.begin(&Serial3, 9600, gps_1pps_pin);      // Required.
+  lastMessageReceipt = rtc_get();
 #endif
   // Initialize the radio
   setupRadio();
@@ -247,6 +252,14 @@ void setup() {
 }
 
 #ifdef TEENSY
+
+//! Synchronize to the second boundary
+void synchronizeToRTC()
+{
+  unsigned long rtcTime = rtc_get();
+  while (rtc_get() == rtcTime) {}
+}
+
 //! Set up the frame rate timers
 void setupTimers() {
   // Do nothing
@@ -303,7 +316,7 @@ void pit2_isr(void)
   PIT_TFLG2 = 1;
 }
 
-//! Audio input interrupt handler running at kHz
+//! Audio input interrupt handler running at 40kHz
 void pit3_isr(void)
 {
   int sample;
@@ -328,7 +341,7 @@ void startup_late_hook(void) {
   NVIC_ENABLE_IRQ(IRQ_PIT_CH2);
   NVIC_ENABLE_IRQ(IRQ_PIT_CH3);
   
-  PIT_LDVAL2 = 800000 - 1; // setup timer 2 for frame timer period (60Hz) = 48MHz / 60Hz
+  PIT_LDVAL2 = CPU_SPEED / FRAME_RATE - 1; // setup timer 2 for frame timer period (60Hz) = 48MHz / 60Hz
   PIT_TCTRL2 = 0x2; // enable Timer 2 interrupts
   PIT_TCTRL2 |= 0x1; // start Timer 2
   PIT_TFLG2 |= 1;
@@ -341,6 +354,12 @@ void startup_late_hook(void) {
 }
 
 #else // not TEENSY
+
+//! Synchronize to the second boundary
+void synchronizeToRTC()
+{
+  // Do nothing
+}
 
 //! Frame rate interrupt handler
 ISR(TIMER1_COMPA_vect) {
@@ -386,47 +405,49 @@ void setupRadio() {
   XBconfiguration.setRadio(&xbee);
   bool connected = XBconfiguration.connected();
   bool needPersist = false;
-  if (!connected) {
-	uint8_t baudRateData[] = {FS_ID_FULL_COLOR, 128, 10, 0, 10};
-	for (int i = 0; i < numberOfBaudRates && !connected; i++) {
+  if (false) {
+	if (!connected) {
+	  uint8_t baudRateData[] = {FS_ID_FULL_COLOR, 128, 10, 0, 10};
+	  for (int i = 0; i < numberOfBaudRates && !connected; i++) {
+#ifdef TEENSY
+		display.clearDisplay();
+		display.setTextSize(2);
+		display.setTextColor(WHITE);
+		display.setCursor(0,0);
+		display.print("Baud:");
+		display.println(baudRates[i]);
+		display.display();
+#endif
+		baudRateData[2] = baudRateData[2] + 30;
+		baudRateData[4] = baudRateData[4] + 30;
+		Control.initializePattern(baudRateData, 5);
+		radioSerial->begin(baudRates[i]);
+		connected = XBconfiguration.connected();
+		if (connected && baudRates[i] != XBeeBaudRate) {
+		  XBconfiguration.setBaudRate(XBeeBaudRate);
+		  needPersist = true;
+		}
+	  }        
+	  uint8_t data[] = {FS_ID_FULL_COLOR, 128, 255, 255, 0, 200};
+	  Control.initializePattern(data, 6);
+	  delay (2000);
+	}
+	if (XBeePANID != Endian32_Swap(XBconfiguration.panID()) || needPersist) {
 #ifdef TEENSY
 	  display.clearDisplay();
 	  display.setTextSize(2);
 	  display.setTextColor(WHITE);
 	  display.setCursor(0,0);
-	  display.print("Baud:");
-	  display.println(baudRates[i]);
+	  display.print("PANID:");
+	  display.println(XBeePANID);
 	  display.display();
 #endif
-	  baudRateData[2] = baudRateData[2] + 30;
-	  baudRateData[4] = baudRateData[4] + 30;
-	  Control.initializePattern(baudRateData, 5);
-	  radioSerial->begin(baudRates[i]);
-	  connected = XBconfiguration.connected();
-	  if (connected && baudRates[i] != XBeeBaudRate) {
-		XBconfiguration.setBaudRate(XBeeBaudRate);
-		needPersist = true;
-	  }
-	}        
-	uint8_t data[] = {FS_ID_FULL_COLOR, 128, 255, 255, 0, 200};
-	Control.initializePattern(data, 6);
-	delay (2000);
-  }
-  if (XBeePANID != Endian32_Swap(XBconfiguration.panID()) || needPersist) {
-#ifdef TEENSY
-	display.clearDisplay();
-	display.setTextSize(2);
-	display.setTextColor(WHITE);
-	display.setCursor(0,0);
-	display.print("PANID:");
-	display.println(XBeePANID);
-	display.display();
-#endif
-	uint8_t data[] = {FS_ID_FULL_COLOR, 128, 0, 255, 255, 200};
-	Control.initializePattern(data, 6);
-	XBconfiguration.setPanID(Endian32_Swap(XBeePANID));
-	XBconfiguration.persistConfiguration();  
-	delay (2000);
+	  uint8_t data[] = {FS_ID_FULL_COLOR, 128, 0, 255, 255, 200};
+	  Control.initializePattern(data, 6);
+	  XBconfiguration.setPanID(Endian32_Swap(XBeePANID));
+	  XBconfiguration.persistConfiguration();  
+	  delay (2000);
+	}
   }
   uint8_t dataRed[] = {FS_ID_FULL_COLOR, 128, 255, 0, 0, 255};
   Control.initializePattern(dataRed, 6);
@@ -448,8 +469,6 @@ void setStartupPattern() {
   //Control.initializePattern(data, 6);
   //uint8_t data[] = {FS_ID_RANDOM_FLASH, 250, 200, 10, 130, 200};
   //Control.initializePattern(data, 6);
-  //uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
-  //Control.initializePattern(data, 6);
   //uint8_t data[] = {FS_ID_IMAGE_SCROLL, 20, 200, 10, 130, 200};
   //Control.initializePattern(data, 6);
   //uint8_t data[] = {FS_ID_ORGANIC, 10};
@@ -461,8 +480,10 @@ void setStartupPattern() {
   //uint8_t data[] = {FS_ID_TILT, 100, 200, 0, 40};
   //Control.initializePattern(data, 5);
 #ifdef TEENSY
-  //uint8_t data[] = {FS_ID_SPIRAL, 10, 100, 100, 100, 100};
-  uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 100, 200, 0, 40, 100};
+  //uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
+  uint8_t data[] = {FS_ID_SPIRAL, 100, 200, 0, 40, 120};
+  //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
+  //uint8_t data[] = {FS_ID_ORGANIC, 10, 200, 200, 200, 128};
   Control.initializePattern(data, 6);
 #else
   uint8_t data[] = {FS_ID_STARFIELD, 10, 100, 100, 100, 100};
@@ -481,6 +502,8 @@ void loop() {
   processIncoming();
 }
 
+#ifdef TEENSY
+//! Check if GPS data is available
 void updateGPSdata() {
   if (gps2rtc.rtc_time_set) {
 	if (writeEepromLong (gps2rtc.latitude, latitudeStartByte) && writeEepromLong (gps2rtc.longitude, longitudeStartByte)) {
@@ -494,6 +517,7 @@ void updateGPSdata() {
 	displayMessage ("Waiting for 1pps GPS data");
   }
 }
+#endif
 
 //! Update the status display
 void updateDisplay() {
@@ -505,7 +529,7 @@ void updateDisplay() {
 	  int saturation = sqrt((Control.yTilt / 200) * (Control.yTilt / 200) + (Control.zTilt / 200) * (Control.zTilt / 200)) * 100;
 	  displayTiltParameters(hue, saturation, Control.isShaking, Control.zTiltCal != 0);
 	} else if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp < GPS_DISPLAY_TIME) {
-	  unsigned long rtcTime = rtc_get();
+ 	  unsigned long rtcTime = rtc_get();
 	  displayGPSdata ((float) Control.latitude / 100000.0, (float) Control.longitude / 100000.0, rtcTime);
 	} else if (gps2rtc.receiving_serial_data && timeStamp - gps2rtc.last_sentence_receipt < GPS_DISPLAY_TIME / 2 && 
 			   gpsTimeStamp == 0 && gps2rtc.last_sentence_receipt != 0) {
@@ -520,7 +544,38 @@ void updateDisplay() {
 	  //Temp1 = 25 - ((Vtemp - 0.7012) / 0.001749);
 	  //}
 	  unsigned long rtcTime = rtc_get();
+	  unsigned long days = rtcTime / (3600 * 24);
+	  unsigned long running = rtcTime - days * 3600 * 24;
+	  //unsigned long hours = running / 3600;
+	  //unsigned long minutes = ((float) running / 3600.0 - hours) * 60.0;
+	  unsigned long onTime = 2 * 3600 + 30 * 60; // 02:30 UTC == 19:30 PDT
+	  unsigned long offTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
+	  //unsigned long offTime = 20 * 3600 + 30 * 60;
 	  displayOperatingDetails(Control.pattern, timeStamp / 1000, frameRate, rtcTime, Control.latitude / 100000.0, Control.longitude / 100000.0);
+	  if (daytimeShutdown) {
+		if (Control.pattern != FS_ID_OFF) {
+		  uint8_t data[] = {FS_ID_OFF};
+		  Control.initializePattern(data, 1);
+		}
+		if ((running > onTime) && (running < offTime)) {
+		  daytimeShutdown = false;
+		  uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170};
+		  Control.initializePattern(data, 6);
+		}
+	  } else {
+		if ((running < onTime) || (running > offTime)) {
+		  if (allowDaytimeShutdown) {
+			uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
+			Control.initializePattern(data, 6);
+			daytimeShutdown = true;
+			Control.animations.isAnimating = false;
+		  }
+		} else if (rtcTime - lastMessageReceipt > DORMANT_TIME_LIMIT && rtcTime % TEN_MINUTES == 0 && Control.pattern != FS_ID_ANIMATE_1) {
+		  //uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
+		  uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
+		  Control.initializePattern(data, 2);
+		}
+	  }
 	}
   }
 #endif
@@ -548,11 +603,6 @@ void processIncoming() {
 #if TEENSY
   } else if (digitalRead(12) == 0) {
 	digitalWrite(commandOffPin, LOW);
-  } else if (lastDataLength != 0) {
-	if (rtc_get() % PATTERN_START_MOD) {
-	  Control.initializePattern(lastData, lastDataLength);
-	  lastDataLength = 0;
-	}
 #endif
   } else if (powerShutdown) {
 	// In shutdown mode, set all to zero
@@ -590,15 +640,12 @@ void processRXResponse() {
 	heartbeatPeriod = defaultHeartbeatPeriod;
   }
 #ifdef TEENSY
-  memcpy (lastData, data, dataLength);
-  lastDataLength = dataLength;
-  if (rtc_get() % PATTERN_START_MOD) {
-	Control.initializePattern(data, dataLength);
-	lastDataLength = 0;
+  if (!daytimeShutdown) {
+	lastMessageReceipt = rtc_get();
+	Control.animations.isAnimating = data[0] == FS_ID_ANIMATE_1;
   }
-#else
-  Control.initializePattern(data, dataLength);
 #endif
+  Control.setPatternData(data, dataLength);
 }
 
 //! Broadcast a heartbeat if it's been long enough since the last one

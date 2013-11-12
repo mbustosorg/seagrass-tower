@@ -2,8 +2,8 @@
 
   furSwarmMemberConst.h
 
-  $Date: 2013-06-21 21:38:54 -0700 (Fri, 21 Jun 2013) $
-  $Revision: 983 $
+  $Date: 2013-08-12 07:32:46 -0700 (Mon, 12 Aug 2013) $
+  $Revision: 1073 $
   $Author: mauricio $
   
   Copyright (c) 2012, Mauricio Bustos
@@ -235,21 +235,21 @@ PROGMEM prog_uint8_t *characterTable[] =
 	characterZ
   };
 
-PROGMEM prog_uint8_t cylonVertical1[] = {0x00, 0x00, // Front right panel
+PROGMEM prog_uint8_t cylonVertical1[] = {0xAA, 0xAA, // Front right panel
 										0b00111111, 0b00000000, 0b00000000, 0b00000000, 0b00000000, // Back panel
-										0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t cylonVertical2[] = {0x00, 0x00, // Front right panel
+										0x55, 0x55}; // Front left panel
+PROGMEM prog_uint8_t cylonVertical2[] = {0xA5, 0xA5, // Front right panel
 										0b00000000, 0b00111111, 0b00000000, 0b00000000, 0b00000000, // Back panel
-										0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t cylonVertical3[] = {0x00, 0x00, // Front right panel
+										0x5A, 0x5A}; // Front left panel
+PROGMEM prog_uint8_t cylonVertical3[] = {0x5A, 0x5A, // Front right panel
 										0b00000000, 0b00000000, 0b00111111, 0b00000000, 0b00000000, // Back panel
-										0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t cylonVertical4[] = {0x00, 0x00, // Front right panel
+										0xAA, 0xAA}; // Front left panel
+PROGMEM prog_uint8_t cylonVertical4[] = {0x55, 0x55, // Front right panel
 										0b00000000, 0b00000000, 0b00000000, 0b00111111, 0b00000000, // Back panel
-										0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t cylonVertical5[] = {0x00, 0x00, // Front right panel
+										0x5A, 0x5A}; // Front left panel
+PROGMEM prog_uint8_t cylonVertical5[] = {0xA5, 0xA5, // Front right panel
 										0b00000000, 0b00000000, 0b00000000, 0b00000000, 0b00111111, // Back panel
-										0x00, 0x00}; // Front left panel
+										0xAA, 0xAA}; // Front left panel
 PROGMEM prog_uint8_t *cylonVerticalTable[] = 
   {
 	cylonVertical1,
@@ -262,30 +262,30 @@ PROGMEM prog_uint8_t *cylonVerticalTable[] =
 	cylonVertical2
   };
 
-PROGMEM prog_uint8_t cylonPong1[] = {0x00, 0x00, // Front right panel
+PROGMEM prog_uint8_t cylonPong1[] = {0xAA, 0xAA, // Front right panel
 									 0b00000001, 0b00000010, 0b00000100, 0b00101000, 0b00010000, // Back panel
-									 0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t cylonPong2[] = {0x00, 0x00, // Front right panel
+									 0xA5, 0xA5}; // Front left panel
+PROGMEM prog_uint8_t cylonPong2[] = {0x55, 0x55, // Front right panel
 									 0b00000010, 0b00000101, 0b00001000, 0b00010000, 0b00100000, // Back panel
-									 0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t cylonPong3[] = {0x00, 0x00, // Front right panel
+									 0xA5, 0xA5}; // Front left panel
+PROGMEM prog_uint8_t cylonPong3[] = {0xA5, 0xA5, // Front right panel
 									 0b00000100, 0b00001010, 0b00010001, 0b00100000, 0b00000000, // Back panel
-									 0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t cylonPong4[] = {0x00, 0x00, // Front right panel
+									 0x55, 0x55}; // Front left panel
+PROGMEM prog_uint8_t cylonPong4[] = {0x5A, 0x5A, // Front right panel
 									 0b00001000, 0b00010100, 0b00100010, 0b00000001, 0b00000000, // Back panel
-									 0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t cylonPong5[] = {0x00, 0x00, // Front right panel
+									 0x5A, 0x5A}; // Front left panel
+PROGMEM prog_uint8_t cylonPong5[] = {0x55, 0x55, // Front right panel
 									 0b00010000, 0b00101000, 0b00000100, 0b00000010, 0b00000001, // Back panel
-									 0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t cylonPong6[] = {0x00, 0x00, // Front right panel
+									 0xAA, 0xAA}; // Front left panel
+PROGMEM prog_uint8_t cylonPong6[] = {0xA5, 0xA5, // Front right panel
 									 0b00100000, 0b00010000, 0b00001000, 0b00000101, 0b00000010, // Back panel
-									 0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t cylonPong7[] = {0x00, 0x00, // Front right panel
+									 0x5A, 0x5A}; // Front left panel
+PROGMEM prog_uint8_t cylonPong7[] = {0x5A, 0x5A, // Front right panel
 									 0b00000000, 0b00100000, 0b00010001, 0b00001010, 0b00000100, // Back panel
-									 0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t cylonPong8[] = {0x00, 0x00, // Front right panel
+									 0x55, 0x55}; // Front left panel
+PROGMEM prog_uint8_t cylonPong8[] = {0x55, 0x55, // Front right panel
 									 0b00000000, 0b00000001, 0b00100010, 0b00010100, 0b00001000, // Back panel
-									 0x00, 0x00}; // Front left panel
+									 0xAA, 0xAA}; // Front left panel
 PROGMEM prog_uint8_t *cylonPongTable[] = 
   {
 	cylonPong1,
@@ -298,30 +298,30 @@ PROGMEM prog_uint8_t *cylonPongTable[] =
 	cylonPong8
   };
 
-PROGMEM prog_uint8_t spiral1[] = {0x00, 0x00, // Front right panel
+PROGMEM prog_uint8_t spiral1[] = {0xAA, 0xAA, // Front right panel
 								  0b00000000, 0b00000010, 0b00010101, 0b00001000, 0b00000000, // Back panel
-								  0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t spiral2[] = {0x00, 0x00, // Front right panel
+								  0xA5, 0xA5}; // Front left panel
+PROGMEM prog_uint8_t spiral2[] = {0x55, 0x55, // Front right panel
  								  0b00000010, 0b00000101, 0b00000100, 0b00010100, 0b00001000, // Back panel
-								  0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t spiral3[] = {0x00, 0x00, // Front right panel
+								  0xA5, 0xA5}; // Front left panel
+PROGMEM prog_uint8_t spiral3[] = {0xA5, 0xA5, // Front right panel
  								  0b00000110, 0b00000100, 0b00000100, 0b00000100, 0b00001100, // Back panel
-								  0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t spiral4[] = {0x00, 0x00, // Front right panel
+								  0x55, 0x55}; // Front left panel
+PROGMEM prog_uint8_t spiral4[] = {0x5A, 0x5A, // Front right panel
  								  0b00000100, 0b00000100, 0b00000100, 0b00000100, 0b00000100, // Back panel
-								  0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t spiral5[] = {0x00, 0x00, // Front right panel
+								  0x5A, 0x5A}; // Front left panel
+PROGMEM prog_uint8_t spiral5[] = {0x55, 0x55, // Front right panel
  								  0b00000100, 0b00001000, 0b00000100, 0b00000010, 0b00000100, // Back panel
-								  0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t spiral6[] = {0x00, 0x00, // Front right panel
+								  0xAA, 0xAA}; // Front left panel
+PROGMEM prog_uint8_t spiral6[] = {0xA5, 0xA5, // Front right panel
  								  0b00001000, 0b00010000, 0b00001110, 0b00000001, 0b00000010, // Back panel
-								  0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t spiral7[] = {0x00, 0x00, // Front right panel
+								  0x5A, 0x5A}; // Front left panel
+PROGMEM prog_uint8_t spiral7[] = {0x5A, 0x5A, // Front right panel
  								  0b00000000, 0b00010000, 0b00111111, 0b00000001, 0b00000000, // Back panel
-								  0x00, 0x00}; // Front left panel
-PROGMEM prog_uint8_t spiral8[] = {0x00, 0x00, // Front right panel
+								  0x55, 0x55}; // Front left panel
+PROGMEM prog_uint8_t spiral8[] = {0x55, 0x55, // Front right panel
  								  0b00000000, 0b00000000, 0b00011111, 0b00000000, 0b00000000, // Back panel
-								  0x00, 0x00}; // Front left panel
+								  0xAA, 0xAA}; // Front left panel
 
 PROGMEM prog_uint8_t *spiralTable[] = 
   {
