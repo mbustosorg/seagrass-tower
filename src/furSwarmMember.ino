@@ -1,8 +1,8 @@
 //
 //  furSwarmMember.ino
 //
-//  $Date: 2013-11-10 23:06:15 -0800 (Sun, 10 Nov 2013) $
-//  $Rev: 1100 $
+//  $Date: 2013-12-25 15:41:59 -0800 (Wed, 25 Dec 2013) $
+//  $Rev: 1138 $
 //  $Author: mauricio $
 //
 //  Copyright (c) 2012, Mauricio Bustos
@@ -65,19 +65,21 @@ unsigned long gpsTimeStamp = 0;
          (((uint32_t)((value) & 0xFF000000)) >> 24))
 
 // System configuration
-#define versionId 0x14
+#define MESSAGE_TYPE_FULL 0x01
+#define MESSAGE_TYPE_SHORT_VERSION 0x02
+#define versionId 0x15
 const bool legacyPro = false;
 #ifdef FS_VEST
-const uint8_t memberType = 0x01; // Vest
+const uint8_t memberType = FS_TYPE_VEST;
 #elif FS_HAT
-const uint8_t memberType = 0x02; // Hat
+const uint8_t memberType = FS_TYPE_HAT;
 #elif FS_TOWER
-const uint8_t memberType = 0x03; // Tower
+const uint8_t memberType = FS_TYPE_TOWER;
 #endif
 
 // Heartbeat message layout
 uint8_t heartbeatPayload[] = { 
-  0x01,       // Byte 0: Message Type ID (1 byte)
+  MESSAGE_TYPE_FULL,      // Byte 0: Message Type ID (1 byte)
   versionId,  // Byte 1: Version ID (1 byte)
   0,          // Byte 2: Frame location (2 bytes)
   0,
@@ -209,6 +211,7 @@ void setup() {
 	pinMode(13, INPUT_PULLUP); // Center
 	Control.latitude = readEepromLong(latitudeStartByte);
 	Control.longitude = readEepromLong(longitudeStartByte);
+	// Fix to work when we don't have accurate GPS data available
 #else
 	Control.audioAnalogPin = 9;
 #endif
@@ -484,6 +487,7 @@ void setStartupPattern() {
   uint8_t data[] = {FS_ID_SPIRAL, 100, 200, 0, 40, 120};
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_ORGANIC, 10, 200, 200, 200, 128};
+  //uint8_t data[] = {FS_ID_FLAME, 20, 1, 255, 130, 0, 0};
   Control.initializePattern(data, 6);
 #else
   uint8_t data[] = {FS_ID_STARFIELD, 10, 100, 100, 100, 100};
@@ -618,6 +622,8 @@ void processIncoming() {
 	digitalWrite(commandOffPin, LOW);
   } else if (commandMode == 1) {
 	Control.triggerPatternChange();
+	Control.latitude = random (-100, 100);
+	Control.longitude = random (-100, 100);
   } else if (commandMode == 2) {
 	Control.advancePatternSpeed();
   } else if (commandMode == 3) {
@@ -657,7 +663,7 @@ void sendHeartbeat() {
   if (sinceLastHeartbeat > heartbeatPeriod) {
 	heartbeatCount++;
 	if (heartbeatCount % FULL_HEARTBEAT_PERIOD != 0) {
-	  uint8_t heartbeatShortPayload[] = {0x02, versionId};  // Short heartbeat
+	  uint8_t heartbeatShortPayload[] = {MESSAGE_TYPE_SHORT_VERSION, versionId};  // Short heartbeat
 	  ZBTxRequest heartbeatShortMessage = ZBTxRequest(addr64, heartbeatShortPayload, sizeof(heartbeatShortPayload));
 	  xbee.send(heartbeatShortMessage);
 	} else {

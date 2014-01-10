@@ -36,6 +36,7 @@
 
 #include "towerPatterns.h"
 #include "colorUtilities.h"
+#include "flameFrames.h"
 
 #ifdef NOT_EMBEDDED
 uint32_t PIT_TCTRL3 = 0;
@@ -185,12 +186,19 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	spectrumTowerCount = data[3];
 	updateSoundActivateParameters(data[1], data[5], data[5]);
 	PIT_TCTRL3 |= 0x1;
-	break;
+	break;  
   case FS_ID_FLAME:
 	setBasicParameters(data[5], data[2], data[3], data[4]);
+	setPatternSpeedWithFactor(5);
 	if (pattern != data[0]) {
 	  initializeFlame();
 	}
+	pattern = data [0];
+	break;
+  case FS_ID_CANDLE:
+	setBasicParameters(data[5], data[2], data[3], data[4]);
+	setPatternSpeedWithFactor(5);
+	initializeCandle();
 	pattern = data [0];
 	break;
   default:
@@ -293,6 +301,10 @@ void towerPatterns::continuePatternDisplay() {
 	break;
   case FS_ID_FLAME:
 	iterateFlame();
+	displayData(true, true, true);
+	break;
+  case FS_ID_CANDLE:
+	iterateCandle();
 	displayData(true, true, true);
 	break;
   default:
@@ -972,23 +984,86 @@ void towerPatterns::initializeFlame() {
 	ledBlue[i] = 0;
   }
   frameRelease = patternSpeed;
-  frameIndex = random (0, 19);
+  frameIndex = random (0, FLAME_FRAME_COUNT - 1);
 }
 
 //! Iterate the flame animation
 void towerPatterns::iterateFlame() {
-  iterateFrameStep(19);
+  iterateFrameStep(FLAME_FRAME_COUNT - 1);
   float iterationProportion = (float) frameRelease / (float) patternSpeed;
   int previousFrameIndex = frameIndex - 1;
-  if (previousFrameIndex < 0) previousFrameIndex = 19;
-
+  if (previousFrameIndex < 0) previousFrameIndex = FLAME_FRAME_COUNT - 1;
+  float intensity = (float) unadjustedIntensity / 255.0;
   for (int i = 0; i < LED_COUNT; i++) {
-	ledRed[LED_COUNT - 1 - i] = (float) flameFrames [frameIndex][i * 3] * (1.0 - iterationProportion) + 
-	  (float) flameFrames [previousFrameIndex][i * 3] * iterationProportion;
-	ledGreen[LED_COUNT - 1 - i] = (float) flameFrames [frameIndex][i * 3 + 1] * (1.0 - iterationProportion) + 
-	  (float) flameFrames [previousFrameIndex][i * 3 + 1] * iterationProportion;
-	ledBlue[LED_COUNT - 1 - i] = (float) flameFrames [frameIndex][i * 3 + 2] * (1.0 - iterationProportion) + 
-	  (float) flameFrames [previousFrameIndex][i * 3 + 2] * iterationProportion;
+	ledRed[LED_COUNT - 1 - i] = (uint8_t) (intensity * (float) unadjustedRed / 255.0 * 
+										   ((float) flameFrames [frameIndex][i * 3] * (1.0 - iterationProportion) + 
+											(float) flameFrames [previousFrameIndex][i * 3] * iterationProportion));
+	ledGreen[LED_COUNT - 1 - i] = (uint8_t) (intensity * (float) unadjustedGreen / 255.0 * 
+											 ((float) flameFrames [frameIndex][i * 3 + 1] * (1.0 - iterationProportion) + 
+											  (float) flameFrames [previousFrameIndex][i * 3 + 1] * iterationProportion));
+	ledBlue[LED_COUNT - 1 - i] = (uint8_t) (intensity * (float) unadjustedBlue / 255.0 * 
+											((float) flameFrames [frameIndex][i * 3 + 2] * (1.0 - iterationProportion) + 
+											 (float) flameFrames [previousFrameIndex][i * 3 + 2] * iterationProportion));
+	if (ledRed[LED_COUNT - 1 - i] < 75) ledRed[LED_COUNT - 1 - i] = 0;
+	if (ledGreen[LED_COUNT - 1 - i] < 10) ledGreen[LED_COUNT - 1 - i] = 0;
+	if (ledBlue[LED_COUNT - 1 - i] < 75) ledBlue[LED_COUNT - 1 - i] = 0;
   }
 }
 
+//! Initialize the candle animation pattern
+void towerPatterns::initializeCandle() {
+  for (int i = 0; i < LED_COUNT - FLAME_HEIGHT; i++) {
+	ledRed[i] = adjustedRed;
+	ledGreen[i] = adjustedGreen;
+	ledBlue[i] = adjustedBlue;
+  }
+}
+
+//! Iterate the candle animation
+void towerPatterns::iterateCandle() {
+  frameRelease--;
+  if (frameRelease <= 0 || frameRelease > patternSpeed) {
+	frameRelease = random (patternSpeed / 2, patternSpeed);
+	float flameLevel = (float) random (1, 255) / 255.0;
+	for (int i = 0; i <= FLAME_HEIGHT; i++) {
+	  audioMagnitudeBuckets[i] = audioMagnitudeBuckets[i + 1];
+	}
+	audioMagnitudeBuckets[FLAME_HEIGHT + 1] = 255.0 * flameLevel;
+  }
+  float iterationProportion = (float) frameRelease / (float) patternSpeed;
+  for (int i = 0; i < FLAME_HEIGHT; i++) {
+	ledRed[LED_COUNT - i - 1] = (uint8_t) ((float) audioMagnitudeBuckets[i + 1] * (1.0 - iterationProportion) + 
+										   (float) audioMagnitudeBuckets[i] * iterationProportion);
+	ledGreen[LED_COUNT - i - 1] = (uint8_t) ((float) audioMagnitudeBuckets[i + 1] * (1.0 - iterationProportion) + 
+											 (float) audioMagnitudeBuckets[i] * iterationProportion);
+	ledBlue[LED_COUNT - i - 1] = 0;
+  }
+}
+
+/*
+//! Iterate the candle animation
+void towerPatterns::iterateCandle() {
+  uint8_t flameHeight = 5;
+  frameRelease--;
+  if (frameRelease <= 0) {
+	frameRelease = random (1, patternSpeed);
+	float flameLevel = (float) random (100, 200) / 255.0;
+	ledRed[LED_COUNT - flameHeight - 1] = ledRed[LED_COUNT - 1];
+	ledGreen[LED_COUNT - flameHeight - 1] = ledGreen[LED_COUNT - 1];
+	ledBlue[LED_COUNT - flameHeight - 1] = ledBlue[LED_COUNT - 1];
+	ledRed[LED_COUNT - flameHeight - 2] = adjustedGreen * flameLevel;
+	ledGreen[LED_COUNT - flameHeight - 2] = adjustedRed * flameLevel;
+	ledBlue[LED_COUNT - flameHeight - 2] = adjustedBlue * flameLevel;
+  }
+  float iterationProportion = (float) frameRelease / (float) patternSpeed;
+  for (int i = LED_COUNT - flameHeight; i < LED_COUNT; i++) {
+	ledRed[i] = (uint8_t) ((float) ledRed[LED_COUNT - flameHeight - 2] * (1.0 - iterationProportion) + 
+						   (float) ledRed[LED_COUNT - flameHeight - 1] * iterationProportion);
+	ledGreen[i] = (uint8_t) ((float) ledGreen[LED_COUNT - flameHeight - 2] * (1.0 - iterationProportion) + 
+							 (float) ledGreen[LED_COUNT - flameHeight - 1] * iterationProportion);
+	//ledBlue[i] = (uint8_t)((float) ledBlue[LED_COUNT - flameHeight - 2] * (1.0 - iterationProportion) + 
+	//					   (float) ledBlue[LED_COUNT - flameHeight - 1] * iterationProportion);
+	ledBlue[i] = 0;
+  }
+}
+*/

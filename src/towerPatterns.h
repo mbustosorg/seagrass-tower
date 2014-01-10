@@ -40,7 +40,6 @@
 #include "towerAnimations.h"
 #include "towerBall.h"
 #include <XBee.h>
-#include "flameFrames.h"
 
 #define tiltThreshold (15)
 #define tiltCalThreshold (5)
@@ -71,6 +70,7 @@ typedef float float32_t;
 #define TEST_LENGTH_SAMPLES (2 * FFT_LEN)
 #define BUCKET_FACTOR (1.17)
 #define BUCKET_COUNT (LED_COUNT / 2)
+#define FLAME_HEIGHT (5)
 
 const int MAX_TOWER_COUNT = 35;
 
@@ -116,6 +116,8 @@ class towerPatterns : public furSwarmPatterns {
   void iteratePong();
   void initializeFlame();
   void iterateFlame();
+  void initializeCandle();
+  void iterateCandle();
 
   // Bounce
   bool reverseBounce = false;

@@ -78,7 +78,8 @@
 #define FS_ID_PONG (0x29)
 #define FS_ID_GIANT_SPECTRUM (0x2a)
 #define FS_ID_FLAME (0x2b)
-#define FS_ID_MAX_ID (0x2b)
+#define FS_ID_CANDLE (0x2c)
+#define FS_ID_MAX_ID (0x2c)
 
 #define FS_NAME_FULL_COLOR "Full Color"
 #define FS_NAME_SPARKLE "Sparkle"
@@ -121,6 +122,7 @@
 #define FS_NAME_PONG "Pong"
 #define FS_NAME_GIANT_SPECTRUM "GSpectrum"
 #define FS_NAME_FLAME "Flame"
+#define FS_NAME_CANDLE "Candle"
 
 #define FS_TYPE_VEST (0x01)
 #define FS_TYPE_HAT (0x02)
