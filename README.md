@@ -6,3 +6,5 @@ full color LEDs.  Each tower is articulated to allow it to sway in the wind or r
 
 This code is responsible for managing each tower's computer which communicates with a central controller that coordinates the patterns displayed on the 
 LED strands.  Additionally, each tower has a microphone and accelerometer which provide other forms of input that can be used to control the displayed patterns.
+
+This code depends on http://www.pjrc.com/teensy/teensyduino.html for building & deployment.
