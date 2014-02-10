@@ -53,7 +53,7 @@ void clearDisplay() {
 }
 
 //! Display the current operating details
-void displayOperatingDetails(int pattern, int timeStamp, int frameRate, unsigned long rtcTime, float lat, float lon) {
+void displayOperatingDetails(int pattern, int timeStamp, int frameRate, unsigned long rtcTime, float lat, float lon, uint16_t compensation, uint16_t war, uint16_t rar) {
   unsigned long days = rtcTime / (3600 * 24);
   unsigned long running = rtcTime - days * 3600 * 24;
   unsigned long hours = running / 3600;
@@ -86,6 +86,12 @@ void displayOperatingDetails(int pattern, int timeStamp, int frameRate, unsigned
   display.println(lat);
   display.print("lon:");
   display.println(lon);
+  display.print("comp:");
+  display.println(compensation);
+  display.print("w:");
+  display.print(war);
+  display.print(" rar:");
+  display.println(rar);
   display.display();
 }
 
@@ -109,7 +115,7 @@ void displayTiltParameters(int hue, int saturation, bool isShaking, bool isCalib
 }
 
 //! Display GPS data
-void displayGPSdata(float lat, float lon, unsigned long time) {
+void displayGPSdata(float lat, float lon, unsigned long time, uint16_t compensation) {
   unsigned long days = time / (3600 * 24);
   unsigned long running = time - days * 3600 * 24;
   unsigned long hours = running / 3600;
@@ -134,6 +140,8 @@ void displayGPSdata(float lat, float lon, unsigned long time) {
   display.print(minutes); display.print(":"); 
   if (seconds < 10) display.print ("0");
   display.println(seconds); 
+  display.print("comp:");
+  display.println(compensation);
   display.display();  
 }
 

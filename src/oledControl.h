@@ -40,7 +40,7 @@ extern Adafruit_SSD1306 display;
 
 void setupOLEDdisplay();
 void clearDisplay();
-void displayOperatingDetails(int pattern, int timeStamp, int frameRate, unsigned long rtcTime, float lat, float lon);
+void displayOperatingDetails(int pattern, int timeStamp, int frameRate, unsigned long rtcTime, float lat, float lon, uint16_t compensation, uint16_t war, uint16_t rar);
 void displayTiltParameters(int hue, int saturation, bool isShaking, bool isCalibrated);
-void displayGPSdata(float lat, float lon, unsigned long time);
+void displayGPSdata(float lat, float lon, unsigned long time, uint16_t compensation);
 void displayMessage(const char* message);

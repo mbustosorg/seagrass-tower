@@ -669,24 +669,35 @@ float towerPatterns::ballLocation(bool persist) {
 //! Initialize the radio tower pattern
 void towerPatterns::initializeRadioTower() {
   radioTowerStart = millis();
-  radioPeriod = random (3490, 3500);
+  radioTowerPeriod = random (3490, 3500);
 }
 
 //! Iterate the radio tower pattern
 void towerPatterns::iterateRadioTower() {
   uint32_t currentTimestamp = millis();
+  if (currentTimestamp > radioTowerStart + radioTowerPeriod) {
+	radioTowerStart = radioTowerStart + radioTowerPeriod;
+  }
   for (int i = 0; i < LED_COUNT; i++) {
 	ledRed[i] = 0;
 	ledGreen[i] = 0;
 	ledBlue[i] = 0;
-	if (currentTimestamp > radioTowerStart + radioPeriod) {
-	  radioTowerStart = radioTowerStart + radioPeriod;
-	} else if (currentTimestamp < radioTowerStart + 1000 && i > LED_COUNT - 3) {
+	if (currentTimestamp < radioTowerStart + 1000 && i > LED_COUNT - 3) {
 	  ledRed[i] = adjustedRed;
 	  ledGreen[i] = adjustedGreen;
 	  ledBlue[i] = adjustedBlue;
 	}
+	if ((currentTimestamp - radioTowerSyncTimestamp) % 1000 < 100 && i < 3) {
+	  ledRed[i] = adjustedRed;
+	  ledGreen[i] = adjustedGreen;
+	  ledBlue[i] = adjustedBlue;	  
+	}
   }
+}
+
+//! Set the timestamp for the radio tower blink
+void towerPatterns::setRadioTowerSyncTimestamp (uint32_t timestamp) {
+  radioTowerSyncTimestamp = timestamp;
 }
 
 //! Update sound parameters

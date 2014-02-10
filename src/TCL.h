@@ -32,8 +32,8 @@
 
 #ifdef TCL_DIO
 #define TCL_CLOCKPIN 2
-#define TCL2_CLOCKPIN 4
 #define TCL_DATAPIN 3
+#define TCL2_CLOCKPIN 4
 #endif
 
 class TclClass {

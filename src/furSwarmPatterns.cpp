@@ -51,6 +51,7 @@ furSwarmPatterns::furSwarmPatterns() {
   maxEye = LED_COUNT;
   minEye = 0;
 
+  lowLevelPWMCounter = 0;
   ledChangeRate = 3;
   flashLedChangeRate = 3;
   saThreshold = 15000;
@@ -97,6 +98,8 @@ furSwarmPatterns::furSwarmPatterns() {
 
 //! Send the start frame to start the display update
 void furSwarmPatterns::sendStartFrame() {
+  lowLevelPWMCounter++;
+  if (lowLevelPWMCounter > PWM_COUNTER_RESET) lowLevelPWMCounter = 0;
 #ifndef NOT_EMBEDDED
 #ifdef USE_TCL
   TCL.sendEmptyFrame();
@@ -130,21 +133,37 @@ void furSwarmPatterns::sendEndFrame() {
 
 //! Send a particular color to the whole strand
 void furSwarmPatterns::sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t blue) {
+  uint8_t trueRed, trueGreen, trueBlue;
+  if (red > lowLevelPWMCounter) {
+	trueRed = red;
+  } else {
+	trueRed = 0;
+  }
+  if (green > lowLevelPWMCounter) {
+	trueGreen = green;
+  } else {
+	trueGreen = 0;
+  }
+  if (blue > lowLevelPWMCounter) {
+	trueBlue = blue;
+  } else {
+	trueBlue = 0;
+  }
 #ifdef NOT_EMBEDDED
-  nonEmbedRed[pixelIndex] = red;
-  nonEmbedGreen[pixelIndex] = green;
-  nonEmbedBlue[pixelIndex] = blue;
+  nonEmbedRed[pixelIndex] = trueRed;
+  nonEmbedGreen[pixelIndex] = trueGreen;
+  nonEmbedBlue[pixelIndex] = trueBlue;
 #else
 #ifdef USE_TCL
-  TCL.sendColor (red, green, blue);
+  TCL.sendColor (trueRed, trueGreen, trueBlue);
 #elif USE_WS2801
   // Adafruit bulbs
-  strip.setPixelColor (pixelIndex, red, green, blue);
+  strip.setPixelColor (pixelIndex, trueRed, trueGreen, trueBlue);
 #else
   // Adafruit strip
-  uint8_t greenByte = green >> 1;
-  uint8_t redByte = red >> 1;
-  uint8_t blueByte = blue >> 1;
+  uint8_t greenByte = trueGreen >> 1;
+  uint8_t redByte = trueRed >> 1;
+  uint8_t blueByte = trueBlue >> 1;
   for (uint8_t bit = 0x80; bit; bit >>= 1) {
 	if ((greenByte | 0x80) & bit) {
 	  digitalWrite(lpdDataPin, HIGH);
@@ -1444,6 +1463,7 @@ void furSwarmPatterns::continuePatternDisplay() {
   switch (pattern) {
   case FS_ID_FULL_COLOR:
 	// Nothing to do, handled on the message reciept
+	setfullStrand(intensityLevel, redLevel, greenLevel, blueLevel, false);
 	break;
   case FS_ID_SPARKLE:
 	cycleData(patternSpeed, true, 0, 0);

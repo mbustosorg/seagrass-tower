@@ -1,8 +1,8 @@
 //
 //  furSwarmMember.ino
 //
-//  $Date: 2013-11-23 17:07:15 -0800 (Sat, 23 Nov 2013) $
-//  $Rev: 1132 $
+//  $Date: 2013-12-25 15:41:59 -0800 (Wed, 25 Dec 2013) $
+//  $Rev: 1138 $
 //  $Author: mauricio $
 //
 //  Copyright (c) 2012, Mauricio Bustos
@@ -252,6 +252,7 @@ void setup() {
   Control.initializeRandom(160, 255, 0xff, 0xff, 0xff, false); 
   setStartupPattern();
   setupTimers();
+  synchronizeToRTC();
 }
 
 #ifdef TEENSY
@@ -259,8 +260,12 @@ void setup() {
 //! Synchronize to the second boundary
 void synchronizeToRTC()
 {
+  unsigned long timeout = millis(); // Timeout at 2.5 seconds to make sure we don't get stuck if the RTC is not on
   unsigned long rtcTime = rtc_get();
-  while (rtc_get() == rtcTime) {}
+  while (rtc_get() == rtcTime && millis() - timeout < 2500) {}
+  displayUpdateCount = 0;
+  frameStarted = 1;
+  Control.setRadioTowerSyncTimestamp (millis());
 }
 
 //! Set up the frame rate timers
@@ -311,7 +316,7 @@ void pit2_isr(void)
   frameStarted = 1;
   frameCount++;
   frameRateCount++;
-  if (displayUpdateCount >= 60) {
+  if (displayUpdateCount >= 59) {
 	displayUpdateCount = 0;
   } else {
 	displayUpdateCount++;
@@ -484,10 +489,11 @@ void setStartupPattern() {
   //Control.initializePattern(data, 5);
 #ifdef TEENSY
   //uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
-  uint8_t data[] = {FS_ID_SPIRAL, 100, 200, 0, 40, 120};
+  //uint8_t data[] = {FS_ID_SPIRAL, 100, 200, 0, 40, 120};
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_ORGANIC, 10, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_FLAME, 20, 1, 255, 130, 0, 0};
+  uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
   Control.initializePattern(data, 6);
 #else
   uint8_t data[] = {FS_ID_STARFIELD, 10, 100, 100, 100, 100};
@@ -509,7 +515,9 @@ void loop() {
 #ifdef TEENSY
 //! Check if GPS data is available
 void updateGPSdata() {
-  if (gps2rtc.rtc_time_set) {
+  String message = "";
+  char outMessage[50];
+  if (gps2rtc.rtc_compensation_set) {
 	if (writeEepromLong (gps2rtc.latitude, latitudeStartByte) && writeEepromLong (gps2rtc.longitude, longitudeStartByte)) {
 	  Control.latitude = readEepromLong(latitudeStartByte);
 	  Control.longitude = readEepromLong(longitudeStartByte);
@@ -517,6 +525,16 @@ void updateGPSdata() {
 	} else {
 	  displayMessage ("Could not write GPS data");
 	}
+  } else if (gps2rtc.rtc_waiting_for_tcr_reset) {
+	message += "Waiting for TCR: ";
+	message += (int)gps2rtc.rtc_reset_count;
+	message.toCharArray(outMessage, message.length() + 1);
+	displayMessage ((const char*)outMessage);
+  } else if (gps2rtc.rtc_time_set) {
+	message += "Setting RTC comp: ";
+	message += gps2rtc.rtc_comp_time;
+	message.toCharArray(outMessage, message.length() + 1);
+	displayMessage ((const char*)outMessage);
   } else {
 	displayMessage ("Waiting for 1pps GPS data");
   }
@@ -534,7 +552,8 @@ void updateDisplay() {
 	  displayTiltParameters(hue, saturation, Control.isShaking, Control.zTiltCal != 0);
 	} else if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp < GPS_DISPLAY_TIME) {
  	  unsigned long rtcTime = rtc_get();
-	  displayGPSdata ((float) Control.latitude / 100000.0, (float) Control.longitude / 100000.0, rtcTime);
+	  displayGPSdata ((float) Control.latitude / 100000.0, (float) Control.longitude / 100000.0, rtcTime, RTC_TCR);
+	  synchronizeToRTC();
 	} else if (gps2rtc.receiving_serial_data && timeStamp - gps2rtc.last_sentence_receipt < GPS_DISPLAY_TIME / 2 && 
 			   gpsTimeStamp == 0 && gps2rtc.last_sentence_receipt != 0) {
 	  updateGPSdata();
@@ -555,7 +574,7 @@ void updateDisplay() {
 	  unsigned long onTime = 2 * 3600 + 30 * 60; // 02:30 UTC == 19:30 PDT
 	  unsigned long offTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
 	  //unsigned long offTime = 20 * 3600 + 30 * 60;
-	  displayOperatingDetails(Control.pattern, timeStamp / 1000, frameRate, rtcTime, Control.latitude / 100000.0, Control.longitude / 100000.0);
+	  displayOperatingDetails(Control.pattern, timeStamp / 1000, frameRate, rtcTime, Control.latitude / 100000.0, Control.longitude / 100000.0, RTC_TCR, RTC_WAR, RTC_RAR);
 	  if (daytimeShutdown) {
 		if (Control.pattern != FS_ID_OFF) {
 		  uint8_t data[] = {FS_ID_OFF};

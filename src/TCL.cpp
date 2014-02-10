@@ -25,9 +25,9 @@ void TclClass::begin() {
   SPI.setClockDivider(SPI_CLOCK_DIV2);
 #endif
 #ifdef TCL_DIO
+  pinMode(TCL_DATAPIN, OUTPUT);
   pinMode(TCL_CLOCKPIN, OUTPUT);
   pinMode(TCL2_CLOCKPIN, OUTPUT);
-  pinMode(TCL_DATAPIN, OUTPUT);
   //clkport     = portOutputRegister(digitalPinToPort(TCL_CLOCKPIN));
   //clkpinmask  = digitalPinToBitMask(TCL_CLOCKPIN);
   //dataport    = portOutputRegister(digitalPinToPort(TCL_DATAPIN));
@@ -69,13 +69,13 @@ void TclClass::dioWrite(uint8_t c) {
   for (uint8_t bit = 0x80; bit; bit >>= 1) {
 	if (c & bit) {
 	  digitalWrite(TCL_DATAPIN, HIGH);
+	  digitalWrite(TCL2_CLOCKPIN, HIGH);
 	} else {
 	  digitalWrite(TCL_DATAPIN, LOW);
+	  digitalWrite(TCL2_CLOCKPIN, LOW);
 	}
 	digitalWrite(TCL_CLOCKPIN, HIGH);
 	digitalWrite(TCL_CLOCKPIN, LOW);
-	digitalWrite(TCL2_CLOCKPIN, HIGH);
-	digitalWrite(TCL2_CLOCKPIN, LOW);
   }
 }
 #endif

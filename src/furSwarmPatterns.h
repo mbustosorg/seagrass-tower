@@ -70,6 +70,7 @@ const int lpdClockPin = 11;
 #define pumpUpperLevel (150)
 #define pumpLowerLevel (10)
 #define starfieldUpperLevel (1)
+#define PWM_COUNTER_RESET (1)
 
 #define MAX_DATA_LENGTH (10) // Maximum expected number of bytes in incoming message
 #define FS_DELAY_FACTOR (20)
@@ -96,6 +97,7 @@ class furSwarmPatterns {
   uint8_t nonEmbedGreen[LED_COUNT];
   uint8_t nonEmbedBlue[LED_COUNT];
 #endif
+  uint8_t lowLevelPWMCounter;
   uint8_t ledRed[LED_COUNT];
   uint8_t ledGreen[LED_COUNT];
   uint8_t ledBlue[LED_COUNT];

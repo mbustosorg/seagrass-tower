@@ -104,6 +104,7 @@ class towerPatterns : public furSwarmPatterns {
   void setBasicParameters(uint8_t intensity, uint8_t red, uint8_t green, uint8_t blue);
   void initializeRadioTower();
   void iterateRadioTower();
+  void setRadioTowerSyncTimestamp(uint32_t timestamp);
   float sumOfSquareAudio();
   void updateSoundActivateParameters(uint8_t thresholdData, uint8_t sampleData, uint8_t averageData);
   void iterateSpectrumAnalyzer();
@@ -166,7 +167,8 @@ class towerPatterns : public furSwarmPatterns {
   uint32_t nextBallStart;
 
   uint32_t radioTowerStart;
-  uint32_t radioPeriod;
+  uint32_t radioTowerPeriod;
+  uint32_t radioTowerSyncTimestamp;
 
   uint8_t bladeHeightLow, bladeHeightHigh;
   uint8_t cycleSpot = 0;
