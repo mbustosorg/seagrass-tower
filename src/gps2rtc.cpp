@@ -15,6 +15,7 @@ TinyGPS GPS2RTC::gps = gps;
 int GPS2RTC::gps_1pps_pin = 0;
 uint8_t GPS2RTC::rtc_reset_count = 0;
 int GPS2RTC::rtc_comp_time = 0;
+int16_t GPS2RTC::tpr_counter = 0;
 int GPS2RTC::gps_time = 0;			        // Seconds since midnight decoded from the GPS receiver stream.
 unsigned long GPS2RTC::latitude = 0;			// In decimal degrees * 100000.
 unsigned long GPS2RTC::longitude = 0;			// In decimal degrees * 100000.

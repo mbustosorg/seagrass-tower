@@ -153,7 +153,8 @@ class GPS2RTC
 		case set_rtc_compensation:
 		  rtc_comp_time++;
 		  if (rtc_comp_time == sample_time_secs && !rtc_compensation_set) {
-			RTC_TCR = ((sample_time_secs - 1) << 8) | ((-RTC_TPR) & 0xff);		// Compensation of -RTC_TPR ticks every 10th second.
+			tpr_counter = RTC_TPR;
+			RTC_TCR = ((sample_time_secs - 1) << 8) | (-RTC_TPR & 0xff);		// Compensation of -RTC_TPR ticks every 10th second.
 			rtc_compensation_set = true;
 			state = looking_for_serial_data;
 		  }
@@ -176,6 +177,7 @@ class GPS2RTC
   static TinyGPS gps;                             // Routines to decode GPS NMEA messages.
   static int gps_time;				// Seconds since midnight decoded from the GPS receiver stream.
   static int rtc_comp_time;
+  static int16_t tpr_counter;
   static uint8_t rtc_reset_count;           // Number of seconds to wait after the initial 1pps to ensure that RTC_TCR has been reset
   static unsigned long latitude;			// In decimal degrees * 100000.
   static unsigned long longitude;			// In decimal degrees * 100000.

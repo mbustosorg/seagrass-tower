@@ -359,6 +359,15 @@ void startup_late_hook(void) {
   PIT_TCTRL3 |= 0x1; // start Timer 3
   PIT_TFLG3 |= 1;
 }
+
+void enableTimers() {
+  startup_late_hook();
+}
+
+void disableTimers() {
+  PIT_TCTRL2 = 0; // disable Timer 2
+  PIT_TCTRL3 = 0; // disable Timer 3
+}
 }
 
 #else // not TEENSY
@@ -510,6 +519,17 @@ void loop() {
 	frameStarted = 0;
   }
   processIncoming();
+#ifdef TEENSY
+  if (gps2rtc.rtc_waiting_for_tcr_reset && !gps2rtc.rtc_compensation_set) {
+	disableTimers();
+	displayUpdateCount = 0;
+	while (!gps2rtc.rtc_compensation_set) {
+	  delay (1000);
+	  updateDisplay();
+	}
+	enableTimers();
+  }
+#endif
 }
 
 #ifdef TEENSY
@@ -522,6 +542,7 @@ void updateGPSdata() {
 	  Control.latitude = readEepromLong(latitudeStartByte);
 	  Control.longitude = readEepromLong(longitudeStartByte);
 	  gpsTimeStamp = millis();
+	  synchronizeToRTC();
 	} else {
 	  displayMessage ("Could not write GPS data");
 	}
@@ -552,8 +573,7 @@ void updateDisplay() {
 	  displayTiltParameters(hue, saturation, Control.isShaking, Control.zTiltCal != 0);
 	} else if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp < GPS_DISPLAY_TIME) {
  	  unsigned long rtcTime = rtc_get();
-	  displayGPSdata ((float) Control.latitude / 100000.0, (float) Control.longitude / 100000.0, rtcTime, RTC_TCR);
-	  synchronizeToRTC();
+	  displayGPSdata ((float) Control.latitude / 100000.0, (float) Control.longitude / 100000.0, rtcTime, gps2rtc.tpr_counter);
 	} else if (gps2rtc.receiving_serial_data && timeStamp - gps2rtc.last_sentence_receipt < GPS_DISPLAY_TIME / 2 && 
 			   gpsTimeStamp == 0 && gps2rtc.last_sentence_receipt != 0) {
 	  updateGPSdata();
@@ -574,7 +594,7 @@ void updateDisplay() {
 	  unsigned long onTime = 2 * 3600 + 30 * 60; // 02:30 UTC == 19:30 PDT
 	  unsigned long offTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
 	  //unsigned long offTime = 20 * 3600 + 30 * 60;
-	  displayOperatingDetails(Control.pattern, timeStamp / 1000, frameRate, rtcTime, Control.latitude / 100000.0, Control.longitude / 100000.0, RTC_TCR, RTC_WAR, RTC_RAR);
+	  displayOperatingDetails(Control.pattern, timeStamp / 1000, frameRate, rtcTime, Control.latitude / 100000.0, Control.longitude / 100000.0, gps2rtc.tpr_counter);
 	  if (daytimeShutdown) {
 		if (Control.pattern != FS_ID_OFF) {
 		  uint8_t data[] = {FS_ID_OFF};
