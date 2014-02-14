@@ -573,7 +573,7 @@ void updateDisplay() {
 	  displayTiltParameters(hue, saturation, Control.isShaking, Control.zTiltCal != 0);
 	} else if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp < GPS_DISPLAY_TIME) {
  	  unsigned long rtcTime = rtc_get();
-	  displayGPSdata ((float) Control.latitude / 100000.0, (float) Control.longitude / 100000.0, rtcTime, gps2rtc.tpr_counter);
+	  displayGPSdata ((float) Control.latitude / 100000.0, (float) Control.longitude / 100000.0, rtcTime, gps2rtc.tpr_counter); //RTC_TCR & 0xFF);
 	} else if (gps2rtc.receiving_serial_data && timeStamp - gps2rtc.last_sentence_receipt < GPS_DISPLAY_TIME / 2 && 
 			   gpsTimeStamp == 0 && gps2rtc.last_sentence_receipt != 0) {
 	  updateGPSdata();
@@ -594,7 +594,7 @@ void updateDisplay() {
 	  unsigned long onTime = 2 * 3600 + 30 * 60; // 02:30 UTC == 19:30 PDT
 	  unsigned long offTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
 	  //unsigned long offTime = 20 * 3600 + 30 * 60;
-	  displayOperatingDetails(Control.pattern, timeStamp / 1000, frameRate, rtcTime, Control.latitude / 100000.0, Control.longitude / 100000.0, gps2rtc.tpr_counter);
+	  displayOperatingDetails(Control.pattern, timeStamp / 1000, frameRate, rtcTime, Control.latitude / 100000.0, Control.longitude / 100000.0, gps2rtc.tpr_counter); //RTC_TCR & 0xFF);
 	  if (daytimeShutdown) {
 		if (Control.pattern != FS_ID_OFF) {
 		  uint8_t data[] = {FS_ID_OFF};
@@ -661,8 +661,10 @@ void processIncoming() {
 	digitalWrite(commandOffPin, LOW);
   } else if (commandMode == 1) {
 	Control.triggerPatternChange();
+#ifdef TEENSY
 	Control.latitude = random (-100, 100);
 	Control.longitude = random (-100, 100);
+#endif
   } else if (commandMode == 2) {
 	Control.advancePatternSpeed();
   } else if (commandMode == 3) {
