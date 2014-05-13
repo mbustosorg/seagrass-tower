@@ -134,19 +134,16 @@ void furSwarmPatterns::sendEndFrame() {
 //! Send a particular color to the whole strand
 void furSwarmPatterns::sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t blue) {
   uint8_t trueRed, trueGreen, trueBlue;
-  if (red > lowLevelPWMCounter) {
-	trueRed = red;
-  } else {
+  trueRed = red;
+  trueGreen = green;
+  trueBlue = blue;
+  if (red < PWM_DIMMER_THRESHOLD && lowLevelPWMCounter > PWM_COUNTER_RESET - PWM_COUNTER_OFFSET) {
 	trueRed = 0;
   }
-  if (green > lowLevelPWMCounter) {
-	trueGreen = green;
-  } else {
+  if (green < PWM_DIMMER_THRESHOLD && lowLevelPWMCounter > PWM_COUNTER_RESET - PWM_COUNTER_OFFSET) {
 	trueGreen = 0;
   }
-  if (blue > lowLevelPWMCounter) {
-	trueBlue = blue;
-  } else {
+  if (blue < PWM_DIMMER_THRESHOLD && lowLevelPWMCounter > PWM_COUNTER_RESET - PWM_COUNTER_OFFSET) {
 	trueBlue = 0;
   }
 #ifdef NOT_EMBEDDED

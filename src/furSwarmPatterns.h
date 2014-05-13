@@ -70,7 +70,9 @@ const int lpdClockPin = 11;
 #define pumpUpperLevel (150)
 #define pumpLowerLevel (10)
 #define starfieldUpperLevel (1)
-#define PWM_COUNTER_RESET (1)
+#define PWM_COUNTER_RESET (5)
+#define PWM_COUNTER_OFFSET (1) // 80% Duty cycle: 1 - PWM_COUNTER_OFFSET / PWM_COUNTER_RESET
+#define PWM_DIMMER_THRESHOLD (5) // Dim values lower than this based on above duty cycle
 
 #define MAX_DATA_LENGTH (10) // Maximum expected number of bytes in incoming message
 #define FS_DELAY_FACTOR (20)

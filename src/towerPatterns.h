@@ -39,6 +39,7 @@
 #include "furSwarmPatternConst.h"
 #include "towerAnimations.h"
 #include "towerBall.h"
+#include "accelerometer.h"
 #include <XBee.h>
 
 #define tiltThreshold (15)
@@ -68,9 +69,13 @@ typedef float float32_t;
 #define FRAME_RATE (60)
 #define FFT_LEN (256)
 #define TEST_LENGTH_SAMPLES (2 * FFT_LEN)
-#define BUCKET_FACTOR (1.17)
-#define BUCKET_COUNT (LED_COUNT / 2)
+//#define BUCKET_FACTOR (1.17) // For 25 buckets
+//#define BUCKET_COUNT (LED_COUNT / 2)
+#define BUCKET_FACTOR (1.043) // For 50 buckets
+#define BUCKET_COUNT (LED_COUNT)
 #define FLAME_HEIGHT (5)
+#define SPECTRUM_MIN_DB (30.0)          // Audio intensity (in decibels) that maps to low LED brightness.
+#define SPECTRUM_MAX_DB (60.0)          // Audio intensity (in decibels) that maps to high LED brightness.
 
 const int MAX_TOWER_COUNT = 35;
 
@@ -131,6 +136,7 @@ class towerPatterns : public furSwarmPatterns {
   int32_t longitude = 0;
 
   // Accelerometer data
+  accelerometer accel;
   float xTilt, xShakeTilt;
   float yTilt, yShakeTilt, yLastTiltCal;
   float zTilt, zShakeTilt, zLastTiltCal;
@@ -189,6 +195,7 @@ class towerPatterns : public furSwarmPatterns {
   float32_t audioSampleInput[2 * FFT_LEN];
   float32_t audioMagnitudeOutput[FFT_LEN]; 
   float32_t audioMagnitudeBuckets[BUCKET_COUNT];
+  uint8_t runningMagnitude[LED_COUNT];
 
   float32_t gain = -20.0;
   float32_t reference = -10.0;

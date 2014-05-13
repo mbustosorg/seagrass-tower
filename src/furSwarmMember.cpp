@@ -132,6 +132,9 @@ int batteryVoltagePin;
 // Digital pin definitions
 int commandPatternPin;
 int commandOffPin;
+const int AUDIO_INPUT_PIN = 14;        // Input ADC pin for audio data.
+const int ANALOG_READ_RESOLUTION = 10; // Bits of resolution for the ADC.
+const int ANALOG_READ_AVERAGING = 16;  // Number of samples to average with each ADC reading.
 
 // FurSwarm member data
 uint16_t frameCount = 0;
@@ -203,7 +206,10 @@ void setup() {
 	Control.randomSeedPin = 8;
 #ifdef TEENSY
 	batteryVoltagePin = 15;
-	Control.audioAnalogPin = 14;
+	Control.audioAnalogPin = AUDIO_INPUT_PIN;
+	pinMode(AUDIO_INPUT_PIN, INPUT);
+	analogReadResolution(ANALOG_READ_RESOLUTION);
+	analogReadAveraging(ANALOG_READ_AVERAGING);
 	pinMode(6, INPUT_PULLUP); // Down
 	pinMode(10, INPUT_PULLUP); // Up
 	pinMode(11, INPUT_PULLUP); // Left
@@ -329,10 +335,12 @@ void pit3_isr(void)
 {
   int sample;
   sample = analogRead (Control.audioAnalogPin);
-  Control.audioSampleInput[Control.audioSampleInputIndex * 2] = (float32_t)(sample - 512.0) / 10.0;
+  Control.audioSampleInput[Control.audioSampleInputIndex * 2] = (float32_t)(sample);
+  Control.audioSampleInput[Control.audioSampleInputIndex * 2 + 1] = 0.0;
   Control.audioSampleInputIndex++;
   if (Control.audioSampleInputIndex >= TEST_LENGTH_SAMPLES / 2) {
 	Control.audioSampleInputIndex = 0;
+	// Turn off the timer and let the processor turn it back on once the data has been analyzed
 	PIT_TCTRL3 &= ~(1 << 0);
   }
   //digitalWrite(13, HIGH);
@@ -354,7 +362,8 @@ void startup_late_hook(void) {
   PIT_TCTRL2 |= 0x1; // start Timer 2
   PIT_TFLG2 |= 1;
 
-  PIT_LDVAL3 = 1250 - 1; // setup timer 2 for frame timer period (40kHz) = 48MHz / 40kHz
+  //PIT_LDVAL3 = 2400 - 1; // setup timer 2 for frame timer period (20kHz) = 48MHz / 20kHz, which results in a 20kHz / 256 = 78Hz frequency bucket
+  PIT_LDVAL3 = 1250 - 1; // setup timer 2 for frame timer period (40kHz) = 48MHz / 40kHz, which results in a 40kHz / 256 = 156Hz frequency bucket
   PIT_TCTRL3 = 0x2; // enable Timer 3 interrupts
   PIT_TCTRL3 |= 0x1; // start Timer 3
   PIT_TFLG3 |= 1;
@@ -366,7 +375,7 @@ void enableTimers() {
 
 void disableTimers() {
   PIT_TCTRL2 = 0; // disable Timer 2
-  PIT_TCTRL3 = 0; // disable Timer 3
+  PIT_TCTRL3 = 0; // Disable Timer 3
 }
 }
 

@@ -744,19 +744,30 @@ float towerPatterns::sumOfSquareAudio() {
 
 //! Iterate the spectrum analyzer pattern
 void towerPatterns::iterateSpectrumAnalyzer() {
+  iterateSoundActivate();
   if (audioSampleInputIndex == 0) {
 #ifndef NOT_EMBEDDED
-	/*
-	Serial.print ("* ");
-	Serial.print (saTargetThreshold);
-	Serial.print (", ");
-	Serial.print (saMovingAverage);
-	Serial.print (", ");
-	Serial.print (saGain);
-	Serial.print (", ");
-	Serial.print (saRunningAverage);
-	Serial.print(",^");
-	*/
+#ifdef FFT_DIAGNOSTICS
+	uint32_t fftStart, fftCFFT, fftMag;
+	Serial.print ("RUN:");
+	Serial.print ((float32_t)saTargetThreshold);
+	Serial.print (",");
+	Serial.print ((float32_t)saMovingAverage);
+	Serial.print (",");
+	Serial.print ((float32_t)saGain);
+	Serial.print (",");
+	Serial.print ((float32_t)saRunningAverage);
+	Serial.println ("|");
+	Serial.print ("INP:");
+  	for (int i = 0; i < TEST_LENGTH_SAMPLES / 2; i++) {
+	  Serial.print(audioSampleInput[i * 2]);
+	  if (i < TEST_LENGTH_SAMPLES / 2 - 1) {
+		Serial.print(",");
+	  }
+	}
+	Serial.println ("|");
+	fftStart = millis();
+#endif
 	uint32_t ifftFlag = 0; 
 	uint32_t doBitReverse = 1; 
 	arm_cfft_radix4_instance_f32 fft_inst;  /* CFFT Structure instance */
@@ -774,23 +785,26 @@ void towerPatterns::iterateSpectrumAnalyzer() {
 	
 	/* Process the data through the CFFT/CIFFT module */ 
 	arm_cfft_radix4_f32(&fft_inst, audioSampleInput);
+#ifdef FFT_DIAGNOSTICS
+	fftCFFT = millis();
+#endif
 	/* Process the data through the Complex Magnitude Module for  
 	   calculating the magnitude at each bin */ 
 	arm_cmplx_mag_f32(audioSampleInput, audioMagnitudeOutput, FFT_LEN);  
-	/**********************
-	Serial.println ("*");
-	for (int i = 0; i < FFT_LEN; i++) {
-	  Serial.print (audioSampleInput [i * 2]);
-	  Serial.print (",");
-	  if (i < FFT_LEN / 2) {
+#ifdef FFT_DIAGNOSTICS
+	fftMag = millis();
+	Serial.print ("MAG:");
+	for (int i = 0; i < FFT_LEN / 2; i++) {
 		Serial.print (audioMagnitudeOutput [i]);
-		Serial.println (",");
-	  } else {
-		Serial.println (",");
-	  }
+		if (i < FFT_LEN / 2 - 1) {
+		  Serial.print (",");
+		}
 	}
-	*/
-	//***********************
+	Serial.println ("|");
+	Serial.print ("TIM:");
+	Serial.print ((float32_t) (fftMag - fftStart));
+	Serial.println ("|");
+#endif
 	updateFrequencyBuckets();
 	updateSpectrumLevels();
   	for (int i = 0; i < TEST_LENGTH_SAMPLES; i++) {
@@ -799,43 +813,43 @@ void towerPatterns::iterateSpectrumAnalyzer() {
 	for (int i = 0; i < TEST_LENGTH_SAMPLES/2; i++) {
 	  audioMagnitudeOutput[i] = 0.0;
 	}
-#endif
 	// Turn the interrupt timer back on
 	PIT_TCTRL3 |= 0x1;
+#endif
   }  
 }
 
 //! Aggregate frequencies into their proper buckets
 void towerPatterns::updateFrequencyBuckets() {
   float32_t binWidth = AUDIO_SAMPLE_RATE / FFT_LEN;
-  int movingWindow = 4;
+  int movingWindow = 1;
   float32_t buckets[BUCKET_COUNT];
 
-  // 256 real observations going into 25 buckets
+  // 256 real observations going into 50 buckets
   buckets[0] = (int)(BUCKET_FACTOR);
   for (int i = 1; i < BUCKET_COUNT; i++) {
 	buckets[i] = buckets[i - 1] * BUCKET_FACTOR;
   }
   for (int i = 1; i < BUCKET_COUNT; i++) {
-	buckets[i] = min(FFT_LEN / 2, buckets[i - 1] + (int)(buckets[i]));
+	buckets[i] = min(FFT_LEN, buckets[i - 1] + round (buckets[i]));
   }
   for (int i = 0; i < BUCKET_COUNT; i++) {
 	float32_t accum = 0.0;
 	float32_t total = 0;
 	uint16_t upper, lower;
 	// Second half of result is imaginary space, that's why we used FFT_LEN / 2
-	upper = min((uint16_t) buckets [i + 1], FFT_LEN / 2);
+	upper = min((uint16_t) buckets [i + 1], FFT_LEN);
 	if (i >= movingWindow) {
-	  lower = buckets[i - movingWindow];
+	  lower = max(buckets[i - movingWindow], 2);
 	} else {
-	  lower = buckets[i];
+	  lower = max(buckets[i], 2);
 	}
 	for (int j = lower; j < upper; j++) {
 	  accum += abs(audioMagnitudeOutput[j]);
 	  total++;
 	}
     if (total > 0) {
-        audioMagnitudeBuckets[i] = accum / total;
+        audioMagnitudeBuckets[i] = accum;
     } else {
         audioMagnitudeBuckets[i] = 0.0;
     }
@@ -846,6 +860,7 @@ void towerPatterns::updateFrequencyBuckets() {
 void towerPatterns::updateSpectrumLevels() {
   float32_t magnitude;
   float32_t maximum = 0.0;
+  float32_t minimum = 1000.0;
   float32_t maximumLevel = log10 (11.0);
   float32_t maxLevelFactor = 0.85;
   float32_t runningValue = 0.0;
@@ -853,6 +868,7 @@ void towerPatterns::updateSpectrumLevels() {
 
   for (int i = 1; i < BUCKET_COUNT; i++) {
 	maximum = max(maximum, audioMagnitudeBuckets[i]);
+	minimum = min(minimum, audioMagnitudeBuckets[i]);
   } 
   if (pattern == FS_ID_GIANT_SPECTRUM) {
 	for (int i = 0; i < BUCKET_COUNT; i++) {
@@ -868,25 +884,34 @@ void towerPatterns::updateSpectrumLevels() {
 	  saRunningAverage = 0.0;
 	}
   } else {
-	ledRed[0] = 0;
-	ledGreen[0] = 0;
-	ledBlue[0] = 200;
+	//ledRed[0] = 0;
+	//ledGreen[0] = 0;
+	//ledBlue[0] = 200;
 	for (int i = 1; i < LED_COUNT; i++) {
-	  magnitude = min(1.0, log10 (10.0 * audioMagnitudeBuckets[i / 2] / (maximum * maxLevelFactor) + 1.0) / maximumLevel);
-	  //magnitude = min(1.0, audioMagnitudeBuckets[i / 2] / maximum);
+	  //magnitude = min(1.0, log10 (10.0 * audioMagnitudeBuckets[i] / (maximum * maxLevelFactor) + 1.0) / maximumLevel);
+	  magnitude = 20.0 * log10 (audioMagnitudeBuckets[i]);
+	  magnitude -= SPECTRUM_MIN_DB;
 	  magnitude = max(magnitude, 0.0);
-	  ledGreen[i] = (uint8_t) (magnitude * 255.0);
-	  ledBlue[i] = (uint8_t) ((1.0 - magnitude) * 255.0);
-	  if (magnitude == 1.0) {
+	  magnitude /= (20 * log10 (maximum) - SPECTRUM_MIN_DB);
+	  magnitude = min(1.0, magnitude);
+	  if (magnitude * 255.0 > runningMagnitude[i]) {
+		runningMagnitude[i] = runningMagnitude[i] + (magnitude * 255.0 - runningMagnitude[i]) * 0.5;
+	  } else {
+		// Descend more slowly than ascending
+		runningMagnitude[i] = runningMagnitude[i] + (magnitude * 255.0 - runningMagnitude[i]) * 0.2;
+	  }
+	  ledGreen[i] = (uint8_t) (runningMagnitude[i]);
+	  ledBlue[i] = (uint8_t) (255.0 - runningMagnitude[i]);
+	  if (runningMagnitude [i] == 255.0) {
 		ledRed[i] = 0xFF;
 		ledGreen[i] = 0x10;
-	  } else if (magnitude > 0.99) {
+	  } else if (runningMagnitude [i] > 0.95 * 255.0) {
 		ledRed[i] = 0xFF;
 		ledGreen[i] = 0x40;
-	  } else if (magnitude > 0.95) {
+	  } else if (runningMagnitude [i] > 0.85 * 255.0) {
 		ledRed[i] = 0xFF;
 		ledGreen[i] = 0x80;
-	  } else if (magnitude > 0.90) {
+	  } else if (runningMagnitude [i] > 0.70 * 255.0) {
 		ledRed[i] = 0x7F;
 	  } else {
 		ledRed[i] = 0x00;
