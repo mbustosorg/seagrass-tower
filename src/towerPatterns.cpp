@@ -326,69 +326,17 @@ void towerPatterns::continuePatternDisplay() {
 
 //! Read the current tilt
 void towerPatterns::readTilt() {
-  xTilt = analogRead(xTiltPin) - 512.0 - xTiltCal;
-  if (xTilt > TILT_BOUND) {
-	xTilt = TILT_BOUND;
-  } else if (xTilt < -TILT_BOUND) {
-	xTilt = -TILT_BOUND;
-  }
-  yTilt = analogRead(yTiltPin) - 512.0 - yTiltCal;
-  if (yTilt > TILT_BOUND) {
-	yTilt = TILT_BOUND;
-  } else if (yTilt < -TILT_BOUND) {
-	yTilt = -TILT_BOUND;
-  }
-  zTilt = analogRead(zTiltPin) - 512.0 - zTiltCal;
-  if (zTilt > TILT_BOUND) {
-	zTilt = TILT_BOUND;
-  } else if (zTilt < -TILT_BOUND) {
-	zTilt = -TILT_BOUND;
-  }
+  tiltVector = accel.currentTilt();
   calibrateTilt();
 }
 
 //! This is used for establishing a calibration opportunity
 void towerPatterns::calibrateTilt() {
-  uint32_t now = millis();
-  bool tilting = abs(yTilt - yTiltCal) > tiltCalThreshold || abs(zTilt - zTiltCal) > tiltCalThreshold;
-  if (tiltCalStart == 0 || tilting) {
-	tiltCalStart = now;
-	yLastTiltCal = yTilt;
-	zLastTiltCal = zTilt;
-  } else if (now - tiltCalStart > 5000) {
-	xTiltCal = xTilt;
-	yTiltCal = yTilt;
-	zTiltCal = zTilt;
-  }
 }
 
 //! Does the accelerometer detect shaking?
 bool towerPatterns::checkShaking() {
-  unsigned long timeStamp = millis();
-  if (shakingTimestamp == 0) {
-	shakingTimestamp = timeStamp;
-  }
-  if (isShaking && timeStamp - shakingStart > SHAKE_LENGTH) {
-	isShaking = false;
-	readTilt();
-	xShakeTilt = xTilt;
-	yShakeTilt = yTilt;
-	zShakeTilt = zTilt;
-  } else if (!isShaking && timeStamp - shakingTimestamp > SHAKE_DETECTION_TIME) {
-	readTilt();
-	shakingTimestamp = timeStamp;
-	if (abs (xTilt - xShakeTilt) > SHAKE_THRESHOLD || 
-		abs (yTilt - yShakeTilt) > SHAKE_THRESHOLD || 
-		abs (zTilt - zShakeTilt) > SHAKE_THRESHOLD) {
-	  shakingStart = timeStamp;
-	  isShaking = true;
-	  wasShaking = true;
-	}
-	xShakeTilt = xTilt;
-	yShakeTilt = yTilt;
-	zShakeTilt = zTilt;
-  }
-  return isShaking;
+  return accel.isShaking();
 }
 
 //! Initialize the tilt pattern
@@ -402,13 +350,13 @@ void towerPatterns::initializeTilt() {
 rgb towerPatterns::tiltColor() {
   readTilt();
   hsv in;
-  if (zTilt == 0 && yTilt == 0) {
+  if (tiltVector.z == 0 && tiltVector.y == 0) {
 	in.h = 0.0;
   } else {
-	in.h = atan2(zTilt, yTilt) * 360.0 / (2.0 * 3.14159);
+	in.h = atan2(tiltVector.z, tiltVector.y) * 360.0 / (2.0 * 3.14159);
   }
   in.s = 1.0;
-  in.v = (yTilt / TILT_BOUND) * (yTilt / TILT_BOUND) + (zTilt / TILT_BOUND) * (zTilt / TILT_BOUND);
+  in.v = (tiltVector.y / TILT_BOUND) * (tiltVector.y / TILT_BOUND) + (tiltVector.z / TILT_BOUND) * (tiltVector.z / TILT_BOUND);
   if (in.v < 0.1) {
 	in.v = 0.1;
   }

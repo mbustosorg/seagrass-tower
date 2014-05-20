@@ -1,6 +1,6 @@
 /*
 
-  accelerometer.cpp
+  statusLED.h
 
   Copyright (c) 2014, Mauricio Bustos
   All rights reserved.
@@ -28,48 +28,28 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "accelerometer.h"
-#include <Wire.h>
+#ifndef statusLED_h
+#define statusLED_h
 
-//! Create the accelerometer object
-accelerometer::accelerometer() {
-}
+#include "Adafruit_NeoPixel.h"
 
-//! Current moving average tilt vector
-TiltVector accelerometer::currentTilt() {
-  TiltVector newVector;
-  newVector.x = device.x();
-  newVector.y = device.y();
-  newVector.z = device.z();
-  return newVector;
-}
+#define STATUS_LED_PIN (20)
 
-//! Shutdown the acceleromter for powersaving
-void accelerometer::shutdown() {
-}
+class statusLED {
 
-//! Have we been recently shaken?
-bool accelerometer::isShaking() {
-  return false;
-}
+ public:
+  statusLED();
+  void update();
+  void pulse(byte red, byte green, byte blue, int duration, bool fade);
 
-//! Calibrate base angle
-void accelerometer::calibrate() {
-}
+ private:
+  Adafruit_NeoPixel led = Adafruit_NeoPixel(1, STATUS_LED_PIN, NEO_GRB + NEO_KHZ800);
 
-//! Force a reset of shaking status
-void accelerometer::resetShake() {
-  shakeTimeStart = 0;
-}
+  byte red, green, blue;
+  int duration = 0;
+  unsigned long pulseStart = 0;
+  bool fading;
 
-//! Set the shake detection threshold to `newShakeThreshold'
-void accelerometer::setShakeThreshold(float newShakeThreshold) {
-  shakeThreshold = newShakeThreshold;
-}
- 
-//! Set the amount of time we sit in shake mode
-void accelerometer::setResetTime(long newResetTime) {
-  shakeResetTime = newResetTime;
-}
+};
 
-
+#endif

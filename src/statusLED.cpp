@@ -1,6 +1,6 @@
 /*
 
-  accelerometer.cpp
+  statusLED.cpp
 
   Copyright (c) 2014, Mauricio Bustos
   All rights reserved.
@@ -28,48 +28,23 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "accelerometer.h"
-#include <Wire.h>
+#include "statusLED.h"
 
-//! Create the accelerometer object
-accelerometer::accelerometer() {
+//! Create the device object
+statusLED::statusLED() {  
+  led.begin();
 }
 
-//! Current moving average tilt vector
-TiltVector accelerometer::currentTilt() {
-  TiltVector newVector;
-  newVector.x = device.x();
-  newVector.y = device.y();
-  newVector.z = device.z();
-  return newVector;
+//! Update the display with current status
+void statusLED::update() {
+  byte red = 255;
+  byte green = 0;
+  byte blue = 255;
+  
+  led.setPixelColor(0, red, green, blue);
+  led.show();
 }
 
-//! Shutdown the acceleromter for powersaving
-void accelerometer::shutdown() {
+//! Display a pulse
+void statusLED::pulse(byte red, byte green, byte blue, int duration, bool fade) {
 }
-
-//! Have we been recently shaken?
-bool accelerometer::isShaking() {
-  return false;
-}
-
-//! Calibrate base angle
-void accelerometer::calibrate() {
-}
-
-//! Force a reset of shaking status
-void accelerometer::resetShake() {
-  shakeTimeStart = 0;
-}
-
-//! Set the shake detection threshold to `newShakeThreshold'
-void accelerometer::setShakeThreshold(float newShakeThreshold) {
-  shakeThreshold = newShakeThreshold;
-}
- 
-//! Set the amount of time we sit in shake mode
-void accelerometer::setResetTime(long newResetTime) {
-  shakeResetTime = newResetTime;
-}
-
-

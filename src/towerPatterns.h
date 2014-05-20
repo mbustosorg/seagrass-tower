@@ -42,17 +42,6 @@
 #include "accelerometer.h"
 #include <XBee.h>
 
-#define tiltThreshold (15)
-#define tiltCalThreshold (5)
-#define SHAKE_DETECTION_TIME (50)
-#define SHAKE_LENGTH (4000)
-#define SHAKE_THRESHOLD (50)
-#define TILT_BOUND (200)
-
-#define xTiltPin (18)
-#define yTiltPin (17)
-#define zTiltPin (16)
-
 #define SIN_TABLE_COUNT (80)
 
 #ifdef NOT_EMBEDDED
@@ -137,13 +126,7 @@ class towerPatterns : public furSwarmPatterns {
 
   // Accelerometer data
   accelerometer accel;
-  float xTilt, xShakeTilt;
-  float yTilt, yShakeTilt, yLastTiltCal;
-  float zTilt, zShakeTilt, zLastTiltCal;
-  float xTiltCal = 0;
-  float yTiltCal = 0;
-  float zTiltCal = 0;
-  uint32_t tiltCalStart = 0;
+  TiltVector tiltVector;
   rgb currentRGBOut, lastRGBOut;
   bool useTiltForBounceColor;
 

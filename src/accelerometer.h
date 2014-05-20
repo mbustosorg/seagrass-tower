@@ -31,7 +31,21 @@
 #ifndef accelerometer_h
 #define accelerometer_h
 
+#include "Arduino.h"
+#ifdef ADXL345
+#include "adxl345.h"
+#else
+#include "adxl335.h"
+#endif
+
+#define TILT_THRESHOLD tiltThreshold (15)
+#define TILT_CAL_THRESHOLD (5)
+#define SHAKE_DETECTION_TIME (50)
+#define SHAKE_LENGTH (4000)
+#define SHAKE_THRESHOLD (50)
+
 struct TiltVector {
+  // Component G's
   float x;
   float y;
   float z;
@@ -46,16 +60,25 @@ class accelerometer {
   // Status
   TiltVector currentTilt();
   bool isShaking();
+  void shutdown();
 
-  // Configuraiton
+  // Configuration
   void calibrate();
   void resetShake();
-  void setShakeThreshold();
+  void setShakeThreshold(float newShakeThreshold);
   void setResetTime(long newResetTime);
 
  private:
+
+#ifdef ADXL345
+  adxl345 device;
+#else
+  adxl335 device;
+#endif
   long shakeTimeStart;
-  long resetTime;
+  float shakeThreshold;
+  long shakeResetTime;
+
 };
 
 #endif

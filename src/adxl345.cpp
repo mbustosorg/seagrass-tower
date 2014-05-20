@@ -1,6 +1,6 @@
 /*
 
-  accelerometer.cpp
+  adxl345.cpp
 
   Copyright (c) 2014, Mauricio Bustos
   All rights reserved.
@@ -28,48 +28,42 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "accelerometer.h"
+#include "adxl345.h"
 #include <Wire.h>
 
-//! Create the accelerometer object
-accelerometer::accelerometer() {
+//! Create the device object
+adxl345::adxl345() {
+  range = 2.0; // Default range is +/- 2.0g
+
+  Wire.beginTransmission(ADXL345_ADDR);
+  Wire.send(ADXL345_POWER_CTL);  
+  Wire.send(0x08);  // Measurement mode
+  Wire.endTransmission();
 }
 
-//! Current moving average tilt vector
-TiltVector accelerometer::currentTilt() {
-  TiltVector newVector;
-  newVector.x = device.x();
-  newVector.y = device.y();
-  newVector.z = device.z();
-  return newVector;
+//! Normalized read for 2 byte set starting at `byteStart'
+float adxl345::normalizedRead(int byteStart) {
+  int16_t reading;
+  Wire.beginTransmission(ADXL345_ADDR);
+  Wire.send(byteStart);  
+  Wire.endTransmission();
+  Wire.requestFrom(ADXL345_ADDR, 2);
+  reading = Wire.receive() | Wire.receive() << 8;
+  return (float)reading * (range * 2) / pow (2, 10);
 }
 
-//! Shutdown the acceleromter for powersaving
-void accelerometer::shutdown() {
+//! X acceleration value
+float adxl345::x() {
+  return normalizedRead(ADXL345_DATAX0);
 }
 
-//! Have we been recently shaken?
-bool accelerometer::isShaking() {
-  return false;
+//! Y acceleration value
+float adxl345::y() {
+  return normalizedRead(ADXL345_DATAY0);
 }
 
-//! Calibrate base angle
-void accelerometer::calibrate() {
+//! Z acceleration value
+float adxl345::z() {
+  return normalizedRead(ADXL345_DATAZ0);
 }
-
-//! Force a reset of shaking status
-void accelerometer::resetShake() {
-  shakeTimeStart = 0;
-}
-
-//! Set the shake detection threshold to `newShakeThreshold'
-void accelerometer::setShakeThreshold(float newShakeThreshold) {
-  shakeThreshold = newShakeThreshold;
-}
- 
-//! Set the amount of time we sit in shake mode
-void accelerometer::setResetTime(long newResetTime) {
-  shakeResetTime = newResetTime;
-}
-
 

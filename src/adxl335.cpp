@@ -1,6 +1,6 @@
 /*
 
-  accelerometer.cpp
+  adxl335.cpp
 
   Copyright (c) 2014, Mauricio Bustos
   All rights reserved.
@@ -28,48 +28,34 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "accelerometer.h"
+#include "adxl335.h"
 #include <Wire.h>
 
-//! Create the accelerometer object
-accelerometer::accelerometer() {
+//! Create the device object
+adxl335::adxl335() {
+  range = 3.0; // Default range is +/- 3.0g
 }
 
-//! Current moving average tilt vector
-TiltVector accelerometer::currentTilt() {
-  TiltVector newVector;
-  newVector.x = device.x();
-  newVector.y = device.y();
-  newVector.z = device.z();
-  return newVector;
+//! Normalized read on `pin'
+float adxl335::normalizedRead(int pin) {
+  float tiltValue;
+  tiltValue = analogRead(pin) - 512.0;
+  tiltValue = max (min(tiltValue, TILT_BOUND), -TILT_BOUND);
+  tiltValue = tiltValue * 3300.0 / 1024.0 / 348.0; // 348 mV/g @ 3.3 V 
+  return tiltValue;
 }
 
-//! Shutdown the acceleromter for powersaving
-void accelerometer::shutdown() {
+//! X acceleration value
+float adxl335::x() {
+  return normalizedRead (X_TILT_PIN);
 }
 
-//! Have we been recently shaken?
-bool accelerometer::isShaking() {
-  return false;
+//! Y acceleration value
+float adxl335::y() {
+  return normalizedRead (Y_TILT_PIN);
 }
 
-//! Calibrate base angle
-void accelerometer::calibrate() {
+//! Z acceleration value
+float adxl335::z() {
+  return normalizedRead (Z_TILT_PIN);
 }
-
-//! Force a reset of shaking status
-void accelerometer::resetShake() {
-  shakeTimeStart = 0;
-}
-
-//! Set the shake detection threshold to `newShakeThreshold'
-void accelerometer::setShakeThreshold(float newShakeThreshold) {
-  shakeThreshold = newShakeThreshold;
-}
- 
-//! Set the amount of time we sit in shake mode
-void accelerometer::setResetTime(long newResetTime) {
-  shakeResetTime = newResetTime;
-}
-
-

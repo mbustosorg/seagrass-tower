@@ -1,0 +1,8 @@
+*.o
+*.d
+*.a
+*.elf
+*.hex
+*.*~
+.DS_Store
+.svn

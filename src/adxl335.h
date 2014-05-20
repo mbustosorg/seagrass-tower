@@ -1,6 +1,6 @@
 /*
 
-  accelerometer.cpp
+  adxl335.h
 
   Copyright (c) 2014, Mauricio Bustos
   All rights reserved.
@@ -28,48 +28,31 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "accelerometer.h"
-#include <Wire.h>
+#ifndef adxl335_h
+#define adxl335_h
 
-//! Create the accelerometer object
-accelerometer::accelerometer() {
-}
+#include "Arduino.h"
 
-//! Current moving average tilt vector
-TiltVector accelerometer::currentTilt() {
-  TiltVector newVector;
-  newVector.x = device.x();
-  newVector.y = device.y();
-  newVector.z = device.z();
-  return newVector;
-}
+#define X_TILT_PIN (18)
+#define Y_TILT_PIN (17)
+#define Z_TILT_PIN (16)
 
-//! Shutdown the acceleromter for powersaving
-void accelerometer::shutdown() {
-}
+#define TILT_BOUND (255)
 
-//! Have we been recently shaken?
-bool accelerometer::isShaking() {
-  return false;
-}
+class adxl335 {
 
-//! Calibrate base angle
-void accelerometer::calibrate() {
-}
+ public:
+  adxl335();
 
-//! Force a reset of shaking status
-void accelerometer::resetShake() {
-  shakeTimeStart = 0;
-}
+  float range;
 
-//! Set the shake detection threshold to `newShakeThreshold'
-void accelerometer::setShakeThreshold(float newShakeThreshold) {
-  shakeThreshold = newShakeThreshold;
-}
- 
-//! Set the amount of time we sit in shake mode
-void accelerometer::setResetTime(long newResetTime) {
-  shakeResetTime = newResetTime;
-}
+  float x();
+  float y();
+  float z();
 
+ private:
+  float normalizedRead(int pin);
 
+};
+
+#endif

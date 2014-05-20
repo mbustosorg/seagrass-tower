@@ -1,6 +1,6 @@
 /*
 
-  accelerometer.cpp
+  adxl345.h
 
   Copyright (c) 2014, Mauricio Bustos
   All rights reserved.
@@ -28,48 +28,35 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "accelerometer.h"
-#include <Wire.h>
+#ifndef adxl345_h
+#define adxl345_h
 
-//! Create the accelerometer object
-accelerometer::accelerometer() {
-}
+#include "Arduino.h"
 
-//! Current moving average tilt vector
-TiltVector accelerometer::currentTilt() {
-  TiltVector newVector;
-  newVector.x = device.x();
-  newVector.y = device.y();
-  newVector.z = device.z();
-  return newVector;
-}
+// ADXL345 Register Addresses
+#define ADXL345_ADDR 0x53
+#define ADXL345_POWER_CTL 0x2D
+#define ADXL345_DATAX0 0x32
+#define ADXL345_DATAX1 0x33
+#define ADXL345_DATAY0 0x34
+#define ADXL345_DATAY1 0x35
+#define ADXL345_DATAZ0 0x36
+#define ADXL345_DATAZ1 0x37
 
-//! Shutdown the acceleromter for powersaving
-void accelerometer::shutdown() {
-}
+class adxl345 {
 
-//! Have we been recently shaken?
-bool accelerometer::isShaking() {
-  return false;
-}
+ public:
+  adxl345();
 
-//! Calibrate base angle
-void accelerometer::calibrate() {
-}
+  float range;
 
-//! Force a reset of shaking status
-void accelerometer::resetShake() {
-  shakeTimeStart = 0;
-}
+  float x();
+  float y();
+  float z();
 
-//! Set the shake detection threshold to `newShakeThreshold'
-void accelerometer::setShakeThreshold(float newShakeThreshold) {
-  shakeThreshold = newShakeThreshold;
-}
- 
-//! Set the amount of time we sit in shake mode
-void accelerometer::setResetTime(long newResetTime) {
-  shakeResetTime = newResetTime;
-}
+ private:
+  float normalizedRead(int byteStart);
 
+};
 
+#endif

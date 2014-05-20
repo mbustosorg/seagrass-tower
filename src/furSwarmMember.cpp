@@ -49,6 +49,7 @@
 #include "towerPatterns.h"
 #include "TinyGPS.h"  
 #include "gps2rtc.h"
+#include "statusLED.h"
 int displayUpdateCount = 0;
 const int gps_1pps_pin = 9;
 GPS2RTC gps2rtc;
@@ -152,6 +153,7 @@ int frameLate = 0;
 const int latitudeStartByte = 0;
 const int longitudeStartByte = 4;
 unsigned long lastMessageReceipt = 0;
+statusLED led;
 #else
 furSwarmPatterns Control;
 #endif
@@ -259,6 +261,8 @@ void setup() {
   setStartupPattern();
   setupTimers();
   synchronizeToRTC();
+  // Wire will be used for Accelerometer
+  Wire.begin();
 }
 
 #ifdef TEENSY
@@ -575,11 +579,12 @@ void updateGPSdata() {
 void updateDisplay() {
 #ifdef TEENSY
   if (displayUpdateCount == 0) {
+	led.update();
 	unsigned long timeStamp = millis();
 	if (Control.pattern == FS_ID_TILT) {
-	  int hue = atan2(Control.zTilt, Control.yTilt) * 360.0 / (2.0 * 3.14159);
-	  int saturation = sqrt((Control.yTilt / 200) * (Control.yTilt / 200) + (Control.zTilt / 200) * (Control.zTilt / 200)) * 100;
-	  displayTiltParameters(hue, saturation, Control.isShaking, Control.zTiltCal != 0);
+	  int hue = atan2(Control.tiltVector.z, Control.tiltVector.y) * 360.0 / (2.0 * 3.14159);
+	  int saturation = sqrt((Control.tiltVector.y / 200) * (Control.tiltVector.y / 200) + (Control.tiltVector.z / 200) * (Control.tiltVector.z / 200)) * 100;
+	  displayTiltParameters(hue, saturation, Control.isShaking, false);
 	} else if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp < GPS_DISPLAY_TIME) {
  	  unsigned long rtcTime = rtc_get();
 	  displayGPSdata ((float) Control.latitude / 100000.0, (float) Control.longitude / 100000.0, rtcTime, gps2rtc.tpr_counter); //RTC_TCR & 0xFF);
