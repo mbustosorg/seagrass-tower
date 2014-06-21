@@ -31,8 +31,8 @@
 #define TCL_SWITCH2 7
 
 #ifdef TCL_DIO
-#define TCL_CLOCKPIN 2
-#define TCL_DATAPIN 3
+#define TCL_DATAPIN 2
+#define TCL_CLOCKPIN 3
 #define TCL2_CLOCKPIN 4
 #endif
 

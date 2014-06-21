@@ -34,7 +34,10 @@
 //! Create the device object
 adxl345::adxl345() {
   range = 2.0; // Default range is +/- 2.0g
+}
 
+//! Start the accelerometer
+void adxl345::startup() {
   Wire.beginTransmission(ADXL345_ADDR);
   Wire.send(ADXL345_POWER_CTL);  
   Wire.send(0x08);  // Measurement mode

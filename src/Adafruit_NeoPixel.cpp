@@ -44,7 +44,7 @@ Adafruit_NeoPixel::Adafruit_NeoPixel(uint16_t n, uint8_t p, uint8_t t) : numLEDs
   }
 }
 
-#ifdef __MK20DX128__ // Teensy 3.0
+#if defined(__MK20DX128__) || defined(__MK20DX256__) // Teensy 3.0/1
 static inline void delayShort(uint32_t) __attribute__((always_inline, unused));
 static inline void delayShort(uint32_t num) {
   asm volatile(
@@ -684,7 +684,7 @@ void Adafruit_NeoPixel::show(void) {
   But in the meantime, a fixed set of tables is used:
 */
 
-#ifdef __MK20DX128__ // Teensy 3.0
+#if defined(__MK20DX128__) || defined(__MK20DX256__) // Teensy 3.0/1
 
 #if (F_CPU == 24000000)
  #define DELAY_800_T0H  2

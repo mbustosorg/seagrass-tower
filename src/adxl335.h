@@ -31,8 +31,6 @@
 #ifndef adxl335_h
 #define adxl335_h
 
-#include "Arduino.h"
-
 #define X_TILT_PIN (18)
 #define Y_TILT_PIN (17)
 #define Z_TILT_PIN (16)
@@ -43,6 +41,8 @@ class adxl335 {
 
  public:
   adxl335();
+
+  void startup();
 
   float range;
 

@@ -33,6 +33,14 @@
 
 #include "Adafruit_NeoPixel.h"
 
+struct led_pulse {
+  byte red;
+  byte green;
+  byte blue; 
+  unsigned long duration, start;
+  bool fade;
+};
+
 #define STATUS_LED_PIN (20)
 
 class statusLED {
@@ -40,15 +48,12 @@ class statusLED {
  public:
   statusLED();
   void update();
-  void pulse(byte red, byte green, byte blue, int duration, bool fade);
+  void pulse(uint8_t red, uint8_t green, uint8_t blue, int duration, bool fade);
 
  private:
   Adafruit_NeoPixel led = Adafruit_NeoPixel(1, STATUS_LED_PIN, NEO_GRB + NEO_KHZ800);
 
-  byte red, green, blue;
-  int duration = 0;
-  unsigned long pulseStart = 0;
-  bool fading;
+  led_pulse pulseValue;
 
 };
 

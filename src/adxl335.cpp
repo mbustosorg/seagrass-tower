@@ -29,11 +29,20 @@
 */
 
 #include "adxl335.h"
-#include <Wire.h>
+#ifdef NOT_EMBEDDED
+#include "embeddedInterface.h"
+#else
+#include "Arduino.h"
+#endif
 
 //! Create the device object
 adxl335::adxl335() {
   range = 3.0; // Default range is +/- 3.0g
+}
+
+//! Startup the accelerometer
+void adxl335::startup() {
+  // Nothing to do
 }
 
 //! Normalized read on `pin'

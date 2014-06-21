@@ -29,10 +29,12 @@
 */
 
 #include "accelerometer.h"
-#include <Wire.h>
 
 //! Create the accelerometer object
 accelerometer::accelerometer() {
+  filteredReadings.x = 0.0;
+  filteredReadings.y = 0.0;
+  filteredReadings.z = 0.0;
 }
 
 //! Current moving average tilt vector
@@ -42,6 +44,27 @@ TiltVector accelerometer::currentTilt() {
   newVector.y = device.y();
   newVector.z = device.z();
   return newVector;
+}
+
+//! Set `filterLength' to `newFilterLength'
+void accelerometer::setFilterLength(int newFilterLength) {
+  if (newFilterLength > 0) {
+	filterLength = newFilterLength;
+  }
+}
+
+//! Moving average of tilt readings
+TiltVector accelerometer::filteredTilt() {
+  TiltVector newVector = currentTilt();
+  filteredReadings.x = filteredReadings.x + (newVector.x - filteredReadings.x) / filterLength;
+  filteredReadings.y = filteredReadings.y + (newVector.y - filteredReadings.y) / filterLength;
+  filteredReadings.z = filteredReadings.z + (newVector.z - filteredReadings.z) / filterLength;
+  return filteredReadings;
+}
+
+//! Startup the accelerator
+void accelerometer::startup() {
+  device.startup();
 }
 
 //! Shutdown the acceleromter for powersaving

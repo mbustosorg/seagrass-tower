@@ -45,13 +45,14 @@
 #include "xBeeConfiguration.h"
 #include <EEPROM.h>
 #ifdef TEENSY
-#include "oledControl.h"
 #include "towerPatterns.h"
 #include "TinyGPS.h"  
 #include "gps2rtc.h"
 #include "statusLED.h"
+#include <Wire.h>
 int displayUpdateCount = 0;
 const int gps_1pps_pin = 9;
+const int gps_onoff_pin = 16;
 GPS2RTC gps2rtc;
 unsigned long gpsTimeStamp = 0;
 #define GPS_DISPLAY_TIME (10000)
@@ -189,7 +190,6 @@ void setStartupPattern();
 void sendHeartbeat();
 void processIncoming();
 void processRXResponse();
-void synchronizeToRTC();
 
 //! Initialize the system
 void setup() {
@@ -220,6 +220,15 @@ void setup() {
 	Control.latitude = readEepromLong(latitudeStartByte);
 	Control.longitude = readEepromLong(longitudeStartByte);
 	// Fix to work when we don't have accurate GPS data available
+	Control.randomSeedPin = 12;
+	gps2rtc.begin(&Serial3, 9600, gps_1pps_pin, gps_onoff_pin);      // Required.
+	gps2rtc.state = synchronize_to_pps;
+	lastMessageReceipt = rtc_get();
+	// Wire will be used for Accelerometer
+	Wire.begin();
+#ifdef FFT_DIAGNOSTICS
+	Serial.begin(115200);
+#endif
 #else
 	Control.audioAnalogPin = 9;
 #endif
@@ -243,12 +252,6 @@ void setup() {
 #else
   // Adafruit strip
 #endif
-#ifdef TEENSY
-  setupOLEDdisplay();
-  Control.randomSeedPin = 12;
-  gps2rtc.begin(&Serial3, 9600, gps_1pps_pin);      // Required.
-  lastMessageReceipt = rtc_get();
-#endif
   // Initialize the radio
   setupRadio();
   // Initialize generic pattern attributes
@@ -260,23 +263,16 @@ void setup() {
   Control.initializeRandom(160, 255, 0xff, 0xff, 0xff, false); 
   setStartupPattern();
   setupTimers();
-  synchronizeToRTC();
-  // Wire will be used for Accelerometer
-  Wire.begin();
+}
+
+//! Send out a display message
+void displayMessage(const char* message) {
+#ifdef SERIAL_DIAGNOSTICS
+  Serial.println (message);
+#endif
 }
 
 #ifdef TEENSY
-
-//! Synchronize to the second boundary
-void synchronizeToRTC()
-{
-  unsigned long timeout = millis(); // Timeout at 2.5 seconds to make sure we don't get stuck if the RTC is not on
-  unsigned long rtcTime = rtc_get();
-  while (rtc_get() == rtcTime && millis() - timeout < 2500) {}
-  displayUpdateCount = 0;
-  frameStarted = 1;
-  Control.setRadioTowerSyncTimestamp (millis());
-}
 
 //! Set up the frame rate timers
 void setupTimers() {
@@ -332,6 +328,10 @@ void pit2_isr(void)
 	displayUpdateCount++;
   }
   PIT_TFLG2 = 1;
+#ifdef FFT_DIAGNOSTICS
+  digitalWrite(13, HIGH);
+  digitalWrite(13, LOW);
+#endif
 }
 
 //! Audio input interrupt handler running at 40kHz
@@ -339,7 +339,7 @@ void pit3_isr(void)
 {
   int sample;
   sample = analogRead (Control.audioAnalogPin);
-  Control.audioSampleInput[Control.audioSampleInputIndex * 2] = (float32_t)(sample);
+  Control.audioSampleInput[Control.audioSampleInputIndex * 2] = (float32_t)(sample) - 512.0;
   Control.audioSampleInput[Control.audioSampleInputIndex * 2 + 1] = 0.0;
   Control.audioSampleInputIndex++;
   if (Control.audioSampleInputIndex >= TEST_LENGTH_SAMPLES / 2) {
@@ -347,8 +347,6 @@ void pit3_isr(void)
 	// Turn off the timer and let the processor turn it back on once the data has been analyzed
 	PIT_TCTRL3 &= ~(1 << 0);
   }
-  //digitalWrite(13, HIGH);
-  //digitalWrite(13, LOW);
   PIT_TFLG3 = 1;
 }
 
@@ -361,13 +359,14 @@ void startup_late_hook(void) {
   NVIC_ENABLE_IRQ(IRQ_PIT_CH2);
   NVIC_ENABLE_IRQ(IRQ_PIT_CH3);
   
-  PIT_LDVAL2 = CPU_SPEED / FRAME_RATE - 1; // setup timer 2 for frame timer period (60Hz) = 48MHz / 60Hz
+  PIT_LDVAL2 = F_CPU / FRAME_RATE - 1; // setup timer 2 for frame timer period (60Hz) = F_CPU (e.g. 96MHz) / 60Hz
   PIT_TCTRL2 = 0x2; // enable Timer 2 interrupts
   PIT_TCTRL2 |= 0x1; // start Timer 2
   PIT_TFLG2 |= 1;
 
   //PIT_LDVAL3 = 2400 - 1; // setup timer 2 for frame timer period (20kHz) = 48MHz / 20kHz, which results in a 20kHz / 256 = 78Hz frequency bucket
-  PIT_LDVAL3 = 1250 - 1; // setup timer 2 for frame timer period (40kHz) = 48MHz / 40kHz, which results in a 40kHz / 256 = 156Hz frequency bucket
+  //PIT_LDVAL3 = 1250 - 1; // setup timer 2 for frame timer period (40kHz) = 48MHz / 40kHz, which results in a 40kHz / 256 = 156Hz frequency bucket
+  PIT_LDVAL3 = F_CPU / 40000 - 1; // setup timer 2 for frame timer period (40kHz) = 48MHz / 40kHz, which results in a 40kHz / 256 = 156Hz frequency bucket
   PIT_TCTRL3 = 0x2; // enable Timer 3 interrupts
   PIT_TCTRL3 |= 0x1; // start Timer 3
   PIT_TFLG3 |= 1;
@@ -384,12 +383,6 @@ void disableTimers() {
 }
 
 #else // not TEENSY
-
-//! Synchronize to the second boundary
-void synchronizeToRTC()
-{
-  // Do nothing
-}
 
 //! Frame rate interrupt handler
 ISR(TIMER1_COMPA_vect) {
@@ -439,15 +432,6 @@ void setupRadio() {
 	if (!connected) {
 	  uint8_t baudRateData[] = {FS_ID_FULL_COLOR, 128, 10, 0, 10};
 	  for (int i = 0; i < numberOfBaudRates && !connected; i++) {
-#ifdef TEENSY
-		display.clearDisplay();
-		display.setTextSize(2);
-		display.setTextColor(WHITE);
-		display.setCursor(0,0);
-		display.print("Baud:");
-		display.println(baudRates[i]);
-		display.display();
-#endif
 		baudRateData[2] = baudRateData[2] + 30;
 		baudRateData[4] = baudRateData[4] + 30;
 		Control.initializePattern(baudRateData, 5);
@@ -463,15 +447,6 @@ void setupRadio() {
 	  delay (2000);
 	}
 	if (XBeePANID != Endian32_Swap(XBconfiguration.panID()) || needPersist) {
-#ifdef TEENSY
-	  display.clearDisplay();
-	  display.setTextSize(2);
-	  display.setTextColor(WHITE);
-	  display.setCursor(0,0);
-	  display.print("PANID:");
-	  display.println(XBeePANID);
-	  display.display();
-#endif
 	  uint8_t data[] = {FS_ID_FULL_COLOR, 128, 0, 255, 255, 200};
 	  Control.initializePattern(data, 6);
 	  XBconfiguration.setPanID(Endian32_Swap(XBeePANID));
@@ -481,12 +456,18 @@ void setupRadio() {
   }
   uint8_t dataRed[] = {FS_ID_FULL_COLOR, 128, 255, 0, 0, 255};
   Control.initializePattern(dataRed, 6);
+  led.pulse (255, 0, 0, 500, true);
+  led.update();
   delay (500);
   uint8_t dataGreen[] = {FS_ID_FULL_COLOR, 128, 0, 255, 0, 255};
   Control.initializePattern(dataGreen, 6);
+  led.pulse (0, 255, 0, 500, true);
+  led.update();
   delay (500);
   uint8_t dataBlue[] = {FS_ID_FULL_COLOR, 128, 0, 0, 255, 255};
   Control.initializePattern(dataBlue, 6);
+  led.pulse (0, 0, 255, 500, true);
+  led.update();
   delay (500);
 }
 
@@ -532,67 +513,67 @@ void loop() {
 	frameStarted = 0;
   }
   processIncoming();
-#ifdef TEENSY
-  if (gps2rtc.rtc_waiting_for_tcr_reset && !gps2rtc.rtc_compensation_set) {
-	disableTimers();
-	displayUpdateCount = 0;
-	while (!gps2rtc.rtc_compensation_set) {
-	  delay (1000);
-	  updateDisplay();
-	}
-	enableTimers();
-  }
-#endif
 }
 
 #ifdef TEENSY
 //! Check if GPS data is available
 void updateGPSdata() {
-  String message = "";
-  char outMessage[50];
-  if (gps2rtc.rtc_compensation_set) {
+  if (gps2rtc.gps_time != 0 && gpsTimeStamp == 0) {
 	if (writeEepromLong (gps2rtc.latitude, latitudeStartByte) && writeEepromLong (gps2rtc.longitude, longitudeStartByte)) {
 	  Control.latitude = readEepromLong(latitudeStartByte);
 	  Control.longitude = readEepromLong(longitudeStartByte);
 	  gpsTimeStamp = millis();
-	  synchronizeToRTC();
 	} else {
 	  displayMessage ("Could not write GPS data");
 	}
-  } else if (gps2rtc.rtc_waiting_for_tcr_reset) {
-	message += "Waiting for TCR: ";
-	message += (int)gps2rtc.rtc_reset_count;
-	message.toCharArray(outMessage, message.length() + 1);
-	displayMessage ((const char*)outMessage);
-  } else if (gps2rtc.rtc_time_set) {
-	message += "Setting RTC comp: ";
-	message += gps2rtc.rtc_comp_time;
-	message.toCharArray(outMessage, message.length() + 1);
-	displayMessage ((const char*)outMessage);
   } else {
 	displayMessage ("Waiting for 1pps GPS data");
   }
 }
 #endif
 
+//! 
+void displayGPSdata(float lat, float lon, unsigned long time) {
+  unsigned long days = time / (3600 * 24);
+  unsigned long running = time - days * 3600 * 24;
+  unsigned long hours = running / 3600;
+  unsigned long minutes = ((float) running / 3600.0 - hours) * 60.0;
+  unsigned long seconds = running - hours * 3600 - minutes * 60;
+  if (seconds == 60) {
+	seconds = 0;
+	minutes = minutes + 1;
+  }
+  Serial.print("lat:");
+  Serial.print(lat);
+  Serial.print(", lon:");
+  Serial.print(lon);
+  Serial.print(", time:");
+  if (hours < 10) Serial.print ("0");
+  Serial.print(hours); Serial.print(":"); 
+  if (minutes < 10) Serial.print ("0");
+  Serial.print(minutes); Serial.print(":"); 
+  if (seconds < 10) Serial.print ("0");
+  Serial.println(seconds); 
+}
+
 //! Update the status display
 void updateDisplay() {
 #ifdef TEENSY
+  led.update();
   if (displayUpdateCount == 0) {
-	led.update();
+	Serial.print ("x");
 	unsigned long timeStamp = millis();
-	if (Control.pattern == FS_ID_TILT) {
-	  int hue = atan2(Control.tiltVector.z, Control.tiltVector.y) * 360.0 / (2.0 * 3.14159);
-	  int saturation = sqrt((Control.tiltVector.y / 200) * (Control.tiltVector.y / 200) + (Control.tiltVector.z / 200) * (Control.tiltVector.z / 200)) * 100;
-	  displayTiltParameters(hue, saturation, Control.isShaking, false);
-	} else if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp < GPS_DISPLAY_TIME) {
- 	  unsigned long rtcTime = rtc_get();
-	  displayGPSdata ((float) Control.latitude / 100000.0, (float) Control.longitude / 100000.0, rtcTime, gps2rtc.tpr_counter); //RTC_TCR & 0xFF);
+	if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp < GPS_DISPLAY_TIME) {
+	  led.pulse (0, 255, 0, 500, true);
 	} else if (gps2rtc.receiving_serial_data && timeStamp - gps2rtc.last_sentence_receipt < GPS_DISPLAY_TIME / 2 && 
 			   gpsTimeStamp == 0 && gps2rtc.last_sentence_receipt != 0) {
+	  led.pulse (0, 0, 255, 500, true);
 	  updateGPSdata();
 	} else {
-	  float frameRate = (float) frameRateCount / (float) (timeStamp - heartbeatTimestamp) * 1000.0 + 0.5;
+	  led.pulse (200, 0, 0, 500, true);
+#ifdef SERIAL_DIAGNOSTICS
+	  displayGPSdata(Control.latitude, Control.longitude, gps2rtc.gps_time);
+#endif
 	  //float Vtemp = analogRead(38) * 0.0029296875;
 	  //float Temp1;
 	  //if (Vtemp >= 0.7012) {
@@ -608,7 +589,6 @@ void updateDisplay() {
 	  unsigned long onTime = 2 * 3600 + 30 * 60; // 02:30 UTC == 19:30 PDT
 	  unsigned long offTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
 	  //unsigned long offTime = 20 * 3600 + 30 * 60;
-	  displayOperatingDetails(Control.pattern, timeStamp / 1000, frameRate, rtcTime, Control.latitude / 100000.0, Control.longitude / 100000.0, gps2rtc.tpr_counter); //RTC_TCR & 0xFF);
 	  if (daytimeShutdown) {
 		if (Control.pattern != FS_ID_OFF) {
 		  uint8_t data[] = {FS_ID_OFF};

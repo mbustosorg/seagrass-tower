@@ -31,7 +31,6 @@
 #ifndef accelerometer_h
 #define accelerometer_h
 
-#include "Arduino.h"
 #ifdef ADXL345
 #include "adxl345.h"
 #else
@@ -59,7 +58,9 @@ class accelerometer {
 
   // Status
   TiltVector currentTilt();
+  TiltVector filteredTilt();
   bool isShaking();
+  void startup();
   void shutdown();
 
   // Configuration
@@ -67,6 +68,7 @@ class accelerometer {
   void resetShake();
   void setShakeThreshold(float newShakeThreshold);
   void setResetTime(long newResetTime);
+  void setFilterLength(int newFilterLength);
 
  private:
 
@@ -78,6 +80,8 @@ class accelerometer {
   long shakeTimeStart;
   float shakeThreshold;
   long shakeResetTime;
+  TiltVector filteredReadings;
+  int filterLength = 0;
 
 };
 

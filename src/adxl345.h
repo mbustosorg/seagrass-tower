@@ -47,6 +47,8 @@ class adxl345 {
 
  public:
   adxl345();
+  
+  void startup();
 
   float range;
 

@@ -36,7 +36,7 @@
 
 #include "towerPatterns.h"
 #include "colorUtilities.h"
-#include "flameFrames.h"
+#include "animation/flameFrames.h"
 
 #ifdef NOT_EMBEDDED
 uint32_t PIT_TCTRL3 = 0;
@@ -356,7 +356,7 @@ rgb towerPatterns::tiltColor() {
 	in.h = atan2(tiltVector.z, tiltVector.y) * 360.0 / (2.0 * 3.14159);
   }
   in.s = 1.0;
-  in.v = (tiltVector.y / TILT_BOUND) * (tiltVector.y / TILT_BOUND) + (tiltVector.z / TILT_BOUND) * (tiltVector.z / TILT_BOUND);
+  in.v = tiltVector.y * tiltVector.y + tiltVector.z * tiltVector.z;
   if (in.v < 0.1) {
 	in.v = 0.1;
   }
@@ -696,7 +696,7 @@ void towerPatterns::iterateSpectrumAnalyzer() {
   if (audioSampleInputIndex == 0) {
 #ifndef NOT_EMBEDDED
 #ifdef FFT_DIAGNOSTICS
-	uint32_t fftStart, fftCFFT, fftMag;
+	uint32_t fftStart, fftMag;
 	Serial.print ("RUN:");
 	Serial.print ((float32_t)saTargetThreshold);
 	Serial.print (",");
@@ -705,6 +705,8 @@ void towerPatterns::iterateSpectrumAnalyzer() {
 	Serial.print ((float32_t)saGain);
 	Serial.print (",");
 	Serial.print ((float32_t)saRunningAverage);
+	Serial.print (",");
+	Serial.print ((float32_t)signalPower);
 	Serial.println ("|");
 	Serial.print ("INP:");
   	for (int i = 0; i < TEST_LENGTH_SAMPLES / 2; i++) {
@@ -721,21 +723,20 @@ void towerPatterns::iterateSpectrumAnalyzer() {
 	arm_cfft_radix4_instance_f32 fft_inst;  /* CFFT Structure instance */
 	arm_cfft_radix4_init_f32(&fft_inst, FFT_LEN, ifftFlag, doBitReverse);
 	
-	//*************** Determine if we want to apply a HAMM filter on audioSampleInput,
-	//*************** Currently using a triangle filter
-	for (int i = 0; i < FFT_LEN / 2; i++) {
-	  audioSampleInput [i * 2] = audioSampleInput [i * 2] * ((float) i / ((float) (FFT_LEN / 2)));
+	// Apply Hamming Filter and compute power
+	signalPower = 0.0;
+	for (int i = 0; i < FFT_LEN; i++) {
+	  signalPower += audioSampleInput [i * 2] * audioSampleInput [i * 2];
+	  if (i == 0 || i == FFT_LEN - 1) {
+		audioSampleInput [i * 2] = audioSampleInput [i * 2] * hammingFilter [0];
+	  } else {
+		audioSampleInput [i * 2] = audioSampleInput [i * 2] * (hammingFilter [i / 2] + hammingFilter [i / 2 + 1]) / 2.0;
+	  }
 	}
-	for (int i = FFT_LEN / 2; i < FFT_LEN; i++) {
-	  audioSampleInput [i * 2] = audioSampleInput [i * 2] * ((float) (FFT_LEN - i) / ((float) (FFT_LEN / 2)));
-	}
-	//***************
+	signalPower /= FFT_LEN / 2.0;
 	
 	/* Process the data through the CFFT/CIFFT module */ 
 	arm_cfft_radix4_f32(&fft_inst, audioSampleInput);
-#ifdef FFT_DIAGNOSTICS
-	fftCFFT = millis();
-#endif
 	/* Process the data through the Complex Magnitude Module for  
 	   calculating the magnitude at each bin */ 
 	arm_cmplx_mag_f32(audioSampleInput, audioMagnitudeOutput, FFT_LEN);  
@@ -835,6 +836,8 @@ void towerPatterns::updateSpectrumLevels() {
 	//ledRed[0] = 0;
 	//ledGreen[0] = 0;
 	//ledBlue[0] = 200;
+	float ascentRate = 0.9;
+	float decentRate = 0.9;
 	for (int i = 1; i < LED_COUNT; i++) {
 	  //magnitude = min(1.0, log10 (10.0 * audioMagnitudeBuckets[i] / (maximum * maxLevelFactor) + 1.0) / maximumLevel);
 	  magnitude = 20.0 * log10 (audioMagnitudeBuckets[i]);
@@ -843,10 +846,10 @@ void towerPatterns::updateSpectrumLevels() {
 	  magnitude /= (20 * log10 (maximum) - SPECTRUM_MIN_DB);
 	  magnitude = min(1.0, magnitude);
 	  if (magnitude * 255.0 > runningMagnitude[i]) {
-		runningMagnitude[i] = runningMagnitude[i] + (magnitude * 255.0 - runningMagnitude[i]) * 0.5;
+		runningMagnitude[i] = runningMagnitude[i] + (magnitude * 255.0 - runningMagnitude[i]) * ascentRate;
 	  } else {
 		// Descend more slowly than ascending
-		runningMagnitude[i] = runningMagnitude[i] + (magnitude * 255.0 - runningMagnitude[i]) * 0.2;
+		runningMagnitude[i] = runningMagnitude[i] + (magnitude * 255.0 - runningMagnitude[i]) * decentRate;
 	  }
 	  ledGreen[i] = (uint8_t) (runningMagnitude[i]);
 	  ledBlue[i] = (uint8_t) (255.0 - runningMagnitude[i]);
