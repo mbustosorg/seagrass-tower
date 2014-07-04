@@ -630,11 +630,13 @@ void towerPatterns::iterateRadioTower() {
 	ledRed[i] = 0;
 	ledGreen[i] = 0;
 	ledBlue[i] = 0;
+	// Blink to 3 LEDs for a second at beginning of period
 	if (currentTimestamp < radioTowerStart + 1000 && i > LED_COUNT - 3) {
 	  ledRed[i] = adjustedRed;
 	  ledGreen[i] = adjustedGreen;
 	  ledBlue[i] = adjustedBlue;
 	}
+	// Blink bottom 3 LEDs at 1Hz rate using `radioTowerSyncTimestamp' as the boundary
 	if ((currentTimestamp - radioTowerSyncTimestamp) % 1000 < 100 && i < 3) {
 	  ledRed[i] = adjustedRed;
 	  ledGreen[i] = adjustedGreen;

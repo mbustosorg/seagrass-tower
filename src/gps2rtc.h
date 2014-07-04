@@ -31,8 +31,6 @@
 #include <hardwareserial.h>
 #include "TinyGPS.h"
 
-//#define DUMP_RAW_NMEA
-
 enum GPS_TO_RTC_STATE {
   looking_for_serial_data = 0,
   waiting_for_1pps = 1,
@@ -135,6 +133,7 @@ class GPS2RTC
 #ifdef SERIAL_DIAGNOSTICS
 		  Serial.print("|");
 #endif
+		  lastPPSTime = millis();
 		  if (last_misalign == 0) {
 			// Restart timer to get close to 1pps
 			PIT_TCTRL2 = 0; // Disable Timer 2
@@ -188,7 +187,7 @@ class GPS2RTC
 	  }
   }
 
-  static unsigned long lastTime;
+  static unsigned long lastPPSTime;
   static double errSum, lastErr;
   static bool handle_interrupts;
   static bool receiving_serial_data;

@@ -59,7 +59,7 @@ void statusLED::update() {
 }
 
 //! Display a pulse
-void statusLED::pulse(byte red, byte green, byte blue, int duration, bool fade) {
+void statusLED::pulse(uint8_t red, uint8_t green, uint8_t blue, int duration, bool fade) {
   pulseValue.red = red;
   pulseValue.green = green;
   pulseValue.blue = blue;

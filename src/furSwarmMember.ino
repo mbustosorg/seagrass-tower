@@ -50,12 +50,11 @@
 #include "gps2rtc.h"
 #include "statusLED.h"
 #include <Wire.h>
-int displayUpdateCount = 0;
 const int gps_1pps_pin = 9;
 const int gps_onoff_pin = 16;
 GPS2RTC gps2rtc;
 unsigned long gpsTimeStamp = 0;
-#define GPS_DISPLAY_TIME (10000)
+#define GPS_DISPLAY_TIME (5000)
 #else
 #include "furSwarmPatterns.h"
 #endif
@@ -137,11 +136,13 @@ int commandOffPin;
 const int AUDIO_INPUT_PIN = 14;        // Input ADC pin for audio data.
 const int ANALOG_READ_RESOLUTION = 10; // Bits of resolution for the ADC.
 const int ANALOG_READ_AVERAGING = 16;  // Number of samples to average with each ADC reading.
+const unsigned long FRAME_LENGTH = 16;
 
-// FurSwarm member data
-uint16_t frameCount = 0;
-unsigned long frameRateCount = 0;
-int frameStarted = 0;
+// Timing & frame execution control
+volatile int oneSecondBoundary = 0;
+volatile uint16_t frameCount = 0;
+volatile unsigned long frameRateCount = 0;
+volatile int frameStarted = 0;
 bool daytimeShutdown = false;
 bool allowDaytimeShutdown = false;
 #define TEN_MINUTES (600) // 10 Minutes in seconds
@@ -150,7 +151,6 @@ bool allowDaytimeShutdown = false;
 #ifdef TEENSY
 towerPatterns Control;
 uint32_t heartbeatTimestampStart;
-int frameLate = 0;
 const int latitudeStartByte = 0;
 const int longitudeStartByte = 4;
 unsigned long lastMessageReceipt = 0;
@@ -316,16 +316,13 @@ extern "C" {
 //! Frame rate interrupt handler running at 60Hz
 void pit2_isr(void)
 {
-  if (frameStarted) {
-	frameLate++;
-  }
   frameStarted = 1;
   frameCount++;
   frameRateCount++;
-  if (displayUpdateCount >= 59) {
-	displayUpdateCount = 0;
+  if (oneSecondBoundary >= 59) {
+	oneSecondBoundary = 0;
   } else {
-	displayUpdateCount++;
+	oneSecondBoundary++;
   }
   PIT_TFLG2 = 1;
 #ifdef FFT_DIAGNOSTICS
@@ -504,11 +501,36 @@ void setStartupPattern() {
 #endif
 }
 
+//! Do we need to catchup to the 1PPS tick?
+void catchup() {
+#ifdef TEENSY
+  unsigned long lastPPS = gps2rtc.lastPPSTime;
+  if (lastPPS > 0) {
+	unsigned long ppsGap = millis() - lastPPS;
+	if (ppsGap > FRAME_LENGTH && ppsGap < 1000) {
+	  Serial.println(ppsGap);
+	  unsigned long lastTime = millis();
+	  while (lastTime > lastPPS && 
+			 lastTime - lastPPS < 1000 && 
+			 lastTime - lastPPS + 1000 > FRAME_LENGTH) {
+		while (millis() == lastTime) {}
+		lastTime = millis();
+	  }
+	  oneSecondBoundary = 0;
+	  Control.setRadioTowerSyncTimestamp (millis());
+	}
+  }
+#endif
+}
+
 //! Main loop
 void loop() {   
   if (frameStarted) {
 	Control.continuePatternDisplay();
 	updateDisplay();
+	if (oneSecondBoundary == 0) {
+	  catchup();
+	}
 	sendHeartbeat();
 	frameStarted = 0;
   }
@@ -518,16 +540,12 @@ void loop() {
 #ifdef TEENSY
 //! Check if GPS data is available
 void updateGPSdata() {
-  if (gps2rtc.gps_time != 0 && gpsTimeStamp == 0) {
-	if (writeEepromLong (gps2rtc.latitude, latitudeStartByte) && writeEepromLong (gps2rtc.longitude, longitudeStartByte)) {
-	  Control.latitude = readEepromLong(latitudeStartByte);
-	  Control.longitude = readEepromLong(longitudeStartByte);
-	  gpsTimeStamp = millis();
-	} else {
-	  displayMessage ("Could not write GPS data");
-	}
+  if (writeEepromLong (gps2rtc.latitude, latitudeStartByte) && writeEepromLong (gps2rtc.longitude, longitudeStartByte)) {
+	Control.latitude = readEepromLong(latitudeStartByte);
+	Control.longitude = readEepromLong(longitudeStartByte);
+	gpsTimeStamp = millis();
   } else {
-	displayMessage ("Waiting for 1pps GPS data");
+	displayMessage ("Could not write GPS data");
   }
 }
 #endif
@@ -560,60 +578,66 @@ void displayGPSdata(float lat, float lon, unsigned long time) {
 void updateDisplay() {
 #ifdef TEENSY
   led.update();
-  if (displayUpdateCount == 0) {
+  if (oneSecondBoundary == 0) {
 	Serial.print ("x");
 	unsigned long timeStamp = millis();
-	if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp < GPS_DISPLAY_TIME) {
-	  led.pulse (0, 255, 0, 500, true);
-	} else if (gps2rtc.receiving_serial_data && timeStamp - gps2rtc.last_sentence_receipt < GPS_DISPLAY_TIME / 2 && 
-			   gpsTimeStamp == 0 && gps2rtc.last_sentence_receipt != 0) {
-	  led.pulse (0, 0, 255, 500, true);
-	  updateGPSdata();
-	} else {
+	if (gps2rtc.last_sentence_receipt == 0 || timeStamp - gps2rtc.last_sentence_receipt > GPS_DISPLAY_TIME) {
+	  // No NMEA data
 	  led.pulse (200, 0, 0, 500, true);
-#ifdef SERIAL_DIAGNOSTICS
-	  displayGPSdata(Control.latitude, Control.longitude, gps2rtc.gps_time);
-#endif
-	  //float Vtemp = analogRead(38) * 0.0029296875;
-	  //float Temp1;
-	  //if (Vtemp >= 0.7012) {
-	  //Temp1 = 25 - ((Vtemp - 0.7012) / 0.001646);
-	  //} else {
-	  //Temp1 = 25 - ((Vtemp - 0.7012) / 0.001749);
-	  //}
-	  unsigned long rtcTime = rtc_get();
-	  unsigned long days = rtcTime / (3600 * 24);
-	  unsigned long running = rtcTime - days * 3600 * 24;
-	  //unsigned long hours = running / 3600;
-	  //unsigned long minutes = ((float) running / 3600.0 - hours) * 60.0;
-	  unsigned long onTime = 2 * 3600 + 30 * 60; // 02:30 UTC == 19:30 PDT
-	  unsigned long offTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
-	  //unsigned long offTime = 20 * 3600 + 30 * 60;
-	  if (daytimeShutdown) {
-		if (Control.pattern != FS_ID_OFF) {
-		  uint8_t data[] = {FS_ID_OFF};
-		  Control.initializePattern(data, 1);
-		}
-		if ((running > onTime) && (running < offTime)) {
-		  daytimeShutdown = false;
-		  uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170};
-		  Control.initializePattern(data, 6);
-		}
-	  } else {
-		if ((running < onTime) || (running > offTime)) {
-		  if (allowDaytimeShutdown) {
-			uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
-			Control.initializePattern(data, 6);
-			daytimeShutdown = true;
-			Control.animations.isAnimating = false;
-		  }
-		} else if (rtcTime - lastMessageReceipt > DORMANT_TIME_LIMIT && rtcTime % TEN_MINUTES == 0 && Control.pattern != FS_ID_ANIMATE_1) {
-		  //uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
-		  uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
-		  Control.initializePattern(data, 2);
-		}
+	} else if (gps2rtc.lastPPSTime == 0 || timeStamp - gps2rtc.lastPPSTime > GPS_DISPLAY_TIME) {
+	  // NMEA data but no 1pps
+	  led.pulse (200, 200, 0, 500, true);
+	} else {
+	  // NMEA data and 1pps
+	  led.pulse (0, 200, 0, 500, true);
+	  if (gps2rtc.gps_time != 0 && gpsTimeStamp == 0) {
+		updateGPSdata();
 	  }
 	}
+#ifdef SERIAL_DIAGNOSTICS
+	displayGPSdata(Control.latitude, Control.longitude, gps2rtc.gps_time);
+#endif
+	//float Vtemp = analogRead(38) * 0.0029296875;
+	//float Temp1;
+	//if (Vtemp >= 0.7012) {
+	//Temp1 = 25 - ((Vtemp - 0.7012) / 0.001646);
+	//} else {
+	//Temp1 = 25 - ((Vtemp - 0.7012) / 0.001749);
+	//}
+	unsigned long gpsTime = gps2rtc.gps_time;
+	unsigned long days = gpsTime / (3600 * 24);
+	unsigned long running = gpsTime - days * 3600 * 24;
+	//unsigned long hours = running / 3600;
+	//unsigned long minutes = ((float) running / 3600.0 - hours) * 60.0;
+	unsigned long onTime = 2 * 3600 + 30 * 60; // 02:30 UTC == 19:30 PDT
+	unsigned long offTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
+	//unsigned long offTime = 20 * 3600 + 30 * 60;
+	/*
+	if (daytimeShutdown) {
+	  if (Control.pattern != FS_ID_OFF) {
+		uint8_t data[] = {FS_ID_OFF};
+		Control.initializePattern(data, 1);
+	  }
+	  if ((running > onTime) && (running < offTime)) {
+		daytimeShutdown = false;
+		uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170};
+		Control.initializePattern(data, 6);
+	  }
+	} else {
+	  if ((running < onTime) || (running > offTime)) {
+		if (allowDaytimeShutdown) {
+		  uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
+		  Control.initializePattern(data, 6);
+		  daytimeShutdown = true;
+		  Control.animations.isAnimating = false;
+		}
+	  } else if (gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && Control.pattern != FS_ID_ANIMATE_1) {
+		//uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
+		uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
+		Control.initializePattern(data, 2);
+	  }
+	}
+	*/
   }
 #endif
 }
@@ -717,7 +741,8 @@ void sendHeartbeat() {
 		  }
 		}
 	  }
-	  memcpy (&heartbeatPayload[frameCountPosition], &frameCount, sizeof(frameCount));
+	  uint16_t localFrameCount = frameCount;
+	  memcpy (&heartbeatPayload[frameCountPosition], &localFrameCount, sizeof(frameCount));
 	  memcpy (&heartbeatPayload[patternPosition], &Control.pattern, sizeof(Control.pattern));
 	  memcpy (&heartbeatPayload[voltagePosition], &batteryVoltage, sizeof(batteryVoltage));
 	  memcpy (&heartbeatPayload[frameRatePosition], &frameRateByte, sizeof(frameRateByte));
