@@ -70,9 +70,9 @@ unsigned long gpsTimeStamp = 0;
 #define MESSAGE_TYPE_SHORT_VERSION 0x02
 #define versionId 0x15
 const bool legacyPro = false;
-#ifdef FS_VEST
+#if defined (FS_VEST) || (FS_TOWER_VEST)
 const uint8_t memberType = FS_TYPE_VEST;
-#elif FS_HAT
+#elif defined (FS_HAT) || (FS_TOWER_HAT)
 const uint8_t memberType = FS_TYPE_HAT;
 #elif FS_TOWER
 const uint8_t memberType = FS_TYPE_TOWER;
@@ -226,6 +226,8 @@ void setup() {
 	lastMessageReceipt = rtc_get();
 	// Wire will be used for Accelerometer
 	Wire.begin();
+	Control.accel.startup();
+	Control.accel.setFilterLength(10);
 #ifdef FFT_DIAGNOSTICS
 	Serial.begin(115200);
 #endif
@@ -490,10 +492,14 @@ void setStartupPattern() {
 #ifdef TEENSY
   //uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_SPIRAL, 100, 200, 0, 40, 120};
-  //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_ORGANIC, 10, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_FLAME, 20, 1, 255, 130, 0, 0};
-  uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
+#ifdef FFT_DIAGNOSTICS
+  uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
+#else
+  //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
+  uint8_t data[] = {FS_ID_TILT, 100, 200, 0, 40, 120};
+#endif
   Control.initializePattern(data, 6);
 #else
   uint8_t data[] = {FS_ID_STARFIELD, 10, 100, 100, 100, 100};
@@ -578,18 +584,20 @@ void displayGPSdata(float lat, float lon, unsigned long time) {
 void updateDisplay() {
 #ifdef TEENSY
   led.update();
-  if (oneSecondBoundary == 0) {
+  if (lowBatteryTime != 0 && (oneSecondBoundary == 0 || oneSecondBoundary == 29)) {
+	led.pulse (100, 0, 0, 100, true);
+  } else if (oneSecondBoundary == 0) {
 	Serial.print ("x");
 	unsigned long timeStamp = millis();
 	if (gps2rtc.last_sentence_receipt == 0 || timeStamp - gps2rtc.last_sentence_receipt > GPS_DISPLAY_TIME) {
 	  // No NMEA data
-	  led.pulse (200, 0, 0, 500, true);
+	  led.pulse (100, 0, 0, 500, true);
 	} else if (gps2rtc.lastPPSTime == 0 || timeStamp - gps2rtc.lastPPSTime > GPS_DISPLAY_TIME) {
 	  // NMEA data but no 1pps
-	  led.pulse (200, 200, 0, 500, true);
+	  led.pulse (100, 100, 0, 500, true);
 	} else {
 	  // NMEA data and 1pps
-	  led.pulse (0, 200, 0, 500, true);
+	  led.pulse (0, 100, 0, 500, true);
 	  if (gps2rtc.gps_time != 0 && gpsTimeStamp == 0) {
 		updateGPSdata();
 	  }
@@ -695,6 +703,7 @@ void processRXResponse() {
   uint8_t* data;
   uint8_t dataLength;
   xbee.getResponse().getZBRxResponse(rxResponse);
+  led.pulse (200, 50, 0, 100, false);
   // TODO: Check data length for potential errors
   data = rxResponse.getData();
   dataLength = rxResponse.getDataLength();
@@ -720,6 +729,7 @@ void sendHeartbeat() {
   unsigned long currentTimestamp = millis();
   unsigned long sinceLastHeartbeat = currentTimestamp - heartbeatTimestamp;
   if (sinceLastHeartbeat > heartbeatPeriod) {
+	led.pulse (0, 0, 100, 100, false);
 	heartbeatCount++;
 	if (heartbeatCount % FULL_HEARTBEAT_PERIOD != 0) {
 	  uint8_t heartbeatShortPayload[] = {MESSAGE_TYPE_SHORT_VERSION, versionId};  // Short heartbeat

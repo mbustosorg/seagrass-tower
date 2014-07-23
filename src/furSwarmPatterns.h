@@ -46,19 +46,21 @@ typedef struct {
 
 extern const uint8_t memberType;
 #ifdef NOT_EMBEDDED
+  // Do Nothing
 #elif USE_TCL
 #include "TCL.h"
 #elif USE_WS2801
+// Adafruit RGB strand
 #include "Adafruit_WS2801.h"
 extern Adafruit_WS2801 strip;
-// Adafruit RGB strand
 const int lpdDataPin = 2;
 const int lpdClockPin = 3;
 const int lpdCount = 50;
 #else
+// Adafruit RGB strip
+#include <Arduino.h>
 //#include "LPD8806.h"
 //extern LPD8806 strip;
-// Adafruit RGB strip
 const int lpdDataPin = 13;
 const int lpdClockPin = 11;
 //const int lpdCount = 50;
@@ -70,9 +72,9 @@ const int lpdClockPin = 11;
 #define pumpUpperLevel (150)
 #define pumpLowerLevel (10)
 #define starfieldUpperLevel (1)
-#define PWM_COUNTER_RESET (5)
+#define PWM_COUNTER_RESET (2)
 #define PWM_COUNTER_OFFSET (1) // 80% Duty cycle: 1 - PWM_COUNTER_OFFSET / PWM_COUNTER_RESET
-#define PWM_DIMMER_THRESHOLD (5) // Dim values lower than this based on above duty cycle
+#define PWM_DIMMER_THRESHOLD (3) // Dim values lower than this based on above duty cycle
 
 #define MAX_DATA_LENGTH (10) // Maximum expected number of bytes in incoming message
 #define FS_DELAY_FACTOR (20)

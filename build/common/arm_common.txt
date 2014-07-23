@@ -5,7 +5,7 @@ AR=$(BIN)/arm-none-eabi-ar
 OBJCPY=$(BIN)/arm-none-eabi-objcopy
 MCU=-mcpu=cortex-m4
 CPU_SPEED=-DF_CPU=48000000
-CXXFLAGS=$(MCU) $(CPU_SPEED) -c -g -Os -Wall -fno-exceptions -ffunction-sections -fdata-sections -MMD -DUSB_VID=null -DUSB_PID=null -DARDUINO=102 -mthumb -nostdlib -D__MK20DX128__ -DUSB_SERIAL -DLAYOUT_US_ENGLISH -fno-rtti -felide-constructors -std=c++0x
+CXXFLAGS=$(MCU) $(CPU_SPEED) -c -g -Os -Wall -fno-exceptions -ffunction-sections -fdata-sections -MMD -DUSB_VID=null -DUSB_PID=null -DARDUINO=105 -mthumb -nostdlib -D__MK20DX128__ -DUSB_SERIAL -DLAYOUT_US_ENGLISH -fno-rtti -felide-constructors -std=gnu++0x
 CFLAGS=-DTEENSY -DUSE_WS2801 -DFS_TOWER $(MCU) $(CPU_SPEED) -c -g -Os -Wall -fno-exceptions -ffunction-sections -fdata-sections -MMD -DUSB_VID=null -DUSB_PID=null -DARDUINO=102 -mthumb -nostdlib -D__MK20DX128__ -DUSB_SERIAL -DLAYOUT_US_ENGLISH
 LIBRARIES=/Applications/Development/Arduino/Arduino1.0.5.app/Contents/Resources/Java/libraries/
 CORES=/Applications/Development/Arduino/Arduino1.0.5.app/Contents/Resources/Java/hardware/teensy/cores/teensy3/

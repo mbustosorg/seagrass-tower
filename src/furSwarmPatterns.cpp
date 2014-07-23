@@ -99,7 +99,7 @@ furSwarmPatterns::furSwarmPatterns() {
 //! Send the start frame to start the display update
 void furSwarmPatterns::sendStartFrame() {
   lowLevelPWMCounter++;
-  if (lowLevelPWMCounter > PWM_COUNTER_RESET) lowLevelPWMCounter = 0;
+  if (lowLevelPWMCounter > PWM_COUNTER_RESET) lowLevelPWMCounter = 1;
 #ifndef NOT_EMBEDDED
 #ifdef USE_TCL
   TCL.sendEmptyFrame();
@@ -406,7 +406,7 @@ void furSwarmPatterns::initializeCylon(uint8_t red, uint8_t green, uint8_t blue,
   int redHolder = red;
   int greenHolder = green;
   int blueHolder = blue;
-#if defined (FS_TOWER_VEST) || defined (FS_TOWER)
+#if defined (FS_TOWER_VEST) || defined (FS_TOWER) || defined (FS_TOWER_HAT)
 	  int colorDescent = 8;
 #elif FS_HAT
 	  int colorDescent = 15;
@@ -836,7 +836,7 @@ void furSwarmPatterns::iterateStrandByHSV() {
   float iterationProportion = (float) frameRelease / (float) patternSpeed;
   uint8_t redLevel, greenLevel, blueLevel;
   for (int i = 0; i < LED_CYMAP; i++) {
-#if defined (FS_TOWER_VEST) || defined (FS_TOWER) || defined (FS_HAT)
+#if defined (FS_TOWER_VEST) || defined (FS_TOWER) || defined (FS_HAT) || defined (FS_TOWER_HAT)
 	indexMap = LED_CYMAP - i;
 #else
 	indexMap = pgm_read_byte(&cyLEDMap[i]);
@@ -906,7 +906,7 @@ void furSwarmPatterns::displaySoundActivate() {
   if (intensityLevel > 255.0) intensityLevel = 255.0;
   else if (intensityLevel < 0.0) intensityLevel = 0.0;
   
-#if defined (FS_TOWER_VEST) || defined (FS_TOWER)
+#if defined (FS_TOWER_VEST) || defined (FS_TOWER) || (FS_TOWER_HAT)
 
   // Slow down the intensity level retraction and display a peak for a short period
   uint32_t timeStamp = millis();

@@ -1,15 +1,28 @@
+DEBUG ?= 1
+ifeq ($(DEBUG),1)
+#	DFLAGS=-DTEENSY -DUSE_TCL -DTCL_DIO -DFS_TOWER -DADXL345 -DFFT_DIAGNOSTICS -DSERIAL_DIAGNOSTICS
+	DFLAGS=-DTEENSY -DUSE_TCL -DTCL_DIO -DFS_TOWER -DADXL345 -DFFT_DIAGNOSTICS
+else
+#	DFLAGS=-DTEENSY -DUSE_TCL -DTCL_DIO -DFS_TOWER -DADXL345 -DSERIAL_DIAGNOSTICS
+	DFLAGS=-DTEENSY -DUSE_TCL -DTCL_DIO -DFS_TOWER -DADXL345
+endif
+
 PRODUCT_NAME=tower
-PROJECT_LOC=/Users/mauricio/Documents/development/furSwarmMember/src/
+PROJECT_LOC=../../src/
+PROJECT_LIB_LOC=../../../teensy/lib/3.1/
 VPATH=$(PROJECT_LOC)
 OBJECT_DIR=./
-#DFLAGS=-DTEENSY -DUSE_WS2801 -DFS_TOWER 
-DFLAGS=-DTEENSY -DUSE_TCL -DTCL_DIO -DFS_TOWER 
 
-include /Users/mauricio/Documents/development/furSwarmMember/build/common/arm_common_dev.txt
+include $(PROJECT_LIB_LOC)../../common/arm_common_31.txt
 
-APP_CPP_SOURCES=main.cpp TCL.cpp towerPatterns.cpp colorUtilities.cpp furSwarmControlMachine.cpp \
-furSwarmMember.cpp furSwarmPatterns.cpp xBeeConfiguration.cpp oledControl.cpp gps2rtc.cpp towerAnimations.cpp towerBall.cpp flameFrames.cpp
+APP_CPP_SOURCES=TCL.cpp towerPatterns.cpp colorUtilities.cpp \
+furSwarmControlMachine.cpp furSwarmMember.cpp furSwarmPatterns.cpp \
+xBeeConfiguration.cpp gps2rtc.cpp towerAnimations.cpp \
+towerBall.cpp accelerometer.cpp adxl345.cpp adxl335.cpp statusLED.cpp \
+Adafruit_NeoPixel.cpp
+
 APP_OBJECTS=$(addprefix $(OBJECT_DIR),$(APP_CPP_SOURCES:.cpp=.o))
+LIB_OBJECTS=$(addprefix $(PROJECT_LIB_LOC),*.o)
 
 default: build 
 
@@ -27,8 +40,8 @@ $(OBJECT_DIR)$(PRODUCT_NAME).hex: $(OBJECT_DIR)$(PRODUCT_NAME).elf
 	$(OBJCPY) -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 $< $(OBJECT_DIR)$(PRODUCT_NAME).eep
 	$(OBJCPY) -O ihex -R .eeprom $< $@
 
-$(OBJECT_DIR)$(PRODUCT_NAME).elf: $(APP_OBJECTS)
-	$(CC) -Os -Wl,--gc-sections $(MCU) -mthumb -T$(CORES)/mk20dx128.ld -o $@ $^ $(PROJECT_LOC)/../build/lib/$(BOARD)/$(LIBNAME) -L. -larm_cortexM4l_math -lm
+$(OBJECT_DIR)$(PRODUCT_NAME).elf: $(APP_OBJECTS) $(LIB_OBJECTS)
+	$(CC) -Os -Wl,--gc-sections $(MCU) -mthumb -T$(CORES)mk20dx256.ld -o $@ $^ -L. -larm_cortexM4l_math -lm
 
 furSwarmMember_copy: $(PROJECT_LOC)/furSwarmMember.cpp
 
@@ -49,5 +62,3 @@ clean:
 	rm -v *.eep
 	rm -v *.elf
 	rm -v *.hex
-
-

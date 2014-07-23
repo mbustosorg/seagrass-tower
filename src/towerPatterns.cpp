@@ -59,7 +59,7 @@ towerPatterns::towerPatterns() : furSwarmPatterns(){
   for (int i = 0; i < MAX_TOWER_COUNT; i++) {
 	towerAddresses[i] = XBeeAddress64(0x00000000, 0x00000000);
   }
-
+  
 #ifndef NOT_EMBEDDED
   arm_cfft_radix4_instance_f32 fft_inst;  /* CFFT Structure instance */
   arm_cfft_radix4_init_f32(&fft_inst, FFT_LEN, ifftFlag, doBitReverse);
@@ -726,16 +726,17 @@ void towerPatterns::iterateSpectrumAnalyzer() {
 	arm_cfft_radix4_init_f32(&fft_inst, FFT_LEN, ifftFlag, doBitReverse);
 	
 	// Apply Hamming Filter and compute power
-	signalPower = 0.0;
+	float32_t newSignalPower = 0.0;
 	for (int i = 0; i < FFT_LEN; i++) {
-	  signalPower += audioSampleInput [i * 2] * audioSampleInput [i * 2];
+	  newSignalPower += audioSampleInput [i * 2] * audioSampleInput [i * 2];
 	  if (i == 0 || i == FFT_LEN - 1) {
 		audioSampleInput [i * 2] = audioSampleInput [i * 2] * hammingFilter [0];
 	  } else {
 		audioSampleInput [i * 2] = audioSampleInput [i * 2] * (hammingFilter [i / 2] + hammingFilter [i / 2 + 1]) / 2.0;
 	  }
 	}
-	signalPower /= FFT_LEN / 2.0;
+	newSignalPower /= FFT_LEN / 2.0;
+    signalPower = signalPower + (newSignalPower - signalPower) / 60.0;
 	
 	/* Process the data through the CFFT/CIFFT module */ 
 	arm_cfft_radix4_f32(&fft_inst, audioSampleInput);
@@ -817,6 +818,8 @@ void towerPatterns::updateSpectrumLevels() {
   float32_t runningValue = 0.0;
   float32_t runningCount = 0.0;
 
+  // Shut down the 60Hz bucket
+  //audioMagnitudeBuckets[2] = 0;
   for (int i = 1; i < BUCKET_COUNT; i++) {
 	maximum = max(maximum, audioMagnitudeBuckets[i]);
 	minimum = min(minimum, audioMagnitudeBuckets[i]);
