@@ -44,6 +44,12 @@ typedef struct {
   uint8_t blue;       
 } ledColorSpec;
 
+typedef struct {
+  unsigned long hours;
+  unsigned long minutes;
+  unsigned long seconds;
+} timeStruct;
+
 extern const uint8_t memberType;
 #ifdef NOT_EMBEDDED
   // Do Nothing
@@ -91,9 +97,13 @@ class furSwarmPatterns {
   uint8_t lastData[MAX_DATA_LENGTH];
   uint8_t lastDataLength;
   unsigned long delayStopwatch;
+  unsigned long secondModStart; 
   uint8_t lastDelayFactor;
-  
+  timeStruct clock;
+
   int randomSeedPin;
+  unsigned long secondsIntoMinute;
+  void setSecondsIntoMinute(unsigned long newSecondsIntoMinute);
   
   // Definitions for use by the simulator
 #ifdef NOT_EMBEDDED

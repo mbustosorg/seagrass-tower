@@ -96,6 +96,11 @@ furSwarmPatterns::furSwarmPatterns() {
 #endif
 }
 
+//! Set `secondsIntoMinute'
+void furSwarmPatterns::setSecondsIntoMinute(unsigned long newSecondsIntoMinute) {
+  secondsIntoMinute = newSecondsIntoMinute;
+}
+
 //! Send the start frame to start the display update
 void furSwarmPatterns::sendStartFrame() {
   lowLevelPWMCounter++;
@@ -1440,7 +1445,8 @@ void furSwarmPatterns::setPatternSpeedWithFactor(int factor) {
 //! Check the delay stopwatch and initialize the last request
 void furSwarmPatterns::checkLatestData() {
   if (lastDataLength != 0 && delayStopwatch == 0) {
-	delayStopwatch = lastData[6] * FS_DELAY_FACTOR + millis();
+	if (0x80 | lastData[6]) secondModStart = 0x7F & lastData[6];
+	else delayStopwatch = lastData[6] * FS_DELAY_FACTOR + millis();
 	lastDelayFactor = lastData[6];
   }
   if (delayStopwatch > 0) {

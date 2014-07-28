@@ -209,14 +209,23 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 
 //! Check the delay stopwatch and initialize the last request
 void towerPatterns::checkLatestData() {
-  if (lastDataLength != 0 && (rtc_get() % PATTERN_START_MOD == 0 || rtc_get() % PATTERN_START_MOD == 1)) {
-	delayStopwatch = lastData[6] * FS_DELAY_FACTOR + millis();
+  if (lastDataLength != 0 && delayStopwatch == 0 && secondModStart == 0) {
+	if (0x80 | lastData[6]) secondModStart = 0x7F & lastData[6];
+	else delayStopwatch = lastData[6] * FS_DELAY_FACTOR + millis();
 	lastDelayFactor = lastData[6];
   }
   if (delayStopwatch > 0) {
 	if (millis() >= delayStopwatch) {
 	  initializePattern(lastData, lastDataLength);
 	  lastDataLength = 0;
+	  secondModStart = 0;
+	  delayStopwatch = 0;
+	}
+  } else if (secondModStart > 0) {
+	if (secondModStart % clock.seconds == 0) {
+	  initializePattern(lastData, lastDataLength);
+	  lastDataLength = 0;
+	  secondModStart = 0;
 	  delayStopwatch = 0;
 	}
   }

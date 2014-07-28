@@ -54,6 +54,8 @@ const int gps_1pps_pin = 9;
 const int gps_onoff_pin = 16;
 GPS2RTC gps2rtc;
 unsigned long gpsTimeStamp = 0;
+timeStruct clock;
+#define GPS_RESET_TIME (600000)
 #define GPS_DISPLAY_TIME (5000)
 #else
 #include "furSwarmPatterns.h"
@@ -514,7 +516,6 @@ void catchup() {
   if (lastPPS > 0) {
 	unsigned long ppsGap = millis() - lastPPS;
 	if (ppsGap > FRAME_LENGTH && ppsGap < 1000) {
-	  Serial.println(ppsGap);
 	  unsigned long lastTime = millis();
 	  while (lastTime > lastPPS && 
 			 lastTime - lastPPS < 1000 && 
@@ -557,27 +558,18 @@ void updateGPSdata() {
 #endif
 
 //! 
-void displayGPSdata(float lat, float lon, unsigned long time) {
-  unsigned long days = time / (3600 * 24);
-  unsigned long running = time - days * 3600 * 24;
-  unsigned long hours = running / 3600;
-  unsigned long minutes = ((float) running / 3600.0 - hours) * 60.0;
-  unsigned long seconds = running - hours * 3600 - minutes * 60;
-  if (seconds == 60) {
-	seconds = 0;
-	minutes = minutes + 1;
-  }
+void displayGPSdata(float lat, float lon) {
   Serial.print("lat:");
   Serial.print(lat);
   Serial.print(", lon:");
   Serial.print(lon);
   Serial.print(", time:");
-  if (hours < 10) Serial.print ("0");
-  Serial.print(hours); Serial.print(":"); 
-  if (minutes < 10) Serial.print ("0");
-  Serial.print(minutes); Serial.print(":"); 
-  if (seconds < 10) Serial.print ("0");
-  Serial.println(seconds); 
+  if (clock.hours < 10) Serial.print ("0");
+  Serial.print(clock.hours); Serial.print(":"); 
+  if (clock.minutes < 10) Serial.print ("0");
+  Serial.print(clock.minutes); Serial.print(":"); 
+  if (clock.seconds < 10) Serial.print ("0");
+  Serial.println(clock.seconds); 
 }
 
 //! Update the status display
@@ -587,7 +579,6 @@ void updateDisplay() {
   if (lowBatteryTime != 0 && (oneSecondBoundary == 0 || oneSecondBoundary == 29)) {
 	led.pulse (100, 0, 0, 100, true);
   } else if (oneSecondBoundary == 0) {
-	Serial.print ("x");
 	unsigned long timeStamp = millis();
 	if (gps2rtc.last_sentence_receipt == 0 || timeStamp - gps2rtc.last_sentence_receipt > GPS_DISPLAY_TIME) {
 	  // No NMEA data
@@ -598,13 +589,13 @@ void updateDisplay() {
 	} else {
 	  // NMEA data and 1pps
 	  led.pulse (0, 100, 0, 500, true);
+	  // Reset GPS every GPS_RESET_TIME (10 minutes) to keep things fresh
 	  if (gps2rtc.gps_time != 0 && gpsTimeStamp == 0) {
 		updateGPSdata();
+	  } else if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp > GPS_RESET_TIME) {
+		gpsTimeStamp = 0;
 	  }
 	}
-#ifdef SERIAL_DIAGNOSTICS
-	displayGPSdata(Control.latitude, Control.longitude, gps2rtc.gps_time);
-#endif
 	//float Vtemp = analogRead(38) * 0.0029296875;
 	//float Temp1;
 	//if (Vtemp >= 0.7012) {
@@ -615,10 +606,15 @@ void updateDisplay() {
 	unsigned long gpsTime = gps2rtc.gps_time;
 	unsigned long days = gpsTime / (3600 * 24);
 	unsigned long running = gpsTime - days * 3600 * 24;
-	//unsigned long hours = running / 3600;
-	//unsigned long minutes = ((float) running / 3600.0 - hours) * 60.0;
+	clock.hours = running / 3600;
+	clock.minutes = ((float) running / 3600.0 - clock.hours) * 60.0;
+	clock.seconds = running - clock.hours * 3600 - clock.minutes * 60;
+	Control.clock = clock;
 	unsigned long onTime = 2 * 3600 + 30 * 60; // 02:30 UTC == 19:30 PDT
 	unsigned long offTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
+#ifdef SERIAL_DIAGNOSTICS
+	displayGPSdata(Control.latitude, Control.longitude);
+#endif
 	//unsigned long offTime = 20 * 3600 + 30 * 60;
 	/*
 	if (daytimeShutdown) {
