@@ -66,6 +66,11 @@ towerPatterns::towerPatterns() : furSwarmPatterns(){
 #endif
 }
 
+//! Set the current frame
+void towerPatterns::setFrameNumber(int newFrameNumber) {
+  frameNumber = newFrameNumber;
+}
+
 //! Initialize the selected pattern
 void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   int messageType;
@@ -335,7 +340,7 @@ void towerPatterns::continuePatternDisplay() {
 
 //! Read the current tilt
 void towerPatterns::readTilt() {
-  tiltVector = accel.currentTilt();
+  tiltVector = accel.filteredTilt();
   calibrateTilt();
 }
 
@@ -352,27 +357,28 @@ bool towerPatterns::checkShaking() {
 void towerPatterns::initializeTilt() {
   adjustedPatternSpeed = patternSpeed;
   timeToDrop = adjustedPatternSpeed;
+  accel.setFilterLength(10);
   cycleSpot = 0;
 }
 
-//! Color struct for the current tilt
+//! color struct for the current tilt
 rgb towerPatterns::tiltColor() {
   readTilt();
   hsv in;
-  if (tiltVector.z == 0 && tiltVector.y == 0) {
+  if (tiltVector.z == 0 && tiltVector.x == 0) {
 	in.h = 0.0;
   } else {
-	in.h = atan2(tiltVector.z, tiltVector.y) * 360.0 / (2.0 * 3.14159);
+	in.h = atan2(tiltVector.z, tiltVector.x) * 360.0 / (2.0 * 3.14159);
   }
   in.s = 1.0;
-  in.v = tiltVector.y * tiltVector.y + tiltVector.z * tiltVector.z;
+  in.v = tiltVector.x * tiltVector.x + tiltVector.z * tiltVector.z;
   if (in.v < 0.1) {
 	in.v = 0.1;
   }
   return hsv2rgb(in);
 }
 
-//! Determine tilt and set colors
+//! determine tilt and set colors
 void towerPatterns::tilt() {
   if (timeToDrop == 0) {
 	if (cycleSpot < LED_COUNT + 1) {
@@ -384,25 +390,22 @@ void towerPatterns::tilt() {
 	} else {
 	  timeToDrop = patternSpeed;
 	  lastRGBOut = currentRGBOut;
-	  currentRGBOut = tiltColor();
 	}
   } else {
 	timeToDrop--;
   }
+  currentRGBOut = tiltColor();
   float brightnessFactor = 7.0;
   float iterationProportion = (float) timeToDrop / (float) patternSpeed;
   rgb currentByte, lastByte;
   currentByte.r = min(currentRGBOut.r * 255.0 * brightnessFactor, 255); // Now in byte
   currentByte.g = min(currentRGBOut.g * 255.0 * brightnessFactor, 255); // Now in byte
   currentByte.b = min(currentRGBOut.b * 255.0 * brightnessFactor, 255); // Now in byte
-  lastByte.r = min(lastRGBOut.r * 255.0 * brightnessFactor, 255); // Now in byte
-  lastByte.g = min(lastRGBOut.g * 255.0 * brightnessFactor, 255); // Now in byte
-  lastByte.b = min(lastRGBOut.b * 255.0 * brightnessFactor, 255); // Now in byte
   for (int i = 0; i < LED_COUNT; i++) {
 	if (LED_COUNT - i - 1 < cycleSpot) {
-	  ledRed[i] = (uint8_t) (lastByte.r * iterationProportion) + (uint8_t) (currentByte.r * (1.0 - iterationProportion));
-	  ledGreen[i] = (uint8_t) (lastByte.g * iterationProportion) + (uint8_t) (currentByte.g * (1.0 - iterationProportion));
-	  ledBlue[i] = (uint8_t) (lastByte.b * iterationProportion) + (uint8_t) (currentByte.b * (1.0 - iterationProportion));
+	  ledRed[i] = (uint8_t) currentByte.r;
+	  ledGreen[i] = (uint8_t) currentByte.g;
+	  ledBlue[i] = (uint8_t) currentByte.b;
 	}
 	if (LED_COUNT - i == cycleSpot) {
 	  ledRed[i] = (uint8_t) (ledRed[i] * (1.0 - iterationProportion));
@@ -640,13 +643,13 @@ void towerPatterns::iterateRadioTower() {
 	ledGreen[i] = 0;
 	ledBlue[i] = 0;
 	// Blink to 3 LEDs for a second at beginning of period
-	if (currentTimestamp < radioTowerStart + 1000 && i > LED_COUNT - 3) {
+	if (clock.seconds % 3 == 0 && i > LED_COUNT - 3) {
 	  ledRed[i] = adjustedRed;
 	  ledGreen[i] = adjustedGreen;
 	  ledBlue[i] = adjustedBlue;
 	}
 	// Blink bottom 3 LEDs at 1Hz rate using `radioTowerSyncTimestamp' as the boundary
-	if ((currentTimestamp - radioTowerSyncTimestamp) % 1000 < 100 && i < 3) {
+	if (frameNumber < 8 && i < 3) {
 	  ledRed[i] = adjustedRed;
 	  ledGreen[i] = adjustedGreen;
 	  ledBlue[i] = adjustedBlue;	  

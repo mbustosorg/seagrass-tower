@@ -214,9 +214,9 @@ class furSwarmPatterns {
   void initializeHSVstrand();
   void iterateStrandByHSV();
   virtual void updateSoundActivateParameters(uint8_t thresholdData, uint8_t sampleData, uint8_t averageData);
-  void advancePatternIntensity(uint8_t pattern);
-  void triggerPatternChange();
-  void advancePatternSpeed();
+  void advancePatternIntensity(uint8_t pattern, bool continuous);
+  void triggerPatternChange(bool forward);
+  void advancePatternSpeed(bool continuous, bool up);
  private:
   // Internal prototypes
   void setTwoWaySweepSpeed (int factor, uint8_t dataValue);

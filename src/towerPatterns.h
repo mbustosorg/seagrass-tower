@@ -164,6 +164,8 @@ class towerPatterns : public furSwarmPatterns {
   // Animation data
   XBeeAddress64 towerAddresses[MAX_TOWER_COUNT];
   towerAnimations animations;
+  int frameNumber = 0;
+  void setFrameNumber(int newFrameNumber);
 
   // Broken pattern
   uint32_t brokenOff;

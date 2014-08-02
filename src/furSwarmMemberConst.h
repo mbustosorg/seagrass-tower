@@ -353,7 +353,9 @@ PROGMEM prog_uint8_t triggerPattern15[] = {FS_ID_RAINBOW_CHASE, 250, 0, 0, 0, 15
 PROGMEM prog_uint8_t triggerPattern16[] = {FS_ID_RANDOM_FLASH, 250, 200, 10, 130, 200};
 PROGMEM prog_uint8_t triggerPattern17[] = {FS_ID_STARFIELD, 10, 0, 0, 0, 0};
 PROGMEM prog_uint8_t triggerPattern18[] = {FS_ID_SPIRAL, 100, 200, 0, 40, 0};
+PROGMEM prog_uint8_t triggerPattern19[] = {FS_ID_TILT, 100, 200, 0, 40, 0};
 
+const int triggerPatternsCount = 19;
 PROGMEM prog_uint8_t *triggerPatterns[] = 
   {
 	triggerPattern1,
@@ -373,7 +375,8 @@ PROGMEM prog_uint8_t *triggerPatterns[] =
 	triggerPattern15,
 	triggerPattern16,
 	triggerPattern17,
-	triggerPattern18
+	triggerPattern18,
+	triggerPattern19
   };
 
 /*

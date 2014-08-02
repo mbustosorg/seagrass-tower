@@ -134,14 +134,18 @@ int batteryVoltagePin;
 #define statusLed 13
 // Digital pin definitions
 int commandPatternPin;
-int commandOffPin;
+int commandOffPin = 0;
+int commandSpeedUpPin = 10;
+int commandSpeedDownPin = 12;
+int commandIntensityPin = 11;
+int suicidePin;
 const int AUDIO_INPUT_PIN = 14;        // Input ADC pin for audio data.
 const int ANALOG_READ_RESOLUTION = 10; // Bits of resolution for the ADC.
 const int ANALOG_READ_AVERAGING = 16;  // Number of samples to average with each ADC reading.
 const unsigned long FRAME_LENGTH = 16;
 
 // Timing & frame execution control
-volatile int oneSecondBoundary = 0;
+volatile int frameNumber = 0;
 volatile uint16_t frameCount = 0;
 volatile unsigned long frameRateCount = 0;
 volatile int frameStarted = 0;
@@ -197,14 +201,14 @@ void processRXResponse();
 void setup() {
   if (legacyPro) {
 	batteryVoltagePin = 1;
-	commandOffPin = 5;
+	suicidePin = 5;
 	commandPatternPin = 6;
 	Control.FS_BREATHE_MULTIPLIER = 50.0;
 	Control.randomSeedPin = 0;
 	Control.audioAnalogPin = 0;
   } else {
 	batteryVoltagePin = 0;
-	commandOffPin = 5;
+	suicidePin = 5;
 	commandPatternPin = 6;
 	Control.FS_BREATHE_MULTIPLIER = 50.0;
 	Control.randomSeedPin = 8;
@@ -214,11 +218,15 @@ void setup() {
 	pinMode(AUDIO_INPUT_PIN, INPUT);
 	analogReadResolution(ANALOG_READ_RESOLUTION);
 	analogReadAveraging(ANALOG_READ_AVERAGING);
-	pinMode(6, INPUT_PULLUP); // Down
-	pinMode(10, INPUT_PULLUP); // Up
-	pinMode(11, INPUT_PULLUP); // Left
-	pinMode(12, INPUT_PULLUP); // Right
-	pinMode(13, INPUT_PULLUP); // Center
+	commandSpeedUpPin = 10;
+	commandIntensityPin = 11;
+	commandSpeedDownPin = 12;
+	commandOffPin = 13;
+	pinMode(commandPatternPin, INPUT_PULLUP); // Down
+	pinMode(commandSpeedUpPin, INPUT_PULLUP); // Up
+	pinMode(commandIntensityPin, INPUT_PULLUP); // Left
+	pinMode(commandSpeedDownPin, INPUT_PULLUP); // Right
+	pinMode(commandOffPin, INPUT_PULLUP); // Center
 	Control.latitude = readEepromLong(latitudeStartByte);
 	Control.longitude = readEepromLong(longitudeStartByte);
 	// Fix to work when we don't have accurate GPS data available
@@ -240,8 +248,8 @@ void setup() {
 
   pinMode(commandPatternPin, INPUT);
   digitalWrite(commandPatternPin, HIGH);
-  pinMode(commandOffPin, OUTPUT);
-  digitalWrite(commandOffPin, HIGH);
+  pinMode(suicidePin, OUTPUT);
+  digitalWrite(suicidePin, HIGH);
   pinMode(statusLed, OUTPUT);
 
   // Initialize client heartbeat timestamp
@@ -323,10 +331,10 @@ void pit2_isr(void)
   frameStarted = 1;
   frameCount++;
   frameRateCount++;
-  if (oneSecondBoundary >= 59) {
-	oneSecondBoundary = 0;
+  if (frameNumber >= 59) {
+	frameNumber = 0;
   } else {
-	oneSecondBoundary++;
+	frameNumber++;
   }
   PIT_TFLG2 = 1;
 #ifdef FFT_DIAGNOSTICS
@@ -457,17 +465,17 @@ void setupRadio() {
   }
   uint8_t dataRed[] = {FS_ID_FULL_COLOR, 128, 255, 0, 0, 255};
   Control.initializePattern(dataRed, 6);
-  led.pulse (255, 0, 0, 500, true);
+  led.pulse (50, 0, 0, 500, true);
   led.update();
   delay (500);
   uint8_t dataGreen[] = {FS_ID_FULL_COLOR, 128, 0, 255, 0, 255};
   Control.initializePattern(dataGreen, 6);
-  led.pulse (0, 255, 0, 500, true);
+  led.pulse (0, 50, 0, 500, true);
   led.update();
   delay (500);
   uint8_t dataBlue[] = {FS_ID_FULL_COLOR, 128, 0, 0, 255, 255};
   Control.initializePattern(dataBlue, 6);
-  led.pulse (0, 0, 255, 500, true);
+  led.pulse (0, 0, 50, 500, true);
   led.update();
   delay (500);
 }
@@ -499,8 +507,9 @@ void setStartupPattern() {
 #ifdef FFT_DIAGNOSTICS
   uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
 #else
-  uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
-  //uint8_t data[] = {FS_ID_TILT, 100, 200, 0, 40, 120};
+  //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
+  //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
+  uint8_t data[] = {FS_ID_TILT, 100, 200, 0, 40, 120};
 #endif
   Control.initializePattern(data, 6);
 #else
@@ -523,7 +532,7 @@ void catchup() {
 		while (millis() == lastTime) {}
 		lastTime = millis();
 	  }
-	  oneSecondBoundary = 0;
+	  frameNumber = 0;
 	  Control.setRadioTowerSyncTimestamp (millis());
 	}
   }
@@ -534,8 +543,11 @@ void catchup() {
 void loop() {   
   if (frameStarted) {
 	Control.continuePatternDisplay();
+#ifdef TEENSY
+	Control.setFrameNumber(frameNumber);
+#endif
 	updateDisplay();
-	if (oneSecondBoundary == 0) {
+	if (frameNumber == 0) {
 	  catchup();
 	}
 	sendHeartbeat();
@@ -557,7 +569,7 @@ void updateGPSdata() {
 }
 #endif
 
-//! 
+//! Debug output the GPS details
 void displayGPSdata(float lat, float lon) {
   Serial.print("lat:");
   Serial.print(lat);
@@ -576,19 +588,19 @@ void displayGPSdata(float lat, float lon) {
 void updateDisplay() {
 #ifdef TEENSY
   led.update();
-  if (lowBatteryTime != 0 && (oneSecondBoundary == 0 || oneSecondBoundary == 29)) {
-	led.pulse (100, 0, 0, 100, true);
-  } else if (oneSecondBoundary == 0) {
+  if (lowBatteryTime != 0 && (frameNumber == 0 || frameNumber == 29)) {
+	led.pulse (75, 0, 0, 100, true);
+  } else if (frameNumber == 0) {
 	unsigned long timeStamp = millis();
 	if (gps2rtc.last_sentence_receipt == 0 || timeStamp - gps2rtc.last_sentence_receipt > GPS_DISPLAY_TIME) {
 	  // No NMEA data
-	  led.pulse (100, 0, 0, 500, true);
+	  led.pulse (75, 0, 0, 500, true);
 	} else if (gps2rtc.lastPPSTime == 0 || timeStamp - gps2rtc.lastPPSTime > GPS_DISPLAY_TIME) {
 	  // NMEA data but no 1pps
-	  led.pulse (100, 100, 0, 500, true);
+	  led.pulse (75, 75, 0, 500, true);
 	} else {
 	  // NMEA data and 1pps
-	  led.pulse (0, 100, 0, 500, true);
+	  led.pulse (0, 75, 0, 500, true);
 	  // Reset GPS every GPS_RESET_TIME (10 minutes) to keep things fresh
 	  if (gps2rtc.gps_time != 0 && gpsTimeStamp == 0) {
 		updateGPSdata();
@@ -648,7 +660,12 @@ void updateDisplay() {
 
 //!Process incoming commands
 void processIncoming() {
-  int commandMode = clickCount(commandPatternPin);
+  int commandPatternMode = clickCount(commandPatternPin);
+  int commandOffMode = 0;
+  //int commandOffMode = clickCount(commandOffPin);
+  int commandSpeedUpMode = clickCount(commandSpeedUpPin);
+  int commandSpeedDownMode = clickCount(commandSpeedDownPin);
+  int commandIntensityMode = clickCount(commandIntensityPin);
   xbee.readPacket();
   if (xbee.getResponse().isAvailable() && !powerShutdown) {
     if (xbee.getResponse().getApiId() == ZB_RX_RESPONSE) {
@@ -663,12 +680,8 @@ void processIncoming() {
     } else if (xbee.getResponse().isError()) {
 	  Control.failedMessageCount++;
     } 
-  } else if (commandMode == 4) {
-	digitalWrite(commandOffPin, LOW);
-#if TEENSY
-  } else if (digitalRead(12) == 0) {
-	digitalWrite(commandOffPin, LOW);
-#endif
+  } else if (commandOffMode == 3) {
+	digitalWrite(suicidePin, LOW);
   } else if (powerShutdown) {
 	// In shutdown mode, set all to zero
 	for (int i = 0; i < LED_COUNT; i++) {
@@ -680,17 +693,21 @@ void processIncoming() {
 	Control.ledRed[LED_COUNT - 1] = 30;
 	Control.displayData(true, true, true);
 	delay(60000);
-	digitalWrite(commandOffPin, LOW);
-  } else if (commandMode == 1) {
-	Control.triggerPatternChange();
+	digitalWrite(suicidePin, LOW);
+  } else if (commandPatternMode) {
+	Control.triggerPatternChange(commandPatternMode == 1);
 #ifdef TEENSY
 	Control.latitude = random (-100, 100);
 	Control.longitude = random (-100, 100);
 #endif
-  } else if (commandMode == 2) {
-	Control.advancePatternSpeed();
-  } else if (commandMode == 3) {
-	Control.advancePatternIntensity(Control.pattern);
+  } else if (commandSpeedUpMode || commandSpeedDownMode) {
+	Control.advancePatternSpeed(commandSpeedUpMode == 1 || commandSpeedUpMode == 1, commandSpeedUpMode);
+#ifdef SERIAL_DIAGNOSTICS
+	Serial.print ("Pattern Speed: ");
+	Serial.println (Control.patternSpeed);
+#endif
+  } else if (commandIntensityMode) {
+	Control.advancePatternIntensity(Control.pattern, commandIntensityMode == 1);
   }
 }
 
@@ -699,7 +716,7 @@ void processRXResponse() {
   uint8_t* data;
   uint8_t dataLength;
   xbee.getResponse().getZBRxResponse(rxResponse);
-  led.pulse (200, 50, 0, 100, false);
+  led.pulse (100, 25, 0, 100, false);
   // TODO: Check data length for potential errors
   data = rxResponse.getData();
   dataLength = rxResponse.getDataLength();
@@ -725,7 +742,7 @@ void sendHeartbeat() {
   unsigned long currentTimestamp = millis();
   unsigned long sinceLastHeartbeat = currentTimestamp - heartbeatTimestamp;
   if (sinceLastHeartbeat > heartbeatPeriod) {
-	led.pulse (0, 0, 100, 100, false);
+	led.pulse (0, 0, 75, 100, false);
 	heartbeatCount++;
 	if (heartbeatCount % FULL_HEARTBEAT_PERIOD != 0) {
 	  uint8_t heartbeatShortPayload[] = {MESSAGE_TYPE_SHORT_VERSION, versionId};  // Short heartbeat

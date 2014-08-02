@@ -59,6 +59,8 @@ int clickCount(int pin) {
 			break;
 		  }
 		}
+	  } else {
+		return 1;
 	  }
 	}
   }

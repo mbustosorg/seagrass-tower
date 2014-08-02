@@ -43,7 +43,6 @@ furSwarmPatterns::furSwarmPatterns() {
   triggerPattern = 0;
   failedMessageCount = 0;
   delayStopwatch = 0;
-  lastDelayFactor = 0;
   lastDataLength = 0;
   frameIndex = 0;
   prismHue = 0.0;
@@ -841,7 +840,7 @@ void furSwarmPatterns::iterateStrandByHSV() {
   float iterationProportion = (float) frameRelease / (float) patternSpeed;
   uint8_t redLevel, greenLevel, blueLevel;
   for (int i = 0; i < LED_CYMAP; i++) {
-#if defined (FS_TOWER_VEST) || defined (FS_TOWER) || defined (FS_HAT) || defined (FS_TOWER_HAT)
+#if defined (FS_TOWER) || defined (FS_HAT) || defined (FS_TOWER_HAT)
 	indexMap = LED_CYMAP - i;
 #else
 	indexMap = pgm_read_byte(&cyLEDMap[i]);
@@ -911,7 +910,7 @@ void furSwarmPatterns::displaySoundActivate() {
   if (intensityLevel > 255.0) intensityLevel = 255.0;
   else if (intensityLevel < 0.0) intensityLevel = 0.0;
   
-#if defined (FS_TOWER_VEST) || defined (FS_TOWER) || (FS_TOWER_HAT)
+#if defined (FS_TOWER) || defined (FS_TOWER_HAT)
 
   // Slow down the intensity level retraction and display a peak for a short period
   uint32_t timeStamp = millis();
@@ -1447,7 +1446,6 @@ void furSwarmPatterns::checkLatestData() {
   if (lastDataLength != 0 && delayStopwatch == 0) {
 	if (0x80 | lastData[6]) secondModStart = 0x7F & lastData[6];
 	else delayStopwatch = lastData[6] * FS_DELAY_FACTOR + millis();
-	lastDelayFactor = lastData[6];
   }
   if (delayStopwatch > 0) {
 	if (millis() >= delayStopwatch) {
@@ -1573,36 +1571,41 @@ bool furSwarmPatterns::colorNoChange(uint8_t proposedData[]) {
 }
 
 //! Appropriately advance the selected pattern intensity
-void furSwarmPatterns::advancePatternIntensity(uint8_t pattern) {
+void furSwarmPatterns::advancePatternIntensity(uint8_t pattern, bool continuous) {
   switch (pattern) {
   case FS_ID_HEART:
-	heartbeatIntensity += 30;	
+	if (continuous) heartbeatIntensity++;
+	else heartbeatIntensity += 30;	
 	if (heartbeatIntensity < 90) {
 	  heartbeatIntensity = 90;
 	}
 	break;
   case FS_ID_FULL_COLOR:
-	intensityLevel -= 40;
+	if (continuous) intensityLevel++;
+	else intensityLevel -= 40;
 	if (intensityLevel > 200) {
 	  intensityLevel = 200;
 	}
 	setfullStrand (intensityLevel, redLevel, greenLevel, blueLevel, false);
 	break;
   case FS_ID_BREATHE:
-	breatheUpperLevel += 20;
+	if (continuous) breatheUpperLevel++;
+	else breatheUpperLevel += 20;
 	if (breatheUpperLevel < 40) {
 	  breatheUpperLevel = 40;
 	}
 	break;
   case FS_ID_PRISM:
   case FS_ID_RAINBOW_CHASE:
-	prismValue -= 0.15;
+	if (continuous) prismValue++;
+	else prismValue -= 0.15;
 	if (prismValue < 0.01) {
 	  prismValue = 0.75;
 	}
 	break;
   case FS_ID_MATRIX:
-	intensityLevel += 20;
+	if (continuous) intensityLevel++;
+	else intensityLevel += 20;
 	if (intensityLevel < 100) {
 	  intensityLevel = 100;
 	}
@@ -1613,10 +1616,15 @@ void furSwarmPatterns::advancePatternIntensity(uint8_t pattern) {
 }
 
 //! Move to the next pattern based on commanded button press
-void furSwarmPatterns::triggerPatternChange() {
-  triggerPattern++;
-  if (triggerPattern > 17) {
-	triggerPattern = 0;
+void furSwarmPatterns::triggerPatternChange(bool forward) {
+  if (forward) {
+	triggerPattern++;
+	if (triggerPattern == triggerPatternsCount) {
+	  triggerPattern = 0;
+	}
+  } else {
+	if (triggerPattern == 0) triggerPattern = triggerPatternsCount - 1;
+	else triggerPattern--;
   }
   uint8_t triggerData[] = {triggerPattern,0,0,0,0,0};
   heartbeatPumpShortStart = millis();
@@ -1633,8 +1641,10 @@ void furSwarmPatterns::triggerPatternChange() {
 }
 
 //! Appropriately advance the selected pattern speed
-void furSwarmPatterns::advancePatternSpeed() {
+void furSwarmPatterns::advancePatternSpeed(bool continuous, bool up) {
   uint8_t triggerData[] = {0,0,0,0,0,0};
+  int direction = 1;
+  if (!up) direction = -1;
   switch (pattern) {
   case FS_ID_FULL_COLOR:
 	rgb toConvert;
@@ -1645,7 +1655,8 @@ void furSwarmPatterns::advancePatternSpeed() {
 	toConvert.b = (float) blueLevel / 255.0;
     
 	converted = rgb2hsv(toConvert);
-	converted.h += 30.0;
+	if (continuous) converted.h += 5.0 * direction;
+	else converted.h += 30.0 * direction;
 	if (converted.h > 360.0) {
 	  converted.h -= 360.0;
 	}
@@ -1662,7 +1673,7 @@ void furSwarmPatterns::advancePatternSpeed() {
   case FS_ID_SPARKLE:
   case FS_ID_DESCEND:
 	patternSpeed = patternSpeed * 20;
-	patternSpeed += 20;
+	patternSpeed += 20 * direction;
 	if (patternSpeed > 155) {
 	  patternSpeed = 20;
 	}
@@ -1670,21 +1681,23 @@ void furSwarmPatterns::advancePatternSpeed() {
 	break;
   case FS_ID_HEART:
 	heartbeatPumpShortPeriod = 255 - heartbeatPumpShortPeriod / 4.0;
-	heartbeatPumpShortPeriod -= 20;
+	heartbeatPumpShortPeriod -= 20 * direction;
 	if (heartbeatPumpShortPeriod < 20) {
 	  heartbeatPumpShortPeriod = 210;
 	}
 	heartbeatPumpShortPeriod = (255 - heartbeatPumpShortPeriod) * 4.0;
 	break;
   case FS_ID_BREATHE:
-	patternSpeed += 15;
+	if (continuous) patternSpeed++;
+	else patternSpeed += 15 * direction;
 	if (patternSpeed > 255) {
 	  patternSpeed = 50;
 	}
 	break;
   case FS_ID_ORGANIC:
 	patternSpeed = patternSpeed * 10;
-	patternSpeed -= 20;
+	if (continuous) patternSpeed -= direction;
+	else patternSpeed -= 20 * direction;
 	if (patternSpeed > 100) {
 	  patternSpeed = 100;
 	}
@@ -1694,7 +1707,8 @@ void furSwarmPatterns::advancePatternSpeed() {
 	break;
   case FS_ID_DROP:
 	patternSpeed = patternSpeed * 10;
-	patternSpeed -= 20;
+	if (continuous) patternSpeed -= direction;
+	else patternSpeed -= 20 * direction;
 	if (patternSpeed > 100) {
 	  patternSpeed = 100;
 	}
@@ -1714,10 +1728,15 @@ void furSwarmPatterns::advancePatternSpeed() {
   case FS_ID_CYLON_PONG:
   case FS_ID_SPIRAL:
   case FS_ID_MATRIX:
-	if (patternSpeed < 12) {
-	  patternSpeed -= 5;
+	if (continuous) {
+	  if (patternSpeed == 0) patternSpeed = 80;
+	  else patternSpeed -= direction;
 	} else {
-	  patternSpeed -= 10;
+	  if (patternSpeed < 12) {
+		patternSpeed -= 5 * direction;
+	  } else {
+		patternSpeed -= 10 * direction;
+	  }
 	}
 	if (patternSpeed == 0) {
 	  patternSpeed = 1;
@@ -1728,25 +1747,16 @@ void furSwarmPatterns::advancePatternSpeed() {
 	break;
   case FS_ID_PRISM:
   case FS_ID_RAINBOW_CHASE:	
-	if (patternSpeed > 0) {
-	  patternSpeed = 255 - patternSpeed * 4;
-	} else {
-	  patternSpeed = -patternSpeed * 4;
-	}
-	patternSpeed += 35;
-	if (patternSpeed > 255) {
-	  patternSpeed = 0;
-	}
+	if (continuous) patternSpeed++;
+	else patternSpeed += 35 * direction;
 	triggerData[0] = pattern; // ID
 	triggerData[1] = patternSpeed; // Speed
 	triggerData[5] = prismValue * 255; // Intensity
 	initializePattern(triggerData, 6);
 	break;
   default:
-	patternSpeed += 30;
-	if (patternSpeed > 255) {
-	  patternSpeed = 0;
-	}
+	if (continuous) patternSpeed += direction;
+	else patternSpeed += 30 * direction;
   }
 }
 
