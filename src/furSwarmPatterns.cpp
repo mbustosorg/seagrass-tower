@@ -141,6 +141,7 @@ void furSwarmPatterns::sendColor (int pixelIndex, uint8_t red, uint8_t green, ui
   trueRed = red;
   trueGreen = green;
   trueBlue = blue;
+  /*
   if (red < PWM_DIMMER_THRESHOLD && lowLevelPWMCounter > PWM_COUNTER_RESET - PWM_COUNTER_OFFSET) {
 	trueRed = 0;
   }
@@ -150,6 +151,7 @@ void furSwarmPatterns::sendColor (int pixelIndex, uint8_t red, uint8_t green, ui
   if (blue < PWM_DIMMER_THRESHOLD && lowLevelPWMCounter > PWM_COUNTER_RESET - PWM_COUNTER_OFFSET) {
 	trueBlue = 0;
   }
+  */
 #ifdef NOT_EMBEDDED
   nonEmbedRed[pixelIndex] = trueRed;
   nonEmbedGreen[pixelIndex] = trueGreen;
@@ -200,7 +202,19 @@ void furSwarmPatterns::sendColor (int pixelIndex, uint8_t red, uint8_t green, ui
 void furSwarmPatterns::setfullStrand(uint8_t intensity, uint8_t red, uint8_t green, uint8_t blue, bool smooth) {
   sendStartFrame();
   for (int i = 0; i < LED_COUNT; i++) {
-    sendColor(i, red * intensity / 255, green * intensity / 255, blue * intensity / 255);
+	if (smooth && frameRelease > 0) {
+	  frameRelease--;
+	  float proportion = (float) frameRelease / ((float) patternSpeed * 4.0);
+	  sendColor(i, 
+				ledRed[i] + ((float) red * intensity / 255 - (float) ledRed[i]) * (1.0 - proportion), 
+				ledGreen[i] + ((float) green * intensity / 255 - (float) ledGreen[i]) * (1.0 - proportion), 
+				ledBlue[i] + ((float) blue * intensity / 255 - (float) ledBlue[i]) * (1.0 - proportion));
+	} else {
+	  ledRed[i] = red * intensity / 255;
+	  ledGreen[i] = green * intensity / 255;
+	  ledBlue[i] = blue * intensity / 255;
+	  sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
+	}
   }
   sendEndFrame();
 }
@@ -899,7 +913,7 @@ void furSwarmPatterns::iteratePrismColor(bool force) {
   greenLevel = greenLevel + (uint8_t) (converted.g * 255.0 * (1.0 - iterationProportion));
   blueLevel = blueLevel + (uint8_t) (converted.b * 255.0 * (1.0 - iterationProportion));
   
-  setfullStrand (255, redLevel, greenLevel, blueLevel, true);
+  setfullStrand (255, redLevel, greenLevel, blueLevel, false);
 }
 
 //! Display the sound display data
@@ -1133,45 +1147,36 @@ void furSwarmPatterns::iterateSoundActivate() {
   }
 }
 
-//! Set pattern data in preparation for initialization
-void furSwarmPatterns::setPatternData(uint8_t *data, uint8_t dataLength) {
-  memcpy (lastData, data, dataLength);
-  if (lastData [0] == pattern) {
-	lastDataLength = 0;
-	delayStopwatch = 0;
-	initializePattern(data, dataLength);
-  } else {
-	lastDataLength = dataLength;
-  }
-}
-
 //! Initialize the selected pattern
 void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   int messageType;
   int lastPatternSpeed = patternSpeed;
-  // data [0] - messageType
+  // data [0] - pattern
   // data [1] - speed
   // data [2] - red
   // data [3] - green
   // data [4] - blue
   // data [5] - aux (usually intensity)
   // data [6] - delay in ms / FS_DELAY_FACTOR;
-  messageType = (int) data[0];
+  messageType = (int) (0x7F & data[0]);
+  //messageType = (int) data[0];
+  transitionRequested = 0x80 & data[0];
   patternSpeed = (int) data[1];
   switch (messageType) {
   case FS_ID_HEARTBEAT_REQUEST:
 	break;
   case FS_ID_FULL_COLOR:
-	pattern = data[0];
+	pattern = messageType;
 	intensityLevel = data[5];
 	redLevel = data[2];
 	greenLevel = data[3];
 	blueLevel = data[4];
-	setfullStrand(intensityLevel, redLevel, greenLevel, blueLevel, false);
+	frameRelease = patternSpeed * 4;
+	setfullStrand(intensityLevel, redLevel, greenLevel, blueLevel, true);
 	break;
   case FS_ID_SPARKLE:
 	setPatternSpeedWithFactor(20);
-	if (pattern != data [0]) {
+	if (pattern != messageType) {
 	  initializeRandom(0, 255, 0xff, 0xff, 0xff, false); 
 	  for (int i = 0; i < LED_COUNT; i++) {
 		if (ledRedDirection[i] > 1) {
@@ -1185,29 +1190,29 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 		}
 	  }
 	}
-	pattern = data[0];
+	pattern = messageType;
 	break;
   case FS_ID_DESCEND:
 	setPatternSpeedWithFactor(20);
-	if (pattern != data [0]) {
+	if (pattern != messageType) {
 	  initializeRandom(0, 255, 0xff, 0xff, 0xff, false); 
 	}
-	pattern = data[0];
+	pattern = messageType;
 	break;
   case FS_ID_OFF:
-	pattern = data[0];
+	pattern = messageType;
 	setfullStrand(0, 0, 0, 0, false);
 	break;
   case FS_ID_FLASH:
 	initializeFlash(data [2], data [3], data [4]);
 	displayPumpData(true, true, true);
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_RANDOM_FLASH:
 	initializeFlash(data [2], data [3], data [4]);
 	heartbeatPumpShortStart = random (patternSpeed * 5);
 	displayPumpData(true, true, true);
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_HEART:
 	heartbeatPumpShortPeriod = (255 - data [1]) * 4;
@@ -1217,12 +1222,12 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	  greenLevel = data [3];
 	  blueLevel = data [4];
 	}
-	if (pattern != data [0]) {
+	if (pattern != messageType) {
 	  initializeHeartbeatPattern(data [2], data [3], data [4]);
 	  heartbeatPumpShortStart = millis();
 	  heartbeatPumpLongStart = 0;
 	}
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_BREATHE:
 	setPatternSpeedWithFactor(20);
@@ -1241,11 +1246,11 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 		ledBlueDirection[i] = 1;
 	  }
 	}
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_ORGANIC:
 	setPatternSpeedWithFactor(10);
-	if (pattern != data [0]) {
+	if (pattern != messageType) {
 	  initializeRandom(starfieldUpperLevel, 255, 0xff, 0xff, 0xff, true); 
 	  for (int i = 0; i < LED_COUNT; i++) {
 		if (i % 2 == 0) {
@@ -1259,22 +1264,22 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 		}
 	  }
 	}
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_CYLON:
 	setTwoWaySweepSpeed (20, data[1]);
 	if (patternOrColorChanged(data)) {
-	  if (pattern != data[0]) {
+	  if (pattern != messageType) {
 		frameIndex = 0;
 		frameRelease = patternSpeed;
 	  }
 	  initializeCylon(data [2], data [3], data [4], false);
 	}
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_DROP:
 	setPatternSpeedWithFactor(10);
-	if (pattern != data[0]) {
+	if (pattern != messageType) {
 	  initializeDrop();
 	  for (int i = 0; i < LED_COUNT; i++) {
 		ledRedDirection[i] = 1;
@@ -1282,14 +1287,14 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 		ledBlueDirection[i] = 1;
 	  }
 	}
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_CHARACTER:
 	if (data[5] == 255) {
 	  characterIndex = 0;
 	} else if (data[5] != 0) {
 	  characterIndex = data[5];
-	} else if (pattern == data [0] && colorNoChange(data)) {
+	} else if (pattern == messageType && colorNoChange(data)) {
 	  characterIndex++;
 	} else {
 	  characterIndex = 1;
@@ -1297,34 +1302,34 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	if (characterIndex >= characterIndexUpper) {
 	  characterIndex = 1;
 	}
-	pattern = data [0];
+	pattern = messageType;
 	initializeCharacter(data [1], data [2], data [3], data [4]);
 	break;
   case FS_ID_CYLON_VERTICAL:
 	patternSpeed = 255 - (int) data [1];
 	setPatternSpeedWithFactor(15);
-	if (frameIndex > 8 || pattern != data [0]) {
+	if (frameIndex > 8 || pattern != messageType) {
 	  frameIndex = 1;
 	  frameRelease = patternSpeed;
 	}
 	initializeBitmapPattern(data [2], data [3], data [4], frameIndex, false, FS_ID_CYLON_VERTICAL);
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_CYLON_PONG:
 	patternSpeed = 255 - (int) data [1];
 	setPatternSpeedWithFactor(30);
-	if (frameIndex > 8 || pattern != data [0]) {
+	if (frameIndex > 8 || pattern != messageType) {
 	  frameIndex = 1;
 	  frameRelease = patternSpeed;
 	}
 	initializeBitmapPattern(data [2], data [3], data [4], frameIndex, false, FS_ID_CYLON_PONG);
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_SOUND_ACTIVATE:
 	initializeFlash(data [2], data [3], data [4]);
 	updateSoundActivateParameters(data[1], data[5], data[5]);
 	displayPumpData(true, true, true);
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_PRISM:
 	setTwoWaySweepSpeed (2, data[1]);
@@ -1335,19 +1340,19 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	  iteratePrismColor(true);
 	}
 	frameRelease = patternSpeed;
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_MATRIX:
 	patternSpeed = 255 - (int) data [1];
 	setPatternSpeedWithFactor(10);
 	if (patternOrColorChanged(data) || intensityLevel != data[5]) {
-	  if (pattern != data[0]) {
+	  if (pattern != messageType) {
 		frameIndex = 0;
 		frameRelease = patternSpeed;
 	  }
 	  initializeMatrix(data[5], data[2], data[3], data[4], 5);  // 5 is the upperFrameCount
 	}
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_RAINBOW_CHASE:
 	setTwoWaySweepSpeed (20, data[1]);
@@ -1358,14 +1363,14 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	  prismValue = 1.0;
 	}
 	frameRelease = patternSpeed;
-	if (pattern != data[0]) {
+	if (pattern != messageType) {
 	  initializeHSVstrand();
 	}
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_STARFIELD:
 	setPatternSpeedWithFactor(10);
-	if (pattern != data [0] || (colorNoChange(data) && lastPatternSpeed == patternSpeed)) {
+	if (pattern != messageType || (colorNoChange(data) && lastPatternSpeed == patternSpeed)) {
 	  if (data[2] == data[3] && data[3] == data[4]) {
 		initializeRandom(starfieldUpperLevel, 255, 0xff, 0xff, 0xff, true); 
 	  } else {
@@ -1389,17 +1394,17 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 		}
 	  }
 	}
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_SPIRAL:
 	patternSpeed = 255 - (int) data [1];
 	setPatternSpeedWithFactor(20);
-	if (frameIndex > 8 || pattern != data [0]) {
+	if (frameIndex > 8 || pattern != messageType) {
 	  frameIndex = 1;
 	  frameRelease = patternSpeed;
 	}
 	initializeBitmapPattern(data [2], data [3], data [4], frameIndex, false, FS_ID_SPIRAL);
-	pattern = data [0];
+	pattern = messageType;
 	break;
   default:
 	break;
@@ -1441,19 +1446,42 @@ void furSwarmPatterns::setPatternSpeedWithFactor(int factor) {
   }
 }
 
+//! Set pattern data in preparation for initialization
+void furSwarmPatterns::setPatternData(uint8_t *data, uint8_t dataLength) {
+  memcpy (lastData, data, dataLength);
+  if (lastData [0] == pattern) {
+	delayStopwatch = 0;
+	initializePattern(data, dataLength);
+	lastDataLength = 0;
+	secondModStart = -1;
+  } else if (0x80 & lastData[6]) {
+	delayStopwatch = (((0x70 & lastData[6]) >> 4) & 0x0007) * FS_DELAY_FACTOR;
+	secondModStart = 0x0F & lastData[6];
+	lastDataLength = dataLength;
+  } else {
+	delayStopwatch = lastData[6] * FS_DELAY_FACTOR + millis();
+	secondModStart = -1;
+	lastDataLength = dataLength;
+  }
+}
+
 //! Check the delay stopwatch and initialize the last request
 void furSwarmPatterns::checkLatestData() {
-  if (lastDataLength != 0 && delayStopwatch == 0) {
-	if (0x80 | lastData[6]) secondModStart = 0x7F & lastData[6];
-	else delayStopwatch = lastData[6] * FS_DELAY_FACTOR + millis();
-  }
-  if (delayStopwatch > 0) {
+  if (secondModStart > 0) {
+	if (clock.seconds % secondModStart == 0) {
+	  secondModStart = -1;
+	  if (delayStopwatch != 0) {
+		delayStopwatch += millis();
+	  } else {
+		initializePattern(lastData, lastDataLength);
+	  }
+	}
+  } else if (delayStopwatch != 0) {
 	if (millis() >= delayStopwatch) {
 	  initializePattern(lastData, lastDataLength);
-	  lastDataLength = 0;
 	  delayStopwatch = 0;
 	}
-  }
+ }
 }
 
 //! Continue pattern display
@@ -1463,8 +1491,7 @@ void furSwarmPatterns::continuePatternDisplay() {
   unsigned long hbTimeStamp = millis();
   switch (pattern) {
   case FS_ID_FULL_COLOR:
-	// Nothing to do, handled on the message reciept
-	setfullStrand(intensityLevel, redLevel, greenLevel, blueLevel, false);
+	setfullStrand(intensityLevel, redLevel, greenLevel, blueLevel, true);
 	break;
   case FS_ID_SPARKLE:
 	cycleData(patternSpeed, true, 0, 0);
@@ -1586,7 +1613,8 @@ void furSwarmPatterns::advancePatternIntensity(uint8_t pattern, bool continuous)
 	if (intensityLevel > 200) {
 	  intensityLevel = 200;
 	}
-	setfullStrand (intensityLevel, redLevel, greenLevel, blueLevel, false);
+	frameRelease = patternSpeed * 4;
+	setfullStrand (intensityLevel, redLevel, greenLevel, blueLevel, true);
 	break;
   case FS_ID_BREATHE:
 	if (continuous) breatheUpperLevel++;
@@ -1668,7 +1696,8 @@ void furSwarmPatterns::advancePatternSpeed(bool continuous, bool up) {
 	greenLevel = toConvert.g * 255;
 	blueLevel = toConvert.b * 255;
 
-	setfullStrand(intensityLevel, redLevel, greenLevel, blueLevel, false);
+	frameRelease = patternSpeed * 4;
+	setfullStrand(intensityLevel, redLevel, greenLevel, blueLevel, true);
 	break;
   case FS_ID_SPARKLE:
   case FS_ID_DESCEND:

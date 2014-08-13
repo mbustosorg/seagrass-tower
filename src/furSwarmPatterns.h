@@ -83,7 +83,7 @@ const int lpdClockPin = 11;
 #define PWM_DIMMER_THRESHOLD (3) // Dim values lower than this based on above duty cycle
 
 #define MAX_DATA_LENGTH (10) // Maximum expected number of bytes in incoming message
-#define FS_DELAY_FACTOR (20)
+#define FS_DELAY_FACTOR (500)
 #define PATTERN_START_MOD (5) // Second interval to start patterns for synchronization
 
 class furSwarmPatterns {
@@ -92,12 +92,13 @@ class furSwarmPatterns {
   
   float FS_BREATHE_MULTIPLIER;
   uint8_t pattern;
+  bool transitionRequested;
   uint8_t triggerPattern;
   uint16_t failedMessageCount;
   uint8_t lastData[MAX_DATA_LENGTH];
   uint8_t lastDataLength;
   unsigned long delayStopwatch;
-  unsigned long secondModStart; 
+  int secondModStart; 
   uint8_t lastDelayFactor;
   timeStruct clock;
 
@@ -136,7 +137,7 @@ class furSwarmPatterns {
   uint8_t characterIndex; // Index of currently displayed character
   uint8_t characterIndexUpper; // Count of characters available in PROGMEM
   uint8_t frameIndex; // Index for frame based patterns
-  uint8_t frameRelease; // Counter to aid with pattern iteration speed
+  uint16_t frameRelease; // Counter to aid with pattern iteration speed
   uint8_t redLevel;
   uint8_t greenLevel;
   uint8_t blueLevel;

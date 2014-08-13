@@ -82,6 +82,10 @@ class accelerometer {
   long shakeResetTime;
   TiltVector filteredReadings;
   int filterLength = 0;
+  // Shake detection
+  TiltVector shakingMovingAverage;
+  TiltVector lastTilt;
+  int shakingMovingAverageLength = 100;
 
 };
 

@@ -81,20 +81,19 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   // data [4] - blue
   // data [5] - aux (usually intensity)
   // data [6] - delay in ms
-  //  if (dataLength > 6) {
-  //for (unsigned long stopWatch = millis(); (millis() - stopWatch) < ((unsigned long) data [6] * 10); ) {}
-  //}
   // Disable Timer 3 used for audio sampling, let the request turn it back on
   PIT_TCTRL3 &= ~(1 << 0);
-  messageType = (int) data[0];
+  messageType = (int) (0x7F & data[0]);
+  //messageType = (int) data[0];
+  transitionRequested = 0x80 & data[0];
   patternSpeed = (int) data[1];
   switch (messageType) {
   case FS_ID_TILT:
 	patternSpeed = 255 - (int) data [1];
 	setPatternSpeedWithFactor(10);
-	if (pattern != data [0]) {
+	if (pattern != messageType) {
 	  initializeTilt();
-	  pattern = data [0];
+	  pattern = messageType;
 	}
 	break;
   case FS_ID_SHAKE_SPARKLE:
@@ -102,23 +101,23 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	//setPatternSpeedWithFactor(1);
 	setPatternSpeedWithFactor(20);
 	setBasicParameters (data[5], data[2], data[3], data[4]);
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_GRASS_WAVE:
 	patternSpeed = 255 - (int) data [1];
 	setPatternSpeedWithFactor(15);
-	initializeGrassWave(data[5], data[2], data[3], data[4], pattern != data [0]);
-	pattern = data [0];
+	initializeGrassWave(data[5], data[2], data[3], data[4], pattern != messageType);
+	pattern = messageType;
 	break;
   case FS_ID_RADIO_TOWER:
-	if (pattern != data[0]) {
+	if (pattern != messageType) {
 	  initializeRadioTower();
 	}
 	setBasicParameters(data[5], data[2], data[3], data[4]);
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_BOUNCING_BALL:
-	if (pattern != data[0]) {
+	if (pattern != messageType) {
 	  initializeBouncingBall();
 	}
 	if (data[2] == 255 && data[3] == 255 && data[4] == 255) {
@@ -127,10 +126,10 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	  useTiltForBounceColor = false;
 	  setBasicParameters(data[5], data[2], data[3], data[4]);
 	}
- 	pattern = data [0];
+ 	pattern = messageType;
 	break;
   case FS_ID_SPECTRUM_ANALYZER:
- 	pattern = data [0];
+ 	pattern = messageType;
 	updateSoundActivateParameters(data[1], data[5], data[5]);
 	PIT_TCTRL3 |= 0x1;
 	break;
@@ -143,30 +142,30 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	  ledGreen[i] = unadjustedGreen;
 	  ledBlue[i] = unadjustedBlue;
 	}
-	if (pattern != data[0]) {
+	//if (pattern != messageType) {
 	  timeToDropInitial = (uint8_t) random (1, patternSpeed);
 	  timeToDrop = timeToDropInitial;
-	}
- 	pattern = data [0];
+	  //}
+ 	pattern = messageType;
 	break;
   case FS_ID_ANIMATE_1:
 	animations.startAnimation(millis());
 	initializePattern(animations.currentPattern(), 6);
 	break;
   case FS_ID_SEARCHING_EYE:
- 	pattern = data [0];
+ 	pattern = messageType;
 	setPatternSpeedWithFactor(10);
 	patternSpeed = random (patternSpeed, patternSpeed + 2);
 	setBasicParameters(data[5], data[2], data[3], data[4]);
 	break;
   case FS_ID_BUBBLE_WAVE:
- 	pattern = data [0];
+ 	pattern = messageType;
 	setPatternSpeedWithFactor(10);
 	patternSpeed = random (patternSpeed, patternSpeed + 2);
 	setBasicParameters(data[5], data[2], data[3], data[4]);
 	break;
   case FS_ID_BROKEN:
- 	pattern = data [0];
+ 	pattern = messageType;
 	initializeBroken();
 	for (int i = 0; i < 7; i++) {
 	  brokenBits[i] = random (0, 255);
@@ -174,7 +173,7 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	}
 	break;
   case FS_ID_PONG:
-	if (pattern != data[0]) {
+	if (pattern != messageType) {
 	  ball.initialize(data[2], data[3]);
 	}
 	setBasicParameters(data[5], data[2], data[3], data[4]);
@@ -183,10 +182,10 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
 	} else {
 	  ball.setSpeed (((float) data [1]) / 20.0, ((float) data [1]) / 30.0);
 	}
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_GIANT_SPECTRUM:
- 	pattern = data [0];
+ 	pattern = messageType;
 	spectrumTowerId = data[2];
 	spectrumTowerCount = data[3];
 	updateSoundActivateParameters(data[1], data[5], data[5]);
@@ -195,16 +194,16 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   case FS_ID_FLAME:
 	setBasicParameters(data[5], data[2], data[3], data[4]);
 	setPatternSpeedWithFactor(5);
-	if (pattern != data[0]) {
+	if (pattern != messageType) {
 	  initializeFlame();
 	}
-	pattern = data [0];
+	pattern = messageType;
 	break;
   case FS_ID_CANDLE:
 	setBasicParameters(data[5], data[2], data[3], data[4]);
 	setPatternSpeedWithFactor(5);
 	initializeCandle();
-	pattern = data [0];
+	pattern = messageType;
 	break;
   default:
 	furSwarmPatterns::initializePattern(data, dataLength);
@@ -212,46 +211,25 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   }
 }
 
-//! Check the delay stopwatch and initialize the last request
-void towerPatterns::checkLatestData() {
-  if (lastDataLength != 0 && delayStopwatch == 0 && secondModStart == 0) {
-	if (0x80 | lastData[6]) secondModStart = 0x7F & lastData[6];
-	else delayStopwatch = lastData[6] * FS_DELAY_FACTOR + millis();
-	lastDelayFactor = lastData[6];
-  }
-  if (delayStopwatch > 0) {
-	if (millis() >= delayStopwatch) {
-	  initializePattern(lastData, lastDataLength);
-	  lastDataLength = 0;
-	  secondModStart = 0;
-	  delayStopwatch = 0;
-	}
-  } else if (secondModStart > 0) {
-	if (secondModStart % clock.seconds == 0) {
-	  initializePattern(lastData, lastDataLength);
-	  lastDataLength = 0;
-	  secondModStart = 0;
-	  delayStopwatch = 0;
-	}
-  }
-}
-
 //! Continue pattern display
 void towerPatterns::continuePatternDisplay() {
   checkLatestData();
+#ifdef FS_TOWER
+  if (checkShaking()) {
+	isShaking = true;
+	shakeStart = millis();
+  }
+  if (isShaking) {
+	setfullStrand(0, 0, 0, 0, false);
+	if (millis() - shakeStart > 10000) isShaking = false;
+	return;
+  }
+#endif
   // Continue with pattern display
   switch (pattern) {
   case FS_ID_TILT:
-	//if (isShaking) {
-	//  shakeSparkle();
-	//} else if (wasShaking) {
-	//  initializeTilt();
-	//  wasShaking = false;
-	//} else {
-	  tilt();
-	  //}
+	tilt();
 	displayData(true, true, true);
-	//checkShaking();
 	break;
   case FS_ID_SHAKE_SPARKLE:
 	shakeSparkle();
@@ -378,8 +356,8 @@ rgb towerPatterns::tiltColor() {
   return hsv2rgb(in);
 }
 
-//! determine tilt and set colors
-void towerPatterns::tilt() {
+// Iterate the transition point for patterns that request it
+void towerPatterns::iterateForTransition() {
   if (timeToDrop == 0) {
 	if (cycleSpot < LED_COUNT + 1) {
 	  timeToDrop = patternSpeed / 3;
@@ -389,18 +367,25 @@ void towerPatterns::tilt() {
 	  }
 	} else {
 	  timeToDrop = patternSpeed;
-	  lastRGBOut = currentRGBOut;
 	}
   } else {
 	timeToDrop--;
+  }
+}
+
+//! determine tilt and set colors
+void towerPatterns::tilt() {
+  iterateForTransition();
+  if (timeToDrop == 1) {
+	lastRGBOut = currentRGBOut;
   }
   currentRGBOut = tiltColor();
   float brightnessFactor = 7.0;
   float iterationProportion = (float) timeToDrop / (float) patternSpeed;
   rgb currentByte, lastByte;
-  currentByte.r = min(currentRGBOut.r * 255.0 * brightnessFactor, 255); // Now in byte
-  currentByte.g = min(currentRGBOut.g * 255.0 * brightnessFactor, 255); // Now in byte
-  currentByte.b = min(currentRGBOut.b * 255.0 * brightnessFactor, 255); // Now in byte
+  currentByte.r = min(currentRGBOut.r * 255.0 * brightnessFactor, 255);
+  currentByte.g = min(currentRGBOut.g * 255.0 * brightnessFactor, 255);
+  currentByte.b = min(currentRGBOut.b * 255.0 * brightnessFactor, 255);
   for (int i = 0; i < LED_COUNT; i++) {
 	if (LED_COUNT - i - 1 < cycleSpot) {
 	  ledRed[i] = (uint8_t) currentByte.r;
@@ -872,10 +857,10 @@ void towerPatterns::updateSpectrumLevels() {
 	  ledBlue[i] = (uint8_t) (255.0 - runningMagnitude[i]);
 	  if (runningMagnitude [i] == 255.0) {
 		ledRed[i] = 0xFF;
-		ledGreen[i] = 0x10;
+		ledGreen[i] = 0x00;
 	  } else if (runningMagnitude [i] > 0.95 * 255.0) {
 		ledRed[i] = 0xFF;
-		ledGreen[i] = 0x40;
+		ledGreen[i] = 0x20;
 	  } else if (runningMagnitude [i] > 0.85 * 255.0) {
 		ledRed[i] = 0xFF;
 		ledGreen[i] = 0x80;

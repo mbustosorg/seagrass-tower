@@ -35,6 +35,13 @@ accelerometer::accelerometer() {
   filteredReadings.x = 0.0;
   filteredReadings.y = 0.0;
   filteredReadings.z = 0.0;
+  shakingMovingAverage.x = 0.0;
+  shakingMovingAverage.y = 0.0;
+  shakingMovingAverage.z = 0.0;
+  lastTilt.x = 0.0;
+  lastTilt.y = 0.0;
+  lastTilt.z = 0.0;
+  shakingMovingAverageLength = 30;
 }
 
 //! Current moving average tilt vector
@@ -73,7 +80,27 @@ void accelerometer::shutdown() {
 
 //! Have we been recently shaken?
 bool accelerometer::isShaking() {
-  return false;
+  TiltVector tilt = filteredTilt();
+  shakingMovingAverage.x = shakingMovingAverage.x + (abs(tilt.x - lastTilt.x) - shakingMovingAverage.x) / shakingMovingAverageLength;
+  shakingMovingAverage.y = shakingMovingAverage.y + (abs(tilt.y - lastTilt.y) - shakingMovingAverage.y) / shakingMovingAverageLength;
+  shakingMovingAverage.z = shakingMovingAverage.z + (abs(tilt.z - lastTilt.z) - shakingMovingAverage.z) / shakingMovingAverageLength;
+  lastTilt = tilt;
+  float totalEnergy = sqrt(shakingMovingAverage.x * shakingMovingAverage.x * 1000000 + shakingMovingAverage.y * shakingMovingAverage.y * 1000000 + shakingMovingAverage.z * shakingMovingAverage.z * 1000000);
+  bool shaking = totalEnergy > 50.0;
+#ifdef SERIAL_DIAGNOSTICS
+  Serial.print ("ACCEL_DATA:");
+  Serial.print ("x=");
+  Serial.print (shakingMovingAverage.x * 1000);
+  Serial.print (",y=");
+  Serial.print (shakingMovingAverage.y * 1000);
+  Serial.print (",z=");
+  Serial.print (shakingMovingAverage.z * 1000);
+  Serial.print (",total=");
+  Serial.print (totalEnergy);
+  if (shaking) Serial.println ("---SHAKING---");
+  else Serial.println ("");
+#endif
+  return shaking;
 }
 
 //! Calibrate base angle

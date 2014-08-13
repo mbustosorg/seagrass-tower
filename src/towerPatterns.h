@@ -76,8 +76,8 @@ class towerPatterns : public furSwarmPatterns {
   // Redefinitions
   void initializePattern(uint8_t *data, uint8_t dataLength);
   void continuePatternDisplay();
-  void checkLatestData();
-
+  
+  void iterateForTransition();
   void calibrateTilt();
   bool checkShaking();
   void readTilt();
@@ -131,6 +131,7 @@ class towerPatterns : public furSwarmPatterns {
 
   bool isShaking;
   bool wasShaking;  
+  unsigned long shakeStart;
 
   uint32_t shakingStart = 0;
   uint32_t shakingTimestamp = 0;
