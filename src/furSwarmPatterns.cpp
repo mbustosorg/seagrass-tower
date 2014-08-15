@@ -198,22 +198,42 @@ void furSwarmPatterns::sendColor (int pixelIndex, uint8_t red, uint8_t green, ui
 #endif
 }
 
+// Iterate the transition point for patterns that request it
+void furSwarmPatterns::iterateForTransition() {
+  if (timeToDrop == 0) {
+	if (cycleSpot < LED_COUNT + 1) {
+	  timeToDrop = patternSpeed / 3;
+	  cycleSpot++;
+	  if (patternSpeed < 100) {
+		cycleSpot++;
+	  }
+	} else {
+	  timeToDrop = patternSpeed;
+	}
+  } else {
+	timeToDrop--;
+  }
+}
+
 //! Set the LED color strand to a fixed full color set
 void furSwarmPatterns::setfullStrand(uint8_t intensity, uint8_t red, uint8_t green, uint8_t blue, bool smooth) {
+  if (transitionRequested) iterateForTransition();
   sendStartFrame();
   for (int i = 0; i < LED_COUNT; i++) {
-	if (smooth && frameRelease > 0) {
-	  frameRelease--;
-	  float proportion = (float) frameRelease / ((float) patternSpeed * 4.0);
-	  sendColor(i, 
-				ledRed[i] + ((float) red * intensity / 255 - (float) ledRed[i]) * (1.0 - proportion), 
-				ledGreen[i] + ((float) green * intensity / 255 - (float) ledGreen[i]) * (1.0 - proportion), 
-				ledBlue[i] + ((float) blue * intensity / 255 - (float) ledBlue[i]) * (1.0 - proportion));
-	} else {
-	  ledRed[i] = red * intensity / 255;
-	  ledGreen[i] = green * intensity / 255;
-	  ledBlue[i] = blue * intensity / 255;
-	  sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
+	if (!transitionRequested || LED_COUNT - i < cycleSpot) {
+	  if (smooth && frameRelease > 0) {
+		frameRelease--;
+		float proportion = (float) frameRelease / ((float) patternSpeed * 4.0);
+		sendColor(i, 
+				  ledRed[i] + ((float) red * intensity / 255 - (float) ledRed[i]) * (1.0 - proportion), 
+				  ledGreen[i] + ((float) green * intensity / 255 - (float) ledGreen[i]) * (1.0 - proportion), 
+				  ledBlue[i] + ((float) blue * intensity / 255 - (float) ledBlue[i]) * (1.0 - proportion));
+	  } else {
+		ledRed[i] = red * intensity / 255;
+		ledGreen[i] = green * intensity / 255;
+		ledBlue[i] = blue * intensity / 255;
+		sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
+	  }
 	}
   }
   sendEndFrame();
@@ -1160,12 +1180,14 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   // data [6] - delay in ms / FS_DELAY_FACTOR;
   messageType = (int) (0x7F & data[0]);
   //messageType = (int) data[0];
-  transitionRequested = 0x80 & data[0];
+  transitionRequested = 0x80 & data[0] > 0;
+  if (transitionRequested) cycleSpot = 0;
   patternSpeed = (int) data[1];
   switch (messageType) {
   case FS_ID_HEARTBEAT_REQUEST:
 	break;
   case FS_ID_FULL_COLOR:
+	if (pattern == messageType) transitionRequested = false;
 	pattern = messageType;
 	intensityLevel = data[5];
 	redLevel = data[2];
@@ -1456,8 +1478,16 @@ void furSwarmPatterns::setPatternData(uint8_t *data, uint8_t dataLength) {
 	secondModStart = -1;
   } else if (0x80 & lastData[6]) {
 	delayStopwatch = (((0x70 & lastData[6]) >> 4) & 0x0007) * FS_DELAY_FACTOR;
-	secondModStart = 0x0F & lastData[6];
+	secondModStart = 0x000F & lastData[6];
 	lastDataLength = dataLength;
+#ifdef SERIAL_DIAGNOSTICS
+	Serial.print ("delayStopwatch: ");
+	Serial.print (delayStopwatch);
+	Serial.print (" lastData[6]: ");
+	Serial.print (lastData[6]);
+	Serial.print (" secondModStart: ");
+	Serial.println (secondModStart);
+#endif
   } else {
 	delayStopwatch = lastData[6] * FS_DELAY_FACTOR + millis();
 	secondModStart = -1;
@@ -1470,6 +1500,10 @@ void furSwarmPatterns::checkLatestData() {
   if (secondModStart > 0) {
 	if (clock.seconds % secondModStart == 0) {
 	  secondModStart = -1;
+#ifdef SERIAL_DIAGNOSTICS
+	  Serial.print ("delayStopwatch: ");
+	  Serial.println (delayStopwatch);
+#endif
 	  if (delayStopwatch != 0) {
 		delayStopwatch += millis();
 	  } else {

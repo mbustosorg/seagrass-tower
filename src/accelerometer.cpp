@@ -87,7 +87,7 @@ bool accelerometer::isShaking() {
   lastTilt = tilt;
   float totalEnergy = sqrt(shakingMovingAverage.x * shakingMovingAverage.x * 1000000 + shakingMovingAverage.y * shakingMovingAverage.y * 1000000 + shakingMovingAverage.z * shakingMovingAverage.z * 1000000);
   bool shaking = totalEnergy > 50.0;
-#ifdef SERIAL_DIAGNOSTICS
+#ifdef ACCEL_DIAGNOSTICS
   Serial.print ("ACCEL_DATA:");
   Serial.print ("x=");
   Serial.print (shakingMovingAverage.x * 1000);

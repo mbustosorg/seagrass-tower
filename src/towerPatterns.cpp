@@ -356,23 +356,6 @@ rgb towerPatterns::tiltColor() {
   return hsv2rgb(in);
 }
 
-// Iterate the transition point for patterns that request it
-void towerPatterns::iterateForTransition() {
-  if (timeToDrop == 0) {
-	if (cycleSpot < LED_COUNT + 1) {
-	  timeToDrop = patternSpeed / 3;
-	  cycleSpot++;
-	  if (patternSpeed < 100) {
-		cycleSpot++;
-	  }
-	} else {
-	  timeToDrop = patternSpeed;
-	}
-  } else {
-	timeToDrop--;
-  }
-}
-
 //! determine tilt and set colors
 void towerPatterns::tilt() {
   iterateForTransition();
@@ -627,7 +610,7 @@ void towerPatterns::iterateRadioTower() {
 	ledRed[i] = 0;
 	ledGreen[i] = 0;
 	ledBlue[i] = 0;
-	// Blink to 3 LEDs for a second at beginning of period
+	// Blink top 3 LEDs for a second at beginning of period
 	if (clock.seconds % 3 == 0 && i > LED_COUNT - 3) {
 	  ledRed[i] = adjustedRed;
 	  ledGreen[i] = adjustedGreen;

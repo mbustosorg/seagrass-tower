@@ -67,9 +67,8 @@ const int lpdCount = 50;
 #include <Arduino.h>
 //#include "LPD8806.h"
 //extern LPD8806 strip;
-const int lpdDataPin = 13;
-const int lpdClockPin = 11;
-//const int lpdCount = 50;
+const int lpdDataPin = 3;
+const int lpdClockPin = 2;
 #endif
 
 // LED parameters
@@ -105,6 +104,9 @@ class furSwarmPatterns {
   int randomSeedPin;
   unsigned long secondsIntoMinute;
   void setSecondsIntoMinute(unsigned long newSecondsIntoMinute);
+  void iterateForTransition();
+  uint8_t timeToDrop = 0;
+  uint8_t cycleSpot = 0;
   
   // Definitions for use by the simulator
 #ifdef NOT_EMBEDDED

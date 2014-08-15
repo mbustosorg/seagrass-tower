@@ -502,6 +502,8 @@ void setStartupPattern() {
   //uint8_t data[] = {FS_ID_FLAME, 20, 1, 255, 130, 0, 0};
 #ifdef FFT_DIAGNOSTICS
   uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
+#elif FS_TOWER_VEST
+  uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170};
 #else
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
@@ -618,7 +620,7 @@ void updateDisplay() {
 	if (gps2rtc.gps_time > 0) {
 	  unsigned long gpsTime = gps2rtc.gps_time;
 	  clock.hours = gpsTime / 3600;
-	  clock.minutes = (int) ((float) gpsTime / 3600.0 - clock.hours) * 60;
+	  clock.minutes = (int) (((float) gpsTime / 3600.0 - clock.hours) * 60);
 	  clock.seconds = gpsTime - clock.hours * 3600 - clock.minutes * 60;
 	  Control.clock = clock;
 	  unsigned long onTime = 1 * 3600 + 30 * 60; // 01:30 UTC == 18:30 PDT
@@ -691,7 +693,7 @@ void processIncoming() {
   } else if (commandPatternMode) {
 	Control.triggerPatternChange(commandPatternMode == 1);
   } else if (commandSpeedUpMode || commandSpeedDownMode) {
-	Control.advancePatternSpeed(commandSpeedUpMode == 1 || commandSpeedUpMode == 1, commandSpeedUpMode);
+	Control.advancePatternSpeed(digitalRead (commandSpeedUpPin) == LOW || digitalRead(commandSpeedDownPin) == LOW, commandSpeedUpMode);
 #ifdef SERIAL_DIAGNOSTICS
 	Serial.print ("Pattern Speed: ");
 	Serial.println (Control.patternSpeed);

@@ -77,7 +77,6 @@ class towerPatterns : public furSwarmPatterns {
   void initializePattern(uint8_t *data, uint8_t dataLength);
   void continuePatternDisplay();
   
-  void iterateForTransition();
   void calibrateTilt();
   bool checkShaking();
   void readTilt();
@@ -136,7 +135,6 @@ class towerPatterns : public furSwarmPatterns {
   uint32_t shakingStart = 0;
   uint32_t shakingTimestamp = 0;
   uint8_t releaseCounter = 1;
-  uint8_t timeToDrop = 0;
   uint8_t timeToDrop2 = 0;
   uint8_t timeToDropInitial = 0;
   uint8_t timeToDropRed = 0;
@@ -160,7 +158,6 @@ class towerPatterns : public furSwarmPatterns {
   uint32_t radioTowerSyncTimestamp;
 
   uint8_t bladeHeightLow, bladeHeightHigh;
-  uint8_t cycleSpot = 0;
 
   // Animation data
   XBeeAddress64 towerAddresses[MAX_TOWER_COUNT];
