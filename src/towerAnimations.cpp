@@ -34,24 +34,28 @@
 
 #include "towerAnimations.h"
 
-const int animationCount = 13;
+const int animationCount = 18;
 
 const uint8_t animationPatterns[animationCount][ANIMATION_COMMAND_LENGTH] =
   {
 	// ID, Speed, Red, Green, Blue, Intensity, Delay
 	{FS_ID_BOUNCING_BALL, 253, 255, 10, 10, 120, 0},
-	{FS_ID_BOUNCING_BALL, 253, 255, 10, 10, 90, 0},
+	{FS_ID_BOUNCING_BALL, 253, 0, 255, 0, 120, 0},
 	{FS_ID_BOUNCING_BALL, 9, 255, 10, 10, 120, 0},
 	{FS_ID_STARFIELD, 10, 0, 0, 0, 0, 0},
 	{FS_ID_RAINBOW_CHASE, 100, 0, 0, 150, 200, 0},
 	{FS_ID_SPIRAL, 100, 200, 0, 40, 120, 0},
 	{FS_ID_RADIO_TOWER, 100, 255, 0, 0, 200, 0},
-	//{FS_ID_SPECTRUM_ANALYZER, 100, 200, 50, 0, 250, 0},
+	{FS_ID_SPECTRUM_ANALYZER, 100, 200, 50, 0, 250, 0},
 	{FS_ID_CYLON, 100, 200, 50, 0, 120, 0},
+	{FS_ID_CYLON, 150, 50, 220, 75, 120, 0},
 	{FS_ID_SEARCHING_EYE, 5, 0, 200, 0, 250, 0},
+	{FS_ID_GRASS_WAVE, 100, 0, 200, 0, 250, 0},
+	{FS_ID_GRASS_WAVE, 100, 150, 0, 200, 250, 0},
 	{FS_ID_RANDOM_FLASH, 250, 200, 10, 130, 200, 0},
 	{FS_ID_SHAKE_SPARKLE, 100, 0, 0, 220, 220, 0},
 	{FS_ID_TILT, 120, 255, 100, 130, 255, 0},
+	{FS_ID_FLAME, 20, 250, 100, 10, 255, 0},
 	{FS_ID_BREATHE, 100, 20, 10, 200, 200, 0}
   };
 
@@ -65,11 +69,15 @@ const uint32_t animationTimes[] =
 	300000,
 	300000,
 	200000,
-	//300000,
+	120000,
 	300000,
 	300000,
 	300000,
 	300000,
+	300000,
+	300000,
+	300000,
+	180000,
 	180000,
 	300000,
   };

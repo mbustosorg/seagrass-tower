@@ -221,7 +221,7 @@ void towerPatterns::continuePatternDisplay() {
   }
   if (isShaking) {
 	setfullStrand(0, 0, 0, 0, false);
-	if (millis() - shakeStart > 10000) isShaking = false;
+	if (millis() - shakeStart > 180000) isShaking = false;
 	return;
   }
 #endif
@@ -308,9 +308,17 @@ void towerPatterns::continuePatternDisplay() {
 	if (animations.nextPattern(millis())) {
 	  uint8_t animationData[MAX_DATA_LENGTH];
 	  memcpy (animationData, animations.currentPattern(), ANIMATION_COMMAND_LENGTH);
-	  if (lastDelayFactor > 0) {
-		animationData[ANIMATION_COMMAND_LENGTH - 1] = lastDelayFactor;
+	  //if (lastDelayFactor > 0) {
+	  //animationData[ANIMATION_COMMAND_LENGTH - 1] = lastDelayFactor;
+	  //}
+	  /*
+	  if (animationData[0] == FS_ID_CYLON) {
+		long randomValue;
+		randomSeed(analogRead(randomSeedPin));
+		randomValue = random(0, 5);
+		animationData[ANIMATION_COMMAND_LENGTH - 1] = randomValue;
 	  }
+	  */
 	  setPatternData(animationData, ANIMATION_COMMAND_LENGTH);
 	}
   }
