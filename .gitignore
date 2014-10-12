@@ -4,5 +4,9 @@
 *.elf
 *.hex
 *.*~
+*~
+*.eep
+*.txt
+*.sh
 .DS_Store
 .svn
