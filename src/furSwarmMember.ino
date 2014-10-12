@@ -501,6 +501,7 @@ void setStartupPattern() {
   //uint8_t data[] = {FS_ID_ORGANIC, 10, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_FLAME, 20, 1, 255, 130, 0, 0};
 #ifdef FFT_DIAGNOSTICS
+  //uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
   uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
 #elif FS_TOWER_VEST
   uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170};

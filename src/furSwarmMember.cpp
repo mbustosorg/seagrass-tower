@@ -148,7 +148,7 @@ volatile uint16_t frameCount = 0;
 volatile unsigned long frameRateCount = 0;
 volatile int frameStarted = 0;
 bool daytimeShutdown = false;
-bool allowDaytimeShutdown = true;
+bool allowDaytimeShutdown = false;
 #define TEN_MINUTES (600) // 10 Minutes in seconds
 #define DORMANT_TIME_LIMIT (1200) // 20 Minutes in seconds
 
@@ -501,13 +501,13 @@ void setStartupPattern() {
   //uint8_t data[] = {FS_ID_ORGANIC, 10, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_FLAME, 20, 1, 255, 130, 0, 0};
 #ifdef FFT_DIAGNOSTICS
+  //uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
   uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
 #elif FS_TOWER_VEST
   uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170};
 #else
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
-  //uint8_t data[] = {FS_ID_FLAME, 20, 250, 100, 10, 255, 0};
   //uint8_t data[] = {FS_ID_TILT, 100, 200, 0, 40, 120};
 #endif
   Control.initializePattern(data, 6);
@@ -645,7 +645,7 @@ void updateDisplay() {
 			daytimeShutdown = true;
 			Control.animations.isAnimating = false;
 		  }
-		} else if (gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating) {
+		} else if (gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && Control.pattern != FS_ID_ANIMATE_1) {
 		  uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
 		  //uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
 		  Control.initializePattern(data, 2);
