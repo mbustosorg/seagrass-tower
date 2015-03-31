@@ -345,17 +345,19 @@ PROGMEM prog_uint8_t triggerPattern7[] = {FS_ID_CYLON, 50, 200, 100, 0, 0};
 PROGMEM prog_uint8_t triggerPattern8[] = {FS_ID_DROP, 10, 0, 0, 0, 0};
 PROGMEM prog_uint8_t triggerPattern9[] = {FS_ID_CHARACTER, 220, 200, 0, 200, 1};
 PROGMEM prog_uint8_t triggerPattern10[] = {FS_ID_CYLON_VERTICAL, 100, 0, 200, 0, 0};
-PROGMEM prog_uint8_t triggerPattern11[] = {FS_ID_CYLON_PONG, 100, 200, 0, 40, 250};
-PROGMEM prog_uint8_t triggerPattern12[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 0, 40, 128};
-PROGMEM prog_uint8_t triggerPattern13[] = {FS_ID_PRISM, 100, 200, 0, 40, 150};
-PROGMEM prog_uint8_t triggerPattern14[] = {FS_ID_MATRIX, 100, 250, 0, 80, 200};
-PROGMEM prog_uint8_t triggerPattern15[] = {FS_ID_RAINBOW_CHASE, 250, 0, 0, 0, 150};
-PROGMEM prog_uint8_t triggerPattern16[] = {FS_ID_RANDOM_FLASH, 250, 200, 10, 130, 200};
-PROGMEM prog_uint8_t triggerPattern17[] = {FS_ID_STARFIELD, 10, 0, 0, 0, 0};
-PROGMEM prog_uint8_t triggerPattern18[] = {FS_ID_SPIRAL, 100, 200, 0, 40, 0};
-PROGMEM prog_uint8_t triggerPattern19[] = {FS_ID_TILT, 100, 200, 0, 40, 0};
+PROGMEM prog_uint8_t triggerPattern11[] = {FS_ID_SPARKLER, 180, 88, 161, 0, 255};
+PROGMEM prog_uint8_t triggerPattern12[] = {FS_ID_CYLON, 189, 100, 255, 43, 255};
+PROGMEM prog_uint8_t triggerPattern13[] = {FS_ID_CYLON_PONG, 100, 200, 0, 40, 250};
+PROGMEM prog_uint8_t triggerPattern14[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 0, 40, 128};
+PROGMEM prog_uint8_t triggerPattern15[] = {FS_ID_PRISM, 100, 200, 0, 40, 150};
+PROGMEM prog_uint8_t triggerPattern16[] = {FS_ID_MATRIX, 100, 250, 0, 80, 200};
+PROGMEM prog_uint8_t triggerPattern17[] = {FS_ID_RAINBOW_CHASE, 250, 0, 0, 0, 150};
+PROGMEM prog_uint8_t triggerPattern18[] = {FS_ID_RANDOM_FLASH, 250, 200, 10, 130, 200};
+PROGMEM prog_uint8_t triggerPattern19[] = {FS_ID_STARFIELD, 10, 0, 0, 0, 0};
+PROGMEM prog_uint8_t triggerPattern20[] = {FS_ID_SPIRAL, 100, 200, 0, 40, 0};
+PROGMEM prog_uint8_t triggerPattern21[] = {FS_ID_TILT, 100, 200, 0, 40, 0};
 
-const int triggerPatternsCount = 19;
+const int triggerPatternsCount = 21;
 PROGMEM prog_uint8_t *triggerPatterns[] = 
   {
 	triggerPattern1,
@@ -376,7 +378,9 @@ PROGMEM prog_uint8_t *triggerPatterns[] =
 	triggerPattern16,
 	triggerPattern17,
 	triggerPattern18,
-	triggerPattern19
+	triggerPattern19,
+	triggerPattern20,
+	triggerPattern21
   };
 
 /*

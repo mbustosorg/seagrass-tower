@@ -148,7 +148,11 @@ volatile uint16_t frameCount = 0;
 volatile unsigned long frameRateCount = 0;
 volatile int frameStarted = 0;
 bool daytimeShutdown = false;
+#ifdef FS_TOWER
+bool allowDaytimeShutdown = true;
+#else
 bool allowDaytimeShutdown = false;
+#endif
 #define TEN_MINUTES (600) // 10 Minutes in seconds
 #define DORMANT_TIME_LIMIT (1200) // 20 Minutes in seconds
 
@@ -645,10 +649,12 @@ void updateDisplay() {
 			daytimeShutdown = true;
 			Control.animations.isAnimating = false;
 		  }
-		} else if (gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && Control.pattern != FS_ID_ANIMATE_1) {
+		} else if (gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating) {
+#ifdef FS_TOWER
 		  uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
 		  //uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
 		  Control.initializePattern(data, 2);
+#endif
 		}
 	  }
 	}

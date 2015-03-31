@@ -75,7 +75,7 @@ furSwarmPatterns::furSwarmPatterns() {
   peakRetractionTime = 0;
 #ifdef TEENSY
   saNumberOfSamples = 350;
-  saMovingAverageCount = 50;
+  saMovingAverageCount = 10;
   saAveragedOver = 3;
 #else
   saNumberOfSamples = 90;
@@ -479,7 +479,7 @@ void furSwarmPatterns::initializeCylon(uint8_t red, uint8_t green, uint8_t blue,
 //! LED position index for cylon index `i' with frame `frameIndex'
 int furSwarmPatterns::cylonIndexMap (int i, int frameIndex) {
   int indexMap;
-#ifdef FS_VEST
+#if defined (FS_VEST) || defined (FS_TOWER_VEST)
   indexMap = pgm_read_byte(&cyLEDMap[i]);
   if (!patternForward) {
 	indexMap = indexMap + frameIndex;
@@ -1156,15 +1156,44 @@ void furSwarmPatterns::iterateSoundActivate() {
     saPressure = SA_PRESSURE_MAX;
   }
   if (saMovingAverage > saTargetThreshold) {
-    saGain -= 0.01 * saPressure;
+    saGain -= 0.1 * saPressure;
   } else if (saMovingAverage < saTargetThreshold) {
-    saGain += 0.01 * saPressure;
+    saGain += 0.1 * saPressure;
   }
   if (saGain > SA_GAIN_UPPER) {
     saGain = SA_GAIN_UPPER;
   } else if (saGain < SA_GAIN_LOWER) {
     saGain = SA_GAIN_LOWER;
   }
+#ifdef FFT_DIAGNOSTICS
+	Serial.print ("RUN:");
+	Serial.print (saTargetThreshold);
+	Serial.print (",");
+	Serial.print (saMovingAverage);
+	Serial.print (",");
+	Serial.print (saGain);
+	Serial.print (",");
+	Serial.print (saRunningAverage);
+	Serial.print (",");
+	Serial.print ("0");
+	Serial.println ("|");
+	Serial.print ("INP:");
+	for (int i = 0; i < 256 / 2; i++) {
+		Serial.print ("0.0");
+		if (i < 256 / 2 - 1) {
+		  Serial.print (",");
+		}
+	}
+	Serial.println ("|");
+	Serial.print ("MAG:");
+	for (int i = 0; i < 256 / 2; i++) {
+		Serial.print ("0.0");
+		if (i < 256 / 2 - 1) {
+		  Serial.print (",");
+		}
+	}
+	Serial.println ("|");
+#endif
 }
 
 //! Initialize the selected pattern
