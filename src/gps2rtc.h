@@ -52,7 +52,7 @@ class GPS2RTC
 	gps_serial->begin(a_baud_rate);				// Initialize the serial port (both pins) and set the baud rate.
 	pinMode_input_with_pulldown(gps_1pps_pin);	        // The 1PPS signal from the GPS receiver is connected to this pin.
 	// We need the pull-down because the receiver is sometimes disconnected.
-	gps_serial->set_rx_isr(&handle_gps_receiver_data);
+	//gps_serial->set_rx_isr(&handle_gps_receiver_data);
 	state = looking_for_serial_data;
 	receiving_serial_data = false;
 	// Turn on GPS Unit
@@ -110,7 +110,7 @@ class GPS2RTC
 		longitude = l_longitude;
 	  }
   }
-  
+
   static void handle_gps_receiver_data(char a_char)
   // Handle one character of data from the GPS receiver. 
   {

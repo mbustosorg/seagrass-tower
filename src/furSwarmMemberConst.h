@@ -335,6 +335,7 @@ PROGMEM prog_uint8_t *spiralTable[] =
 	spiral8
   };
 
+PROGMEM prog_uint8_t triggerPattern0[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
 PROGMEM prog_uint8_t triggerPattern1[] = {FS_ID_FULL_COLOR, 0, 228, 0, 0, 228};
 PROGMEM prog_uint8_t triggerPattern2[] = {FS_ID_SPARKLE, 100, 255, 255, 255, 0};
 PROGMEM prog_uint8_t triggerPattern3[] = {FS_ID_HEART, 165, 165, 0, 50, 250};
@@ -357,30 +358,31 @@ PROGMEM prog_uint8_t triggerPattern19[] = {FS_ID_STARFIELD, 10, 0, 0, 0, 0};
 PROGMEM prog_uint8_t triggerPattern20[] = {FS_ID_SPIRAL, 100, 200, 0, 40, 0};
 PROGMEM prog_uint8_t triggerPattern21[] = {FS_ID_TILT, 100, 200, 0, 40, 0};
 
-const int triggerPatternsCount = 21;
+const int triggerPatternsCount = 22;
 PROGMEM prog_uint8_t *triggerPatterns[] = 
   {
-	triggerPattern1,
-	triggerPattern2,
-	triggerPattern3,
-	triggerPattern4,
-	triggerPattern5,
-	triggerPattern6,
-	triggerPattern7,
-	triggerPattern8,
-	triggerPattern9,
-	triggerPattern10,
-	triggerPattern11,
-	triggerPattern12,
-	triggerPattern13,
-	triggerPattern14,
-	triggerPattern15,
-	triggerPattern16,
-	triggerPattern17,
-	triggerPattern18,
-	triggerPattern19,
-	triggerPattern20,
-	triggerPattern21
+    triggerPattern0,
+    triggerPattern1,
+    triggerPattern2,
+    triggerPattern3,
+    triggerPattern4,
+    triggerPattern5,
+    triggerPattern6,
+    triggerPattern7,
+    triggerPattern8,
+    triggerPattern9,
+    triggerPattern10,
+    triggerPattern11,
+    triggerPattern12,
+    triggerPattern13,
+    triggerPattern14,
+    triggerPattern15,
+    triggerPattern16,
+    triggerPattern17,
+    triggerPattern18,
+    triggerPattern19,
+    triggerPattern20,
+    triggerPattern21
   };
 
 /*

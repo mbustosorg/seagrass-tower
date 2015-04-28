@@ -236,7 +236,8 @@ void setup() {
 	Control.longitude = readEepromLong(longitudeStartByte);
 	// Fix to work when we don't have accurate GPS data available
 	Control.randomSeedPin = 5;
-	gps2rtc.begin(&Serial3, 9600, gps_1pps_pin, gps_onoff_pin);      // Required.
+	pinMode(7, INPUT);
+	gps2rtc.begin(&Serial3, 9600, gps_1pps_pin, gps_onoff_pin);      // Required.  
 	gps2rtc.state = synchronize_to_pps;
 	lastMessageReceipt = millis();
 	// Wire will be used for Accelerometer
@@ -327,6 +328,13 @@ int writeEepromLong(unsigned long writeValue, const int startByte) {
 	return 0;
   }
 }
+
+//static void handle_gps_receiver_data(char a_char)
+void serialEvent3()
+  // Handle one character of data from the GPS receiver. 
+  {
+    gps2rtc.handle_gps_receiver_data(Serial3.read());
+  }
 
 extern "C" {
 //! Frame rate interrupt handler running at 60Hz
@@ -530,10 +538,10 @@ void catchup() {
 	if (ppsGap > FRAME_LENGTH && ppsGap < 1000) {
 	  unsigned long lastTime = millis();
 	  while (lastTime > lastPPS && 
-			 lastTime - lastPPS < 1000 && 
-			 lastTime - lastPPS + 1000 > FRAME_LENGTH) {
-		while (millis() == lastTime) {}
-		lastTime = millis();
+		 lastTime - lastPPS < 1000 && 
+		 lastTime - lastPPS + 1000 > FRAME_LENGTH) {
+	    while (millis() == lastTime) {}
+	    lastTime = millis();
 	  }
 	  frameNumber = 0;
 	  Control.setRadioTowerSyncTimestamp (millis());
