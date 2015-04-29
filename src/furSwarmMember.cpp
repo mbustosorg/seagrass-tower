@@ -516,7 +516,8 @@ void setStartupPattern() {
   //uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
   uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
 #elif FS_TOWER_VEST
-  uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170};
+  //uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170};
+  uint8_t data[] = {FS_ID_DANCING, 100, 0, 50, 200, 170};
 #else
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};

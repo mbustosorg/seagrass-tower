@@ -81,6 +81,8 @@ class towerPatterns : public furSwarmPatterns {
   bool checkShaking();
   void readTilt();
   rgb tiltColor();
+  void initializeDancing();
+  void dance();
   void initializeTilt();
   void tilt();
   void shakeSparkle();
@@ -126,6 +128,7 @@ class towerPatterns : public furSwarmPatterns {
   accelerometer accel;
   TiltVector tiltVector;
   rgb currentRGBOut, lastRGBOut;
+  TiltVector lastTiltVector;
   bool useTiltForBounceColor;
 
   bool isShaking;
