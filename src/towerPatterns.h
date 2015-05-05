@@ -129,6 +129,7 @@ class towerPatterns : public furSwarmPatterns {
   TiltVector tiltVector;
   rgb currentRGBOut, lastRGBOut;
   TiltVector lastTiltVector;
+  TiltVector penultimateTiltVector;
   bool useTiltForBounceColor;
 
   bool isShaking;

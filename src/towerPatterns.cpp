@@ -55,6 +55,9 @@ towerPatterns::towerPatterns() : furSwarmPatterns(){
   lastTiltVector.x = 0.0;
   lastTiltVector.y = 0.0;
   lastTiltVector.z = 0.0;
+  penultimateTiltVector.x = 0.0;
+  penultimateTiltVector.y = 0.0;
+  penultimateTiltVector.z = 0.0;
 
   uint32_t ifftFlag = 0; 
   uint32_t doBitReverse = 1; 
@@ -94,10 +97,9 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   case FS_ID_DANCING:
     patternSpeed = 255 - (int) data [1];
     setPatternSpeedWithFactor(10);
-    if (pattern != messageType) {
-      initializeDancing();
-      pattern = messageType;
-    }
+    setBasicParameters (data[5], data[2], data[3], data[4]);
+    initializeDancing();
+    pattern = messageType;
     break;
   case FS_ID_TILT:
     patternSpeed = 255 - (int) data [1];
@@ -343,29 +345,36 @@ void towerPatterns::continuePatternDisplay() {
 void towerPatterns::initializeDancing() {
   adjustedPatternSpeed = patternSpeed;
   timeToDrop = adjustedPatternSpeed;
-  accel.setFilterLength(5);
+  accel.setFilterLength(unadjustedGreen / 20);
   cycleSpot = 0;
 }
 
 //! Iterate the dancing pattern
 void towerPatterns::dance() {
   iterateForTransition();
-  readTilt();
   if (timeToDrop == 1) {
     lastRGBOut = currentRGBOut;
-    lastTiltVector = tiltVector;
+    lastTiltVector = penultimateTiltVector;
+    penultimateTiltVector = tiltVector;
   }
+  readTilt();
   TiltVector accelVector;
   accelVector.x = tiltVector.x - lastTiltVector.x;
   accelVector.y = tiltVector.y - lastTiltVector.y;
   accelVector.z = tiltVector.z - lastTiltVector.z;
   float vectorLength = sqrt(accelVector.x * accelVector.x + accelVector.y * accelVector.y + accelVector.z * accelVector.z);
+  vectorLength = vectorLength * (float) unadjustedRed / 100.0;
   hsv in;
   in.s = 1.0;
   in.v = min(vectorLength, 1.0);
   in.h = min(vectorLength, 1.0) * 360.0;
-  Serial.print("Vector:");
-  Serial.println(in.h);
+  /*  Serial.print("Vector:");
+  Serial.print(in.h);
+  Serial.print(",");
+  Serial.print(unadjustedGreen / 20);
+  Serial.print(",");
+  Serial.println(unadjustedRed / 100.0);
+  */
   currentRGBOut = hsv2rgb(in);
   float brightnessFactor = 0.5;
   float iterationProportion = (float) timeToDrop / (float) patternSpeed;
