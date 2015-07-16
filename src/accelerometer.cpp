@@ -100,7 +100,11 @@ bool accelerometer::isShaking() {
   if (shaking) Serial.println ("---SHAKING---");
   else Serial.println ("");
 #endif
+#ifndef NOT_EMBEDDED
   return shaking;
+#else
+  return FALSE;
+#endif
 }
 
 //! Calibrate base angle

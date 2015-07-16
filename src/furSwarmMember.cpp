@@ -517,10 +517,13 @@ void setStartupPattern() {
   uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
 #elif FS_TOWER_VEST
   //uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170};
-  uint8_t data[] = {FS_ID_DANCING, 10, 0, 50, 200, 170}; // Red = Sensitivity, Green = Filter Length
+  uint8_t data[] = {FS_ID_DANCING, 100, 200, 0, 40, 0};
+  Control.triggerPattern = 22;
+  //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
 #else
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
-  uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
+  //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
+  uint8_t data[] = {FS_ID_CYLON_VERTICAL, 200, 0, 200, 0, 120};
   //uint8_t data[] = {FS_ID_TILT, 100, 200, 0, 40, 120};
 #endif
   Control.initializePattern(data, 6);

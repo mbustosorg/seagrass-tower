@@ -738,10 +738,14 @@ void furSwarmPatterns::initializeBitmapPattern(uint8_t red, uint8_t green, uint8
   greenLevel = green;
   blueLevel = blue;  
   for (int i = 0; i < LED_BMMAP; i++) {
+#ifdef TEENSY
+	indexMap = bmLEDMap[i];
+#else
 	indexMap = pgm_read_byte(&bmLEDMap[i]);
+#endif
 	if (indexMap != 0xFF) {
-	  byteNumber = i / 8;
-	  bitNumber = i % 8;
+      byteNumber = i / 8;
+      bitNumber = i % 8;
 	  patternByte = 0;
 #ifdef TEENSY
 	  if (patternId == FS_ID_CYLON_PONG) {
@@ -873,9 +877,9 @@ void furSwarmPatterns::iterateStrandByHSV() {
   int indexMap = 0;
   float iterationProportion = (float) frameRelease / (float) patternSpeed;
   uint8_t redLevel, greenLevel, blueLevel;
-  for (int i = 0; i < LED_CYMAP; i++) {
-#if defined (FS_TOWER) || defined (FS_HAT) || defined (FS_TOWER_HAT)
-	indexMap = LED_CYMAP - i;
+  for (int i = 0; i < LED_COUNT; i++) {
+#if defined (FS_TOWER) || defined (FS_HAT) || defined (FS_TOWER_HAT) || defined (TOWER_EYE)
+	indexMap = LED_COUNT - i;
 #else
 	indexMap = pgm_read_byte(&cyLEDMap[i]);
 #endif

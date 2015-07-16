@@ -571,27 +571,31 @@ void towerPatterns::sparklerDrip() {
     ledGreen[i] = 0;
     ledBlue[i] = 0;
   }
-  // LED 50 is at the top of the tower
-  int j;
-  for (int i = LED_COUNT - 1; i >= 0; i--) {
-    j = i + 1;
-    if ((1 << (7 - i % 8)) & sparkleDrops[i / 8]) {
-      ledRed[i] = adjustedRed * (1.0 - iterationProportion);
-      ledGreen[i] = adjustedGreen * (1.0 - iterationProportion);
-      ledBlue[i] = adjustedBlue * (1.0 - iterationProportion);
-      if (j < LED_COUNT - 1) {
-	ledRed[j] = ledRed[j] + adjustedRed * iterationProportion;
-	ledGreen[j] = ledGreen[j] + adjustedGreen * iterationProportion;
-	ledBlue[j] = ledBlue[j] + adjustedBlue * iterationProportion;
-      }
-    } else {
-      if (i > 48  && (1 << (7 - i % 8))) {
-	ledRed[i] = 255;
-	ledGreen[i] = 255;
-	ledBlue[i] = 255;
-      }
+    // LED_COUNT is at the top of the tower
+    int j;
+    for (int i = LED_COUNT - 1; i >= 0; i--) {
+        j = i + 1;
+        int sparkleIndex = i / 8;
+        if (i > 50) {
+            sparkleIndex = (i - 50) / 8;
+        }
+        if ((1 << (7 - i % 8)) & sparkleDrops[sparkleIndex]) {
+            ledRed[i] = adjustedRed * (1.0 - iterationProportion);
+            ledGreen[i] = adjustedGreen * (1.0 - iterationProportion);
+            ledBlue[i] = adjustedBlue * (1.0 - iterationProportion);
+            if (j < LED_COUNT - 1) {
+                ledRed[j] = ledRed[j] + adjustedRed * iterationProportion;
+                ledGreen[j] = ledGreen[j] + adjustedGreen * iterationProportion;
+                ledBlue[j] = ledBlue[j] + adjustedBlue * iterationProportion;
+            }
+        } else {
+            if (i > LED_COUNT - 2  && (1 << (7 - i % 8))) {
+                ledRed[i] = 255;
+                ledGreen[i] = 255;
+                ledBlue[i] = 255;
+            }
+        }
     }
-  }
 }
 
 //! Initialize the bouncing ball pattern
