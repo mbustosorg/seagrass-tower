@@ -148,7 +148,7 @@ volatile uint16_t frameCount = 0;
 volatile unsigned long frameRateCount = 0;
 volatile int frameStarted = 0;
 bool daytimeShutdown = false;
-#ifdef FS_TOWER
+#if defined(FS_TOWER) && !defined(FS_TOWER_EYE)
 bool allowDaytimeShutdown = true;
 #else
 bool allowDaytimeShutdown = false;
@@ -654,20 +654,20 @@ void updateDisplay() {
 		  Control.initializePattern(data, 6);
 		}
 	  } else {
-		if ((gpsTime < onTime) || (gpsTime > offTime)) {
+	    if ((gpsTime < onTime) || (gpsTime > offTime)) {
 		  if (allowDaytimeShutdown) {
-			uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
-			Control.initializePattern(data, 6);
-			daytimeShutdown = true;
-			Control.animations.isAnimating = false;
+		    uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
+		    Control.initializePattern(data, 6);
+		    daytimeShutdown = true;
+		    Control.animations.isAnimating = false;
 		  }
-		} else if (gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating) {
+	    } else if (gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating) {
 #ifdef FS_TOWER
-		  uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
-		  //uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
-		  Control.initializePattern(data, 2);
+	      uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
+	      //uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
+	      Control.initializePattern(data, 2);
 #endif
-		}
+	    }
 	  }
 	}
   }

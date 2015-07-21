@@ -229,7 +229,9 @@ void towerPatterns::continuePatternDisplay() {
   checkLatestData();
 #ifdef FS_TOWER
   if (checkShaking()) {
+#if !defined(FS_TOWER_EYE)
     isShaking = true;
+#endif
     shakeStart = millis();
   }
   if (isShaking) {
@@ -916,20 +918,24 @@ void towerPatterns::updateSpectrumLevels() {
     float ascentRate = 0.9;
     float decentRate = 0.9;
     for (int i = 1; i < LED_COUNT; i++) {
-      //magnitude = min(1.0, log10 (10.0 * audioMagnitudeBuckets[i] / (maximum * maxLevelFactor) + 1.0) / maximumLevel);
-      magnitude = 20.0 * log10 (audioMagnitudeBuckets[i]);
+      int magnitudeIndex = i;
+      if (i > BUCKET_COUNT) magnitudeIndex -= BUCKET_COUNT;
+      //magnitude = min(1.0, log10 (10.0 * audioMagnitudeBuckets[magnitudeIndex] / (maximum * maxLevelFactor) + 1.0) / maximumLevel);
+      magnitude = 20.0 * log10 (audioMagnitudeBuckets[magnitudeIndex]);
       magnitude -= SPECTRUM_MIN_DB;
       magnitude = max(magnitude, 0.0);
       magnitude /= (20 * log10 (maximum) - SPECTRUM_MIN_DB);
       magnitude = min(1.0, magnitude);
-      if (magnitude * 255.0 > runningMagnitude[i]) {
-	runningMagnitude[i] = runningMagnitude[i] + (magnitude * 255.0 - runningMagnitude[i]) * ascentRate;
+      if (magnitude * 255.0 > runningMagnitude[magnitudeIndex]) {
+	runningMagnitude[magnitudeIndex] = runningMagnitude[magnitudeIndex] +
+	  (magnitude * 255.0 - runningMagnitude[magnitudeIndex]) * ascentRate;
       } else {
 	// Descend more slowly than ascending
-	runningMagnitude[i] = runningMagnitude[i] + (magnitude * 255.0 - runningMagnitude[i]) * decentRate;
+	runningMagnitude[magnitudeIndex] = runningMagnitude[magnitudeIndex] +
+	  (magnitude * 255.0 - runningMagnitude[magnitudeIndex]) * decentRate;
       }
-      ledGreen[i] = (uint8_t) (runningMagnitude[i]);
-      ledBlue[i] = (uint8_t) (255.0 - runningMagnitude[i]);
+      ledGreen[i] = (uint8_t) (runningMagnitude[magnitudeIndex]);
+      ledBlue[i] = (uint8_t) (255.0 - runningMagnitude[magnitudeIndex]);
       if (runningMagnitude [i] == 255.0) {
 	ledRed[i] = 0xFF;
 	ledGreen[i] = 0x00;

@@ -72,7 +72,7 @@ const int lpdClockPin = 2;
 #endif
 
 // LED parameters
-#ifdef TOWER_EYE
+#ifdef FS_TOWER_EYE
 #define LED_COUNT (100)
 #else
 #define LED_COUNT (50)

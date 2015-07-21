@@ -10,7 +10,6 @@
 *.sh
 .DS_Store
 .svn
-eyeFrame/*
 
 *.class
 *.log

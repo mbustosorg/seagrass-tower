@@ -60,7 +60,7 @@ typedef float float32_t;
 //#define BUCKET_FACTOR (1.17) // For 25 buckets
 //#define BUCKET_COUNT (LED_COUNT / 2)
 #define BUCKET_FACTOR (1.043) // For 50 buckets
-#define BUCKET_COUNT (LED_COUNT)
+#define BUCKET_COUNT (50)
 #define FLAME_HEIGHT (5)
 #define SPECTRUM_MIN_DB (30.0)          // Audio intensity (in decibels) that maps to low LED brightness.
 #define SPECTRUM_MAX_DB (60.0)          // Audio intensity (in decibels) that maps to high LED brightness.
