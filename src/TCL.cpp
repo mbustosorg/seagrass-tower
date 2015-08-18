@@ -67,15 +67,15 @@ uint8_t TclClass::makeFlag(uint8_t red, uint8_t green, uint8_t blue) {
 #ifdef TCL_DIO
 void TclClass::dioWrite(uint8_t c) {
   for (uint8_t bit = 0x80; bit; bit >>= 1) {
-	if (c & bit) {
-	  digitalWrite(TCL_DATAPIN, HIGH);
-	  digitalWrite(TCL2_CLOCKPIN, HIGH);
-	} else {
-	  digitalWrite(TCL_DATAPIN, LOW);
-	  digitalWrite(TCL2_CLOCKPIN, LOW);
-	}
-	digitalWrite(TCL_CLOCKPIN, HIGH);
-	digitalWrite(TCL_CLOCKPIN, LOW);
+    if (c & bit) {
+      digitalWrite(TCL_DATAPIN, HIGH);
+    } else {
+      digitalWrite(TCL_DATAPIN, LOW);
+    }
+    digitalWrite(TCL_CLOCKPIN, HIGH);
+    digitalWrite(TCL_CLOCKPIN, LOW);
+    digitalWrite(TCL2_CLOCKPIN, HIGH);
+    digitalWrite(TCL2_CLOCKPIN, LOW);
   }
 }
 #endif
