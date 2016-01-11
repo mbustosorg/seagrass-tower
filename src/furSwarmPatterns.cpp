@@ -362,15 +362,15 @@ void furSwarmPatterns::descendPumpDataScaled(int step) {
 
 //! Display the data currently stored in `led*'
 void furSwarmPatterns::displayData(bool red, bool green, bool blue) {
-    sendStartFrame();
-    for (int i = 0; i < LED_COUNT; i++) {
-        if (red && green && blue) {
-            sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
-        } else {
-            sendColor(i, red?ledRed[i]:0, green?ledGreen[i]:0, blue?ledBlue[i]:0);
-        }
+  sendStartFrame();
+  for (int i = 0; i < LED_COUNT; i++) {
+    if (red && green && blue) {
+      sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
+    } else {
+      sendColor(i, red?ledRed[i]:0, green?ledGreen[i]:0, blue?ledBlue[i]:0);
     }
-    sendEndFrame();
+  }
+  sendEndFrame();
 }
 
 //! Display the data currently stored in `led*'

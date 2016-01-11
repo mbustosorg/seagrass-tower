@@ -76,6 +76,7 @@ class towerPatterns : public furSwarmPatterns {
   // Redefinitions
   void initializePattern(uint8_t *data, uint8_t dataLength);
   void continuePatternDisplay();
+  void displayData(bool red, bool green, bool blue);
   
   void calibrateTilt();
   bool checkShaking();

@@ -683,42 +683,42 @@ void processIncoming() {
   int commandIntensityMode = clickCount(commandIntensityPin);
   xbee.readPacket();
   if (xbee.getResponse().isAvailable() && !powerShutdown) {
-    if (xbee.getResponse().getApiId() == ZB_RX_RESPONSE) {
+    if (xbee.getResponse().getApiId() == ZB_RX_RESPONSE || xbee.getResponse().getApiId() == ZB_TX_REQUEST) {
       processRXResponse();
     } else if (xbee.getResponse().getApiId() == ZB_TX_STATUS_RESPONSE) {
       xbee.getResponse().getZBTxStatusResponse(txStatus);
       if (txStatus.getDeliveryStatus() == SUCCESS) {
       } 
       else {
-		Control.failedMessageCount++;
+	Control.failedMessageCount++;
       }
     } else if (xbee.getResponse().isError()) {
-	  Control.failedMessageCount++;
+      Control.failedMessageCount++;
     } 
   } else if (commandOffMode == 3 || commandIntensityMode == 3) {
-	digitalWrite(suicidePin, LOW);
+    digitalWrite(suicidePin, LOW);
   } else if (powerShutdown) {
-	// In shutdown mode, set all to zero
-	for (int i = 0; i < LED_COUNT; i++) {
-	  Control.ledRed[i] = 0;
-	  Control.ledBlue[i] = 0;
-	  Control.ledGreen[i] = 0;
-	}
-	Control.ledRed[0] = 30;
-	Control.ledRed[LED_COUNT - 1] = 30;
-	Control.displayData(true, true, true);
-	delay(60000);
-	digitalWrite(suicidePin, LOW);
+    // In shutdown mode, set all to zero
+    for (int i = 0; i < LED_COUNT; i++) {
+      Control.ledRed[i] = 0;
+      Control.ledBlue[i] = 0;
+      Control.ledGreen[i] = 0;
+    }
+    Control.ledRed[0] = 30;
+    Control.ledRed[LED_COUNT - 1] = 30;
+    Control.displayData(true, true, true);
+    delay(60000);
+    digitalWrite(suicidePin, LOW);
   } else if (commandPatternMode) {
-	Control.triggerPatternChange(commandPatternMode == 1);
+    Control.triggerPatternChange(commandPatternMode == 1);
   } else if (commandSpeedUpMode || commandSpeedDownMode) {
-	Control.advancePatternSpeed(digitalRead (commandSpeedUpPin) == LOW || digitalRead(commandSpeedDownPin) == LOW, commandSpeedUpMode);
+    Control.advancePatternSpeed(digitalRead (commandSpeedUpPin) == LOW || digitalRead(commandSpeedDownPin) == LOW, commandSpeedUpMode);
 #ifdef SERIAL_DIAGNOSTICS
-	Serial.print ("Pattern Speed: ");
-	Serial.println (Control.patternSpeed);
+    Serial.print ("Pattern Speed: ");
+    Serial.println (Control.patternSpeed);
 #endif
   } else if (commandIntensityMode) {
-	Control.advancePatternIntensity(Control.pattern, commandIntensityMode == 1);
+    Control.advancePatternIntensity(Control.pattern, commandIntensityMode == 1);
   }
 }
 
@@ -726,21 +726,29 @@ void processIncoming() {
 void processRXResponse() {
   uint8_t* data;
   uint8_t dataLength;
-  xbee.getResponse().getZBRxResponse(rxResponse);
+  int apiId = xbee.getResponse().getApiId();
+  if (apiId == ZB_TX_REQUEST) {
+    // Probably a transparent interface, e.g. Bluetooth
+    int TxRequestFrameHeaderLength = 13;
+    data = xbee.getResponse().getFrameData() + TxRequestFrameHeaderLength;
+    dataLength = xbee.getResponse().getFrameDataLength() - TxRequestFrameHeaderLength;
+  } else {
+    xbee.getResponse().getZBRxResponse(rxResponse);
+    // TODO: Check data length for potential errors
+    data = rxResponse.getData();
+    dataLength = rxResponse.getDataLength();
+  }
   led.pulse (50, 25, 0, 100, false);
-  // TODO: Check data length for potential errors
-  data = rxResponse.getData();
-  dataLength = rxResponse.getDataLength();
   frameCount = 0;
   if (data[0] == FS_ID_PRISM_DISTANCE && data[1] == 128) {
-	heartbeatPeriod = hifreqHeartbeatPeriod;
+    heartbeatPeriod = hifreqHeartbeatPeriod;
   } else {
-	heartbeatPeriod = defaultHeartbeatPeriod;
+    heartbeatPeriod = defaultHeartbeatPeriod;
   }
 #ifdef TEENSY
   if (!daytimeShutdown) {
-	lastMessageReceipt = gps2rtc.gps_time;
-	Control.animations.isAnimating = data[0] == FS_ID_ANIMATE_1;
+    lastMessageReceipt = gps2rtc.gps_time;
+    Control.animations.isAnimating = data[0] == FS_ID_ANIMATE_1;
   }
 #endif
   Control.setPatternData(data, dataLength);
@@ -769,14 +777,13 @@ void sendHeartbeat() {
 		if (lowBatteryTime == 0) {
 		  lowBatteryTime = millis();
 		} else {
-		  unsigned long lowBatteryNow = millis();
-		  if (lowBatteryNow - lowBatteryTime > lowBatteryTimeThreshold) {
+		  if (currentTimestamp - lowBatteryTime > lowBatteryTimeThreshold) {
 			powerShutdown = true;
 		  }
 		}
 	  } else if (batteryVoltage < batteryWarningLimit) {
 		if (lowBatteryWarningTime == 0) {
-		  lowBatteryWarningTime = millis();
+		  lowBatteryWarningTime = currentTimestamp;
 		}
 	  }
 	  uint16_t localFrameCount = frameCount;
@@ -800,4 +807,3 @@ void sendHeartbeat() {
 	heartbeatTimestamp = millis();
   }
 }
-

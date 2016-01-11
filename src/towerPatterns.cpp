@@ -234,11 +234,7 @@ void towerPatterns::continuePatternDisplay() {
 #endif
     shakeStart = millis();
   }
-  if (isShaking) {
-    setfullStrand(0, 0, 0, 0, false);
-    if (millis() - shakeStart > 180000) isShaking = false;
-    return;
-  }
+  if (millis() - shakeStart > 180000) isShaking = false;
 #endif
   // Continue with pattern display
   switch (pattern) {
@@ -340,6 +336,23 @@ void towerPatterns::continuePatternDisplay() {
       */
       setPatternData(animationData, ANIMATION_COMMAND_LENGTH);
     }
+  }
+}
+
+//! Display the data currently stored in `led*'
+void towerPatterns::displayData(bool red, bool green, bool blue) {
+  if (isShaking) {
+    setfullStrand(0, 0, 0, 0, false);
+  } else {
+    sendStartFrame();
+    for (int i = 0; i < LED_COUNT; i++) {
+        if (red && green && blue) {
+            sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
+        } else {
+            sendColor(i, red?ledRed[i]:0, green?ledGreen[i]:0, blue?ledBlue[i]:0);
+        }
+    }
+    sendEndFrame();
   }
 }
 
