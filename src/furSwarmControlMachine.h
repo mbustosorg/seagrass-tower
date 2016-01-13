@@ -34,7 +34,11 @@
 #ifndef furSwarmControlMachine_h
 #define furSwarmControlMachine_h
 
+#ifdef NOT_EMBEDDED
+// Do nothing
+#else
 #include <Arduino.h>
+#endif
 
 bool debouncePin(int pin);
 int clickCount(int pin);

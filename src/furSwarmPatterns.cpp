@@ -36,6 +36,8 @@
 #include "furSwarmPatterns.h"
 #include "furSwarmMemberConst.h"
 #include "furSwarmPatternConst.h"
+#include <string.h>
+#include <stdlib.h>
 
 furSwarmPatterns::furSwarmPatterns() {
     

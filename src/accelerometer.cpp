@@ -29,6 +29,8 @@
 */
 
 #include "accelerometer.h"
+#include <stdlib.h>
+#include <math.h>
 
 //! Create the accelerometer object
 accelerometer::accelerometer() {
@@ -103,7 +105,7 @@ bool accelerometer::isShaking() {
 #ifndef NOT_EMBEDDED
   return shaking;
 #else
-  return FALSE;
+  return false;
 #endif
 }
 

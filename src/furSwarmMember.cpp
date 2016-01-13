@@ -43,7 +43,11 @@
 #include "furSwarmPatternConst.h"
 #include "furSwarmControlMachine.h"
 #include "xBeeConfiguration.h"
+#ifdef NOT_EMBEDDED
+// Do nothing
+#else
 #include <EEPROM.h>
+#endif
 #ifdef TEENSY
 #include "towerPatterns.h"
 #include "TinyGPS.h"  
