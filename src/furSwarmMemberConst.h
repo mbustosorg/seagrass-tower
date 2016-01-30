@@ -498,6 +498,19 @@ PROGMEM prog_uint8_t *spiralTable[] =
     spiral8
 };
 
+#ifdef FS_TOWN_CENTER
+PROGMEM prog_uint8_t triggerPattern0[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 0, 40, 128};
+PROGMEM prog_uint8_t triggerPattern1[] = {FS_ID_DANCING, 100, 200, 0, 40, 0};
+PROGMEM prog_uint8_t triggerPattern2[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
+
+const int triggerPatternsCount = 3;
+PROGMEM prog_uint8_t *triggerPatterns[] =
+{
+    triggerPattern0,
+    triggerPattern1,
+    triggerPattern2
+};
+#else
 PROGMEM prog_uint8_t triggerPattern0[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
 PROGMEM prog_uint8_t triggerPattern1[] = {FS_ID_FULL_COLOR, 0, 228, 0, 0, 228};
 PROGMEM prog_uint8_t triggerPattern2[] = {FS_ID_SPARKLE, 100, 255, 255, 255, 0};
@@ -549,6 +562,7 @@ PROGMEM prog_uint8_t *triggerPatterns[] =
     triggerPattern21,
     triggerPattern22
 };
+#endif
 
 /*
  The image pattern is based on a 5x6 back panel and 2-2x5 front panels.

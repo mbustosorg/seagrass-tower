@@ -131,5 +131,6 @@
 #define FS_TYPE_VEST (0x01)
 #define FS_TYPE_HAT (0x02)
 #define FS_TYPE_TOWER (0x03)
+#define FS_TYPE_TOWN_CENTER (0x04)
 
 #endif

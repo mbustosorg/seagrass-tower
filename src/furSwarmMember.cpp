@@ -43,11 +43,7 @@
 #include "furSwarmPatternConst.h"
 #include "furSwarmControlMachine.h"
 #include "xBeeConfiguration.h"
-#ifdef NOT_EMBEDDED
-// Do nothing
-#else
 #include <EEPROM.h>
-#endif
 #ifdef TEENSY
 #include "towerPatterns.h"
 #include "TinyGPS.h"  
@@ -82,6 +78,8 @@ const uint8_t memberType = FS_TYPE_VEST;
 const uint8_t memberType = FS_TYPE_HAT;
 #elif FS_TOWER
 const uint8_t memberType = FS_TYPE_TOWER;
+#elif FS_TOWN_CENTER
+const uint8_t memberType = FS_TYPE_TOWN_CENTER;
 #endif
 
 // Heartbeat message layout
@@ -524,6 +522,8 @@ void setStartupPattern() {
   //uint8_t data[] = {FS_ID_DANCING, 100, 200, 0, 40, 0};
   Control.triggerPattern = 22;
   uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
+#elif FS_TOWN_CENTER
+  uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
 #else
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
@@ -669,6 +669,9 @@ void updateDisplay() {
 #ifdef FS_TOWER
 	      uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
 	      //uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
+	      Control.initializePattern(data, 2);
+#elif FS_TOWN_CENTER
+	      uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
 	      Control.initializePattern(data, 2);
 #endif
 	    }

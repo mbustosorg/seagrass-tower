@@ -448,7 +448,7 @@ void furSwarmPatterns::initializeCylon(uint8_t red, uint8_t green, uint8_t blue,
     int blueHolder = blue;
 #ifdef FS_TOWER_EYE
     int colorDescent = 2;
-#elif defined (FS_TOWER_VEST) || defined (FS_TOWER) || defined (FS_TOWER_HAT)
+#elif defined (FS_TOWER_VEST) || defined (FS_TOWER) || defined (FS_TOWER_HAT) || defined (FS_TOWN_CENTER)
     int colorDescent = 8;
 #elif FS_HAT
     int colorDescent = 15;
@@ -892,7 +892,7 @@ void furSwarmPatterns::iterateStrandByHSV() {
     float iterationProportion = (float) frameRelease / (float) patternSpeed;
     uint8_t redLevel, greenLevel, blueLevel;
     for (int i = 0; i < LED_COUNT; i++) {
-#if defined (FS_TOWER) || defined (FS_HAT) || defined (FS_TOWER_HAT) || defined (FS_TOWER_EYE)
+#if defined (FS_TOWER) || defined (FS_HAT) || defined (FS_TOWER_HAT) || defined (FS_TOWER_EYE)|| defined (FS_TOWN_CENTER)
         indexMap = LED_COUNT - i;
 #else
         indexMap = pgm_read_byte(&cyLEDMap[i]);
@@ -962,7 +962,7 @@ void furSwarmPatterns::displaySoundActivate() {
     if (intensityLevel > 255.0) intensityLevel = 255.0;
     else if (intensityLevel < 0.0) intensityLevel = 0.0;
     
-#if (defined (FS_TOWER) || defined (FS_TOWER_HAT)) && !defined(FS_TOWER_EYE)
+#if (defined (FS_TOWER) || defined (FS_TOWER_HAT) || defined (FS_TOWN_CENTER)) && !defined(FS_TOWER_EYE)
     // Slow down the intensity level retraction and display a peak for a short period
     uint32_t timeStamp = millis();
     if (intensityLevel > peakSoundLevel) {

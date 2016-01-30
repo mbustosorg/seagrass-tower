@@ -709,7 +709,7 @@ void towerPatterns::iterateRadioTower() {
     ledRed[i] = 0;
     ledGreen[i] = 0;
     ledBlue[i] = 0;
-#ifdef FS_TOWER
+#if defined (FS_TOWER) || (FS_TOWNCENTER)
     // Blink top 3 LEDs for a second at beginning of period
     if (clock.seconds % 3 == 0 && i > LED_COUNT - 3) {
       ledRed[i] = adjustedRed;
