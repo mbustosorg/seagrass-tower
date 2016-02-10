@@ -499,9 +499,9 @@ PROGMEM prog_uint8_t *spiralTable[] =
 };
 
 #ifdef FS_TOWN_CENTER
-PROGMEM prog_uint8_t triggerPattern0[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 0, 40, 128};
-PROGMEM prog_uint8_t triggerPattern1[] = {FS_ID_DANCING, 100, 200, 0, 40, 0};
-PROGMEM prog_uint8_t triggerPattern2[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
+PROGMEM prog_uint8_t triggerPattern0[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
+PROGMEM prog_uint8_t triggerPattern1[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 0, 40, 128};
+PROGMEM prog_uint8_t triggerPattern2[] = {FS_ID_DANCING, 100, 200, 200, 200, 250};
 
 const int triggerPatternsCount = 3;
 PROGMEM prog_uint8_t *triggerPatterns[] =

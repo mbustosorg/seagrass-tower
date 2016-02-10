@@ -1434,7 +1434,7 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
             pattern = messageType;
             break;
         case FS_ID_SOUND_ACTIVATE:
-            initializeFlash(data [2], data [3], data [4]);
+	    //initializeFlash(data [2], data [3], data [4]);
             updateSoundActivateParameters(data[1], data[5], data[5]);
             displayPumpData(true, true, true);
             pattern = messageType;

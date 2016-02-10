@@ -150,13 +150,19 @@ volatile uint16_t frameCount = 0;
 volatile unsigned long frameRateCount = 0;
 volatile int frameStarted = 0;
 bool daytimeShutdown = false;
-#if defined(FS_TOWER) && !defined(FS_TOWER_EYE)
+unsigned long OnTime = 1 * 3600 + 30 * 60; // 01:30 UTC == 18:30 PDT
+unsigned long OffTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
+#if (defined(FS_TOWN_CENTER) || defined(FS_TOWER)) && !defined(FS_TOWER_EYE)
 bool allowDaytimeShutdown = true;
 #else
 bool allowDaytimeShutdown = false;
 #endif
 #define TEN_MINUTES (600) // 10 Minutes in seconds
+#ifdef FS_TOWN_CENTER
+#define DORMANT_TIME_LIMIT (300) // 5 Minutes in seconds
+#else
 #define DORMANT_TIME_LIMIT (1200) // 20 Minutes in seconds
+#endif
 
 #ifdef TEENSY
 towerPatterns Control;
@@ -523,7 +529,7 @@ void setStartupPattern() {
   Control.triggerPattern = 22;
   uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
 #elif FS_TOWN_CENTER
-  uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
+  uint8_t data[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
 #else
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
@@ -636,7 +642,7 @@ void updateDisplay() {
 	//Temp1 = 25 - ((Vtemp - 0.7012) / 0.001749);
 	//}
 #ifdef SERIAL_DIAGNOSTICS
-	  displayGPSdata(Control.latitude, Control.longitude);
+	displayGPSdata(Control.latitude, Control.longitude);
 #endif
 	if (gps2rtc.gps_time > 0) {
 	  unsigned long gpsTime = gps2rtc.gps_time;
@@ -644,33 +650,33 @@ void updateDisplay() {
 	  clock.minutes = (int) (((float) gpsTime / 3600.0 - clock.hours) * 60);
 	  clock.seconds = gpsTime - clock.hours * 3600 - clock.minutes * 60;
 	  Control.clock = clock;
-	  unsigned long onTime = 1 * 3600 + 30 * 60; // 01:30 UTC == 18:30 PDT
-	  unsigned long offTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
+	  bool dormant = false;
+#ifdef FS_TOWER
+	  dormant = gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating;
+#elif defined FS_TOWN_CENTER
+	  dormant = gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0;
+#endif
 	  if (daytimeShutdown) {
 		led.pulse (50, 0, 50, 100, false);
 		if (Control.pattern != FS_ID_OFF) {
 		  uint8_t data[] = {FS_ID_OFF};
 		  Control.initializePattern(data, 1);
 		}
-		if ((gpsTime > onTime) && (gpsTime < offTime)) {
+		if ((gpsTime > OnTime) && (gpsTime < OffTime)) {
 		  daytimeShutdown = false;
 		  uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170}; // Aquamarine at startup
 		  Control.initializePattern(data, 6);
 		}
 	  } else {
-	    if ((gpsTime < onTime) || (gpsTime > offTime)) {
+	    if ((gpsTime < OnTime) || (gpsTime > OffTime)) {
 		  if (allowDaytimeShutdown) {
 		    uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
 		    Control.initializePattern(data, 6);
 		    daytimeShutdown = true;
 		    Control.animations.isAnimating = false;
 		  }
-	    } else if (gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating) {
-#ifdef FS_TOWER
-	      uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
-	      //uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
-	      Control.initializePattern(data, 2);
-#elif FS_TOWN_CENTER
+ 	    } else if (gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating) {
+#if defined (FS_TOWER) || (FS_TOWN_CENTER)
 	      uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
 	      Control.initializePattern(data, 2);
 #endif
