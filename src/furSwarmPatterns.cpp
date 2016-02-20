@@ -225,7 +225,7 @@ void furSwarmPatterns::setfullStrand(uint8_t intensity, uint8_t red, uint8_t gre
         if (!transitionRequested || LED_COUNT - i < cycleSpot) {
             if (smooth && frameRelease > 0) {
                 frameRelease--;
-                float proportion = (float) frameRelease / ((float) patternSpeed * 4.0);
+                float proportion = (float) frameRelease / ((float) patternSpeed * SMOOTH_FACTOR_FLOAT);
                 sendColor(i,
                           ledRed[i] + ((float) red * intensity / 255 - (float) ledRed[i]) * (1.0 - proportion),
                           ledGreen[i] + ((float) green * intensity / 255 - (float) ledGreen[i]) * (1.0 - proportion),
@@ -1279,7 +1279,7 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
             redLevel = data[2];
             greenLevel = data[3];
             blueLevel = data[4];
-            frameRelease = patternSpeed * 4;
+            frameRelease = patternSpeed * SMOOTH_FACTOR_INT;
             setfullStrand(intensityLevel, redLevel, greenLevel, blueLevel, true);
             break;
         case FS_ID_SPARKLE:
@@ -1734,7 +1734,7 @@ void furSwarmPatterns::advancePatternIntensity(uint8_t pattern, bool continuous)
             if (intensityLevel > 200) {
                 intensityLevel = 200;
             }
-            frameRelease = patternSpeed * 4;
+            frameRelease = patternSpeed * SMOOTH_FACTOR_INT;
             setfullStrand (intensityLevel, redLevel, greenLevel, blueLevel, true);
             break;
         case FS_ID_BREATHE:
@@ -1817,7 +1817,7 @@ void furSwarmPatterns::advancePatternSpeed(bool continuous, bool up) {
             greenLevel = toConvert.g * 255;
             blueLevel = toConvert.b * 255;
             
-            frameRelease = patternSpeed * 4;
+            frameRelease = patternSpeed * SMOOTH_FACTOR_INT;
             setfullStrand(intensityLevel, redLevel, greenLevel, blueLevel, true);
             break;
         case FS_ID_SPARKLE:

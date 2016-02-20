@@ -88,6 +88,8 @@ const int lpdClockPin = 2;
 #define MAX_DATA_LENGTH (10) // Maximum expected number of bytes in incoming message
 #define FS_DELAY_FACTOR (500)
 #define PATTERN_START_MOD (5) // Second interval to start patterns for synchronization
+#define SMOOTH_FACTOR_FLOAT (8.0)
+#define SMOOTH_FACTOR_INT (8)
 
 class furSwarmPatterns {
  public:

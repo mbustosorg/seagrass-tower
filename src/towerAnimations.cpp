@@ -37,7 +37,7 @@
 #ifdef FS_TOWER
 const int animationCount = 18;
 #elif defined FS_TOWN_CENTER
-const int animationCount = 10;
+const int animationCount = 15;
 #else
 const int animationCount = 1;
 #endif
@@ -65,16 +65,21 @@ const uint8_t animationPatterns[animationCount][ANIMATION_COMMAND_LENGTH] = {
   {FS_ID_BREATHE, 100, 20, 10, 200, 200, 0}
 #elif defined FS_TOWN_CENTER
   // ID, Speed, Red, Green, Blue, Intensity, Delay
-  {FS_ID_BOUNCING_BALL, 253, 255, 10, 10, 120, 0},
-  {FS_ID_BOUNCING_BALL, 253, 0, 255, 0, 120, 0},
-  {FS_ID_BOUNCING_BALL, 9, 255, 10, 10, 120, 0},
-  {FS_ID_STARFIELD, 10, 0, 0, 0, 0, 0},
-  {FS_ID_RAINBOW_CHASE, 100, 0, 0, 150, 200, 0},
-  {FS_ID_SPIRAL, 100, 200, 0, 40, 120, 0},
-  {FS_ID_RADIO_TOWER, 100, 255, 0, 0, 200, 0},
-  {FS_ID_SPECTRUM_ANALYZER, 100, 200, 50, 0, 250, 0},
-  {FS_ID_CYLON, 100, 200, 50, 0, 120, 0},
-  {FS_ID_CYLON, 150, 50, 220, 75, 120, 0},
+  {FS_ID_FULL_COLOR, 255, 0, 0, 255, 255, 0},
+  {FS_ID_FULL_COLOR, 255, 0, 255, 255, 255, 0},
+  {FS_ID_FULL_COLOR, 255, 0, 255, 0, 255, 0},
+  {FS_ID_FULL_COLOR, 255, 255, 0, 0, 255, 0},
+  {FS_ID_CYLON_PONG, 81, 255, 0, 0, 255, 0},
+  {FS_ID_CYLON_PONG, 81, 0, 0, 255, 255, 0},
+  {FS_ID_CYLON_PONG, 81, 255, 255, 255, 255, 0},
+  {FS_ID_CYLON, 51, 255, 0, 153, 255, 0},
+  {FS_ID_CYLON, 214, 255, 119, 0, 255, 0},
+  {FS_ID_CYLON, 147, 104, 45, 255, 255, 0},
+  {FS_ID_RAINBOW_CHASE, 147, 255, 255, 255, 255, 0},
+  {FS_ID_BOUNCING_BALL, 126, 255, 0, 0, 123, 0},
+  {FS_ID_SPARKLER, 126, 134, 0, 255, 123, 0},
+  {FS_ID_GRASS_WAVE, 218, 0, 255, 0, 0},
+  {FS_ID_SPARKLE, 163, 0, 255, 0, 255, 0} 
 #else
   {FS_ID_CYLON, 150, 50, 220, 75, 120, 0},
 #endif
@@ -83,6 +88,10 @@ const uint8_t animationPatterns[animationCount][ANIMATION_COMMAND_LENGTH] = {
 //! Milliseconds for indexed pattern
 const uint32_t animationTimes[] = {
 #ifdef FS_TOWER
+  120000,
+  120000,
+  120000,
+  120000,
   120000,
   120000,
   120000,
@@ -105,13 +114,18 @@ const uint32_t animationTimes[] = {
   120000,
   120000,
   120000,
-  300000,
-  300000,
-  300000,
-  200000,
   120000,
-  300000,
-  300000
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000
 #else
   300000
 #endif

@@ -150,7 +150,11 @@ volatile uint16_t frameCount = 0;
 volatile unsigned long frameRateCount = 0;
 volatile int frameStarted = 0;
 bool daytimeShutdown = false;
+#ifdef FS_TOWN_CENTER
+unsigned long OnTime = 22 * 3600 + 25 * 60; // 22:25 UTC == 16:25 PDT
+#else
 unsigned long OnTime = 1 * 3600 + 30 * 60; // 01:30 UTC == 18:30 PDT
+#endif
 unsigned long OffTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
 #if (defined(FS_TOWN_CENTER) || defined(FS_TOWER)) && !defined(FS_TOWER_EYE)
 bool allowDaytimeShutdown = true;
@@ -158,6 +162,7 @@ bool allowDaytimeShutdown = true;
 bool allowDaytimeShutdown = false;
 #endif
 #define TEN_MINUTES (600) // 10 Minutes in seconds
+#define THIRTY_MINUTES (1800) // 10 Minutes in seconds
 #ifdef FS_TOWN_CENTER
 #define DORMANT_TIME_LIMIT (300) // 5 Minutes in seconds
 #else
@@ -548,18 +553,12 @@ void catchup() {
 #ifdef TEENSY
   unsigned long lastPPS = gps2rtc.lastPPSTime;
   if (lastPPS > 0) {
-	unsigned long ppsGap = millis() - lastPPS;
-	if (ppsGap > FRAME_LENGTH && ppsGap < 1000) {
-	  unsigned long lastTime = millis();
-	  while (lastTime > lastPPS && 
-		 lastTime - lastPPS < 1000 && 
-		 lastTime - lastPPS + 1000 > FRAME_LENGTH) {
-	    while (millis() == lastTime) {}
-	    lastTime = millis();
-	  }
-	  frameNumber = 0;
-	  Control.setRadioTowerSyncTimestamp (millis());
-	}
+    unsigned long ppsGap = millis() - lastPPS;
+    if (ppsGap > FRAME_LENGTH && ppsGap <= 1000 + FRAME_LENGTH) {
+      while (millis() - lastPPS < 1000) {}
+      frameNumber = 0;
+      Control.setRadioTowerSyncTimestamp (millis());
+    }
   }
 #endif
 }
@@ -629,9 +628,9 @@ void updateDisplay() {
 	  else led.pulse (0, 40, 0, 500, true);
 	  // Reset GPS every GPS_RESET_TIME (10 minutes) to keep things fresh
 	  if (gps2rtc.gps_time != 0 && gpsTimeStamp == 0) {
-		updateGPSdata();
+	    updateGPSdata();
 	  } else if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp > GPS_RESET_TIME) {
-		gpsTimeStamp = 0;
+	    gpsTimeStamp = 0;
 	  }
 	}
 	//float Vtemp = analogRead(38) * 0.0029296875;
@@ -654,32 +653,31 @@ void updateDisplay() {
 #ifdef FS_TOWER
 	  dormant = gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating;
 #elif defined FS_TOWN_CENTER
-	  dormant = gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0;
+	  dormant = gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % THIRTY_MINUTES == 0;
 #endif
+	  bool inTheZone = OnTime < OffTime ? (gpsTime > OnTime) && (gpsTime < OffTime) : (gpsTime > OnTime) || (gpsTime < OffTime);
 	  if (daytimeShutdown) {
-		led.pulse (50, 0, 50, 100, false);
-		if (Control.pattern != FS_ID_OFF) {
-		  uint8_t data[] = {FS_ID_OFF};
-		  Control.initializePattern(data, 1);
-		}
-		if ((gpsTime > OnTime) && (gpsTime < OffTime)) {
-		  daytimeShutdown = false;
-		  uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170}; // Aquamarine at startup
-		  Control.initializePattern(data, 6);
-		}
+	    led.pulse (50, 0, 50, 100, false);
+	    if (Control.pattern != FS_ID_OFF) {
+	      uint8_t data[] = {FS_ID_OFF};
+	      Control.initializePattern(data, 1);
+	    }
+	    if (inTheZone) {
+	      daytimeShutdown = false;
+	      uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170}; // Aquamarine at startup
+	      Control.initializePattern(data, 6);
+	    }
 	  } else {
-	    if ((gpsTime < OnTime) || (gpsTime > OffTime)) {
-		  if (allowDaytimeShutdown) {
-		    uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
-		    Control.initializePattern(data, 6);
-		    daytimeShutdown = true;
-		    Control.animations.isAnimating = false;
-		  }
- 	    } else if (gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating) {
-#if defined (FS_TOWER) || (FS_TOWN_CENTER)
+	    if (!inTheZone) {
+	      if (allowDaytimeShutdown) {
+		uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
+		Control.initializePattern(data, 6);
+		daytimeShutdown = true;
+		Control.animations.isAnimating = false;
+	      }
+ 	    } else if (dormant) {
 	      uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
 	      Control.initializePattern(data, 2);
-#endif
 	    }
 	  }
 	}
