@@ -52,7 +52,6 @@ furSwarmPatterns::furSwarmPatterns() {
     maxEye = LED_COUNT;
     minEye = 0;
     
-    lowLevelPWMCounter = 0;
     ledChangeRate = 3;
     flashLedChangeRate = 3;
     saThreshold = 15000;
@@ -84,120 +83,11 @@ furSwarmPatterns::furSwarmPatterns() {
     saMovingAverageCount = 150;
     saAveragedOver = 6;
 #endif
-#ifndef NOT_EMBEDDED
-#ifdef USE_TCL
-    // Do nothing
-#elif USE_WS2801
-    // Adafruit bulbs
-#else
-    // Adafruit strip
-    pinMode(lpdDataPin, OUTPUT);
-    pinMode(lpdClockPin, OUTPUT);
-#endif
-#endif
 }
 
 //! Set `secondsIntoMinute'
 void furSwarmPatterns::setSecondsIntoMinute(unsigned long newSecondsIntoMinute) {
     secondsIntoMinute = newSecondsIntoMinute;
-}
-
-//! Send the start frame to start the display update
-void furSwarmPatterns::sendStartFrame() {
-    lowLevelPWMCounter++;
-    if (lowLevelPWMCounter > PWM_COUNTER_RESET) lowLevelPWMCounter = 1;
-#ifndef NOT_EMBEDDED
-#ifdef USE_TCL
-    TCL.sendEmptyFrame();
-#elif USE_WS2801
-    // Adafruit bulbs
-#else
-    // Adafruit strip
-#endif
-#endif
-}
-
-//! Send the end frame to complete the display
-void furSwarmPatterns::sendEndFrame() {
-#ifndef NOT_EMBEDDED
-#ifdef USE_TCL
-    TCL.sendEmptyFrame();
-#elif USE_WS2801
-    // Adafruit bulbs
-    strip.show();
-#else
-    // Adafruit strip
-    digitalWrite(lpdDataPin, LOW);
-    int n = ((LED_COUNT + 63) / 64) * 3;
-    for(uint16_t i = 8 * n; i > 0; i--) {
-        digitalWrite(lpdClockPin, HIGH);
-        digitalWrite(lpdClockPin, LOW);
-    }
-#endif
-#endif
-}
-
-//! Send a particular color to the whole strand
-void furSwarmPatterns::sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t blue) {
-    uint8_t trueRed, trueGreen, trueBlue;
-    trueRed = red;
-    trueGreen = green;
-    trueBlue = blue;
-    /*
-     if (red < PWM_DIMMER_THRESHOLD && lowLevelPWMCounter > PWM_COUNTER_RESET - PWM_COUNTER_OFFSET) {
-     trueRed = 0;
-     }
-     if (green < PWM_DIMMER_THRESHOLD && lowLevelPWMCounter > PWM_COUNTER_RESET - PWM_COUNTER_OFFSET) {
-     trueGreen = 0;
-     }
-     if (blue < PWM_DIMMER_THRESHOLD && lowLevelPWMCounter > PWM_COUNTER_RESET - PWM_COUNTER_OFFSET) {
-     trueBlue = 0;
-     }
-     */
-#ifdef NOT_EMBEDDED
-    nonEmbedRed[pixelIndex] = trueRed;
-    nonEmbedGreen[pixelIndex] = trueGreen;
-    nonEmbedBlue[pixelIndex] = trueBlue;
-#else
-#ifdef USE_TCL
-    TCL.sendColor (trueRed, trueGreen, trueBlue);
-#elif USE_WS2801
-    // Adafruit bulbs
-    strip.setPixelColor (pixelIndex, trueRed, trueGreen, trueBlue);
-#else
-    // Adafruit strip
-    uint8_t greenByte = trueGreen >> 1;
-    uint8_t redByte = trueRed >> 1;
-    uint8_t blueByte = trueBlue >> 1;
-    for (uint8_t bit = 0x80; bit; bit >>= 1) {
-        if ((greenByte | 0x80) & bit) {
-            digitalWrite(lpdDataPin, HIGH);
-        } else {
-            digitalWrite(lpdDataPin, LOW);
-        }
-        digitalWrite(lpdClockPin, HIGH);
-        digitalWrite(lpdClockPin, LOW);
-    }
-    for (uint8_t bit = 0x80; bit; bit >>= 1) {
-        if ((redByte | 0x80) & bit) {
-            digitalWrite(lpdDataPin, HIGH);
-        } else {
-            digitalWrite(lpdDataPin, LOW);
-        }
-        digitalWrite(lpdClockPin, HIGH);
-        digitalWrite(lpdClockPin, LOW);
-    }
-    for (uint8_t bit = 0x80; bit; bit >>= 1) {
-        if ((blueByte | 0x80) & bit) {
-            digitalWrite(lpdDataPin, HIGH);
-        } else {
-            digitalWrite(lpdDataPin, LOW);
-        }
-        digitalWrite(lpdClockPin, HIGH);
-        digitalWrite(lpdClockPin, LOW);
-    }
-#endif
-#endif
 }
 
 // Iterate the transition point for patterns that request it
@@ -220,13 +110,13 @@ void furSwarmPatterns::iterateForTransition() {
 //! Set the LED color strand to a fixed full color set
 void furSwarmPatterns::setfullStrand(uint8_t intensity, uint8_t red, uint8_t green, uint8_t blue, bool smooth) {
     if (transitionRequested) iterateForTransition();
-    sendStartFrame();
+    leds.sendStartFrame();
     for (int i = 0; i < LED_COUNT; i++) {
         if (!transitionRequested || LED_COUNT - i < cycleSpot) {
             if (smooth && frameRelease > 0) {
                 frameRelease--;
                 float proportion = (float) frameRelease / ((float) patternSpeed * SMOOTH_FACTOR_FLOAT);
-                sendColor(i,
+                leds.sendColor(i,
                           ledRed[i] + ((float) red * intensity / 255 - (float) ledRed[i]) * (1.0 - proportion),
                           ledGreen[i] + ((float) green * intensity / 255 - (float) ledGreen[i]) * (1.0 - proportion),
                           ledBlue[i] + ((float) blue * intensity / 255 - (float) ledBlue[i]) * (1.0 - proportion));
@@ -234,11 +124,11 @@ void furSwarmPatterns::setfullStrand(uint8_t intensity, uint8_t red, uint8_t gre
                 ledRed[i] = red * intensity / 255;
                 ledGreen[i] = green * intensity / 255;
                 ledBlue[i] = blue * intensity / 255;
-                sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
+                leds.sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
             }
         }
     }
-    sendEndFrame();
+    leds.sendEndFrame();
 }
 
 //! Cycle through in a descending pattern on the LED data
@@ -280,7 +170,7 @@ void furSwarmPatterns::setColorScaled(uint8_t ledSourceColor[], uint8_t ledTarge
 void furSwarmPatterns::cycleDataColor(uint8_t ledSourceColor[], uint8_t ledDirection[], uint8_t ledBorder[],
                                       int ledIndex, uint8_t step, bool upperAdjust, uint8_t stayBelow, uint8_t stayAbove) {
     uint8_t stepForPeriod;
-    if (ledSourceColor[ledIndex] > inOutBreakPoint && upperAdjust) {
+    if (ledSourceColor[ledIndex] > IN_OUT_BREAK_POINT && upperAdjust) {
         stepForPeriod = step * 4;
     } else {
         stepForPeriod = step;
@@ -364,41 +254,41 @@ void furSwarmPatterns::descendPumpDataScaled(int step) {
 
 //! Display the data currently stored in `led*'
 void furSwarmPatterns::displayData(bool red, bool green, bool blue) {
-  sendStartFrame();
+  leds.sendStartFrame();
   for (int i = 0; i < LED_COUNT; i++) {
     if (red && green && blue) {
-      sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
+      leds.sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
     } else {
-      sendColor(i, red?ledRed[i]:0, green?ledGreen[i]:0, blue?ledBlue[i]:0);
+      leds.sendColor(i, red?ledRed[i]:0, green?ledGreen[i]:0, blue?ledBlue[i]:0);
     }
   }
-  sendEndFrame();
+  leds.sendEndFrame();
 }
 
 //! Display the data currently stored in `led*'
 void furSwarmPatterns::displayDataWithOverlay(bool red, bool green, bool blue,
                                               uint8_t redOverlay, uint8_t greenOverlay, uint8_t blueOverlay) {
-    sendStartFrame();
+    leds.sendStartFrame();
     for (int i = 0; i < LED_COUNT; i++) {
         if (red && green && blue) {
-            sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
+            leds.sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
         } else {
-            sendColor(i, red?ledRed[i]:redOverlay, green?ledGreen[i]:greenOverlay, blue?ledBlue[i]:blueOverlay);
+            leds.sendColor(i, red?ledRed[i]:redOverlay, green?ledGreen[i]:greenOverlay, blue?ledBlue[i]:blueOverlay);
         }
     }
-    sendEndFrame();
+    leds.sendEndFrame();
 }
 
 //! Display the data currently stored in `led*' for a pump display
 void furSwarmPatterns::displayPumpData(bool red, bool green, bool blue) {
-    sendStartFrame();
+    leds.sendStartFrame();
     for (int i = 0; i < LED_COUNT; i++) {
-        sendColor(i,
+        leds.sendColor(i,
                   red?(ledRed[i] > redLevel)?redLevel:ledRed[i]:0,
                   green?(ledGreen[i] > greenLevel)?greenLevel:ledGreen[i]:0,
                   blue?(ledBlue[i] > blueLevel)?blueLevel:ledBlue[i]:0);
     }
-    sendEndFrame();
+    leds.sendEndFrame();
 }
 
 //! Initialize the LED strand with random data
@@ -436,7 +326,7 @@ void furSwarmPatterns::initializeRandom(uint8_t low, uint8_t high, uint8_t red, 
 //! Initialize the heartbeat pattern
 void furSwarmPatterns::initializeHeartbeatPattern(uint8_t red, uint8_t green, uint8_t blue) {
     float intensityRatio = (float) heartbeatIntensity / 255.0;
-    uint8_t lowerLevel = (intensityRatio * pumpUpperLevel);
+    uint8_t lowerLevel = (intensityRatio * PUMP_UPPER_LEVEL);
     uint8_t upperLevel = (intensityRatio * 255);
     initializeRandom(lowerLevel, upperLevel, red, green, blue, false);
 }
@@ -541,7 +431,7 @@ void furSwarmPatterns::displayCylon() {
         }
     }
     float iterationProportion = (float) frameRelease / (float) patternSpeed;
-    sendStartFrame();
+    leds.sendStartFrame();
     int indexMap;
     uint8_t redLevel, greenLevel, blueLevel;
     for (int i = 0; i < LED_CYMAP; i++) {
@@ -557,9 +447,9 @@ void furSwarmPatterns::displayCylon() {
         redLevel = redLevel + (uint8_t) ((float)ledRed[indexMap] * (1.0 - iterationProportion));
         greenLevel = greenLevel + (uint8_t) ((float)ledGreen[indexMap] * (1.0 - iterationProportion));
         blueLevel = blueLevel + (uint8_t) ((float)ledBlue[indexMap] * (1.0 - iterationProportion));
-        sendColor(i, redLevel, greenLevel, blueLevel);
+        leds.sendColor(i, redLevel, greenLevel, blueLevel);
     }
-    sendEndFrame();
+    leds.sendEndFrame();
 }
 
 //! Fill matrix data for `frameIndex'
@@ -680,12 +570,12 @@ void furSwarmPatterns::initializeDrop() {
 
 //! Iterate and display the Drop pattern
 void furSwarmPatterns::displayDrop() {
-    sendStartFrame();
+    leds.sendStartFrame();
     for (int i = 0; i < LED_COUNT; i++) {
         cycleDataColor(ledRed, ledRedDirection, breatheBorderRed, i, patternSpeed, false, 0, 0);
-        sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
+        leds.sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
     }
-    sendEndFrame();
+    leds.sendEndFrame();
 }
 
 //! Initialize the character pattern from PROGMEM
@@ -816,7 +706,7 @@ void furSwarmPatterns::initializeFlash(uint8_t red, uint8_t green, uint8_t blue)
     } else {
         flashLedChangeRate = ledChangeRate;
     }
-    initializeRandom(pumpUpperLevel, 255, red, green, blue, false);
+    initializeRandom(PUMP_UPPER_LEVEL, 255, red, green, blue, false);
     flashStartTime = millis();
 }
 
@@ -854,8 +744,7 @@ float furSwarmPatterns::incrementalDegree (float input) {
     }
     if (patternSpeed < 5) {
         output += directionFactor;
-    }
-    if (output > 360.0) {
+    } else if (output > 360.0) {
         output -= 360.0;
     } else if (output < 0.0) {
         output += 360.0;
@@ -887,7 +776,7 @@ void furSwarmPatterns::iterateStrandByHSV() {
         }
     }
     
-    sendStartFrame();
+    leds.sendStartFrame();
     int indexMap = 0;
     float iterationProportion = (float) frameRelease / (float) patternSpeed;
     uint8_t redLevel, greenLevel, blueLevel;
@@ -917,9 +806,9 @@ void furSwarmPatterns::iterateStrandByHSV() {
         (uint8_t) (toConvert.g * 255.0 * (1.0 - iterationProportion));
         blueLevel = (uint8_t) ((float)ledBlue[indexMap] * iterationProportion) +
         (uint8_t) (toConvert.b * 255.0 * (1.0 - iterationProportion));
-        sendColor(i, redLevel, greenLevel, blueLevel);
+        leds.sendColor(i, redLevel, greenLevel, blueLevel);
     }
-    sendEndFrame();
+    leds.sendEndFrame();
 }
 
 //! Select the prism color accordingly
@@ -978,7 +867,7 @@ void furSwarmPatterns::displaySoundActivate() {
             peakSoundLevel = 0;
         }
     }
-    sendStartFrame();
+    leds.sendStartFrame();
     /* Use the entire strand as a vue meter */
     uint8_t peakLed = (uint8_t)(peakSoundLevel / 255.0 * LED_COUNT);
     for (int i = 0; i < LED_COUNT; i++) {
@@ -991,20 +880,20 @@ void furSwarmPatterns::displaySoundActivate() {
                 ledFactor = 1.0;
             }
             if (ledPosition > 200.0) {
-                sendColor(i, (int) (200 * ledFactor), 0, 0);
+                leds.sendColor(i, (int) (200 * ledFactor), 0, 0);
             }
             else if (ledPosition > 150.0) {
-                sendColor(i, (int) (200 * ledFactor), (int) (200 * ledFactor), 0);
+                leds.sendColor(i, (int) (200 * ledFactor), (int) (200 * ledFactor), 0);
             }
             else {
-                sendColor(i, 0, (int) (200 * ledFactor), 0);
+                leds.sendColor(i, 0, (int) (200 * ledFactor), 0);
             }
         }
         else {
-            sendColor(i, 0, 0, 0);
+            leds.sendColor(i, 0, 0, 0);
         }
     }
-    sendEndFrame();
+    leds.sendEndFrame();
 #else
     int indexMap = 0;
     uint8_t row, column;
@@ -1266,7 +1155,7 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
     // data [6] - delay in ms / FS_DELAY_FACTOR;
     messageType = (int) (0x7F & data[0]);
     //messageType = (int) data[0];
-    transitionRequested = 0x80 & data[0] > 0;
+    transitionRequested = (0x80 & data[0]) > 0;
     if (transitionRequested) cycleSpot = 0;
     patternSpeed = (int) data[1];
     switch (messageType) {
@@ -1359,7 +1248,7 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
         case FS_ID_ORGANIC:
             setPatternSpeedWithFactor(10);
             if (pattern != messageType) {
-                initializeRandom(starfieldUpperLevel, 255, 0xff, 0xff, 0xff, true);
+                initializeRandom(STARFIELD_UPPER_LEVEL, 255, 0xff, 0xff, 0xff, true);
                 for (int i = 0; i < LED_COUNT; i++) {
                     if (i % 2 == 0) {
                         ledRedDirection[i] = 1;
@@ -1480,9 +1369,9 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
             setPatternSpeedWithFactor(10);
             if (pattern != messageType || (colorNoChange(data) && lastPatternSpeed == patternSpeed)) {
                 if (data[2] == data[3] && data[3] == data[4]) {
-                    initializeRandom(starfieldUpperLevel, 255, 0xff, 0xff, 0xff, true);
+                    initializeRandom(STARFIELD_UPPER_LEVEL, 255, 0xff, 0xff, 0xff, true);
                 } else {
-                    initializeRandom(starfieldUpperLevel, 255, data[2], data[3], data[4], false);
+                    initializeRandom(STARFIELD_UPPER_LEVEL, 255, data[2], data[3], data[4], false);
                 }
                 long randomValue;
                 randomSeed(analogRead(randomSeedPin));

@@ -7,7 +7,7 @@ DFLAGS=-DFS_HAT
 include /Users/mauricio/Documents/development/furSwarmMember/build/common/avr_common.txt
 
 APP_CPP_SOURCES=main.cpp colorUtilities.cpp furSwarmControlMachine.cpp \
-furSwarmMember.cpp furSwarmPatterns.cpp xBeeConfiguration.cpp
+furSwarmMember.cpp furSwarmPatterns.cpp xBeeConfiguration.cpp ledDriver.cpp
 APP_OBJECTS=$(addprefix $(OBJECT_DIR),$(APP_CPP_SOURCES:.cpp=.o))
 
 default: build 

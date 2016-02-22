@@ -37,6 +37,7 @@
 
 #include <stdint.h>
 #include "colorUtilities.h"
+#include "ledDriver.h"
 
 typedef struct {
   uint8_t red;       
@@ -51,37 +52,11 @@ typedef struct {
 } timeStruct;
 
 extern const uint8_t memberType;
-#ifdef NOT_EMBEDDED
-  // Do Nothing
-#elif USE_TCL
-#include "TCL.h"
-#elif USE_WS2801
-// Adafruit RGB strand
-#include "Adafruit_WS2801.h"
-extern Adafruit_WS2801 strip;
-const int lpdDataPin = 2;
-const int lpdClockPin = 3;
-const int lpdCount = 50;
-#else
-// Adafruit RGB strip
-#include <Arduino.h>
-//#include "LPD8806.h"
-//extern LPD8806 strip;
-const int lpdDataPin = 3;
-const int lpdClockPin = 2;
-#endif
 
-// LED parameters
-#ifdef FS_TOWER_EYE
-#define LED_COUNT (100)
-#else
-#define LED_COUNT (50)
-#endif
-#define inOutBreakPoint (150)
-#define pumpUpperLevel (150)
-#define pumpLowerLevel (10)
-#define starfieldUpperLevel (1)
-#define PWM_COUNTER_RESET (2)
+#define IN_OUT_BREAK_POINT (150)
+#define PUMP_UPPER_LEVEL (150)
+#define PUMP_LOWER_LEVEL (10)
+#define STARFIELD_UPPER_LEVEL (1)
 #define PWM_COUNTER_OFFSET (1) // 80% Duty cycle: 1 - PWM_COUNTER_OFFSET / PWM_COUNTER_RESET
 #define PWM_DIMMER_THRESHOLD (3) // Dim values lower than this based on above duty cycle
 
@@ -94,7 +69,8 @@ const int lpdClockPin = 2;
 class furSwarmPatterns {
  public:
   furSwarmPatterns();
-  
+
+  ledDriver leds;
   float FS_BREATHE_MULTIPLIER;
   uint8_t pattern;
   bool transitionRequested;
@@ -114,13 +90,6 @@ class furSwarmPatterns {
   uint8_t timeToDrop = 0;
   uint8_t cycleSpot = 0;
   
-  // Definitions for use by the simulator
-#ifdef NOT_EMBEDDED
-  uint8_t nonEmbedRed[LED_COUNT];
-  uint8_t nonEmbedGreen[LED_COUNT];
-  uint8_t nonEmbedBlue[LED_COUNT];
-#endif
-  uint8_t lowLevelPWMCounter;
   uint8_t ledRed[LED_COUNT];
   uint8_t ledGreen[LED_COUNT];
   uint8_t ledBlue[LED_COUNT];
