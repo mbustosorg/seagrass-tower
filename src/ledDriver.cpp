@@ -33,9 +33,7 @@
 ledDriver::ledDriver() {
 #ifndef NOT_EMBEDDED
 #ifdef USE_TCL
-    // Do nothing
-#elif USE_WS2801
-    // Adafruit bulbs
+    TCL.begin();
 #else
     // Adafruit strip
     pinMode(lpdDataPin, OUTPUT);
@@ -52,8 +50,6 @@ void ledDriver::sendStartFrame() {
 #ifndef NOT_EMBEDDED
 #ifdef USE_TCL
     TCL.sendEmptyFrame();
-#elif USE_WS2801
-    // Adafruit bulbs
 #else
     // Adafruit strip
 #endif
@@ -65,9 +61,6 @@ void ledDriver::sendEndFrame() {
 #ifndef NOT_EMBEDDED
 #ifdef USE_TCL
     TCL.sendEmptyFrame();
-#elif USE_WS2801
-    // Adafruit bulbs
-    strip.show();
 #else
     // Adafruit strip
     digitalWrite(lpdDataPin, LOW);
@@ -104,9 +97,6 @@ void ledDriver::sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t b
 #else
 #ifdef USE_TCL
     TCL.sendColor (trueRed, trueGreen, trueBlue);
-#elif USE_WS2801
-    // Adafruit bulbs
-    strip.setPixelColor (pixelIndex, trueRed, trueGreen, trueBlue);
 #else
     // Adafruit strip
     uint8_t greenByte = trueGreen >> 1;

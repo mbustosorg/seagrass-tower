@@ -33,10 +33,12 @@
 
 //
 // To run the simulator:
-// TOWER      : -DTEENSY -DFS_TOWER
-// VEST       : -DUSE_TCL -DFS_VEST 
-// HAT        : -DFS_HAT
-// TOWER VEST : -DUSE_TCL -DFS_VEST -DFS_TOWER_VEST
+// TOWER       : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER
+// TOWER VEST  : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER_VEST
+// TOWN_CENTER : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWN_CENTER
+// TOWER_HAT   : -DTEENSY -DADX345 -FS_TOWER_HAT
+// VEST        : -DUSE_TCL -DFS_VEST 
+// HAT         : -DFS_HAT
 //
 
 #include "furSwarmPatterns.h"
@@ -196,15 +198,6 @@ unsigned long lowBatteryTime = 0;
 unsigned long lowBatteryWarningTime = 0;
 bool powerShutdown = false;
 
-#ifdef USE_TCL
-#include "TCL.h"
-#elif USE_WS2801
-// Adafruit RGB bulbs
-Adafruit_WS2801 strip = Adafruit_WS2801(lpdCount, lpdDataPin, lpdClockPin);
-#else
-// Adafruit RGB strip
-#endif
-
 //! Prototypes
 unsigned long readEepromLong(const int startByte);
 void updateDisplay();
@@ -272,16 +265,6 @@ void setup() {
 
   // Initialize client heartbeat timestamp
   heartbeatTimestamp = millis();
-  // Initialize the LED strand object
-#ifdef USE_TCL
-  TCL.begin();
-#elif USE_WS2801
-  // Adafruit bulbs
-  strip.begin();
-  strip.show();
-#else
-  // Adafruit strip
-#endif
   // Initialize the radio
   setupRadio();
   // Initialize generic pattern attributes
