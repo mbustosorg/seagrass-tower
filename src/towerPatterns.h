@@ -31,11 +31,8 @@
 
 #ifdef NOT_EMBEDDED
 typedef float float32_t;
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
 #include <math.h>
 #include <memory.h>
-#define abs(a) fabs(a)
 #else
 #define ARM_MATH_CM4
 #include "arm_math.h"

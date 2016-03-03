@@ -249,7 +249,7 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
     }
     setBasicParameters(data[5], data[2], data[3], data[4]);
     if (ball.xSpeed != 0.0 && ball.ySpeed != 0.0) {
-      ball.setSpeed (((float) data [1]) / 20.0 * (ball.xSpeed / abs (ball.xSpeed)), ((float) data [1]) / 30.0 * (ball.ySpeed / abs (ball.ySpeed)));
+      ball.setSpeed (((float) data [1]) / 20.0 * (ball.xSpeed / fabs (ball.xSpeed)), ((float) data [1]) / 30.0 * (ball.ySpeed / fabs (ball.ySpeed)));
     } else {
       ball.setSpeed (((float) data [1]) / 20.0, ((float) data [1]) / 30.0);
     }
@@ -689,7 +689,7 @@ void towerPatterns::iterateBouncingBall() {
   }
   float thisBallLocation = ballLocation(true);
   float nextBallLocation = ballLocation(false);
-  if (abs (nextBallLocation - thisBallLocation) > 1) {
+  if (fabs (nextBallLocation - thisBallLocation) > 1) {
     if (thisBallLocation > nextBallLocation) {
       nextBallLocation = thisBallLocation - 1;
     } else {
@@ -942,7 +942,7 @@ void towerPatterns::updateFrequencyBuckets() {
       lower = max(buckets[i], 2);
     }
     for (int j = lower; j < upper; j++) {
-      accum += abs(audioMagnitudeOutput[j]);
+      accum += fabs(audioMagnitudeOutput[j]);
       total++;
     }
     if (total > 0) {

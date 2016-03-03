@@ -86,9 +86,9 @@ void accelerometer::shutdown() {
 //! Have we been recently shaken?
 bool accelerometer::isShaking() {
   TiltVector tilt = filteredTilt();
-  shakingMovingAverage.x = shakingMovingAverage.x + (abs(tilt.x - lastTilt.x) - shakingMovingAverage.x) / shakingMovingAverageLength;
-  shakingMovingAverage.y = shakingMovingAverage.y + (abs(tilt.y - lastTilt.y) - shakingMovingAverage.y) / shakingMovingAverageLength;
-  shakingMovingAverage.z = shakingMovingAverage.z + (abs(tilt.z - lastTilt.z) - shakingMovingAverage.z) / shakingMovingAverageLength;
+  shakingMovingAverage.x = shakingMovingAverage.x + (fabs(tilt.x - lastTilt.x) - shakingMovingAverage.x) / shakingMovingAverageLength;
+  shakingMovingAverage.y = shakingMovingAverage.y + (fabs(tilt.y - lastTilt.y) - shakingMovingAverage.y) / shakingMovingAverageLength;
+  shakingMovingAverage.z = shakingMovingAverage.z + (fabs(tilt.z - lastTilt.z) - shakingMovingAverage.z) / shakingMovingAverageLength;
   lastTilt = tilt;
   float totalEnergy = sqrt(shakingMovingAverage.x * shakingMovingAverage.x * 1000000 + shakingMovingAverage.y * shakingMovingAverage.y * 1000000 + shakingMovingAverage.z * shakingMovingAverage.z * 1000000);
   bool shaking = totalEnergy > 30.0;
@@ -105,11 +105,10 @@ bool accelerometer::isShaking() {
   if (shaking) Serial.println ("---SHAKING---");
   else Serial.println ("");
 #endif
-#ifndef NOT_EMBEDDED
-  return shaking;
-#else
-  return false;
+#ifdef NOT_EMBEDDED
+  shaking = false;
 #endif
+  return shaking;
 }
 
 //! Calibrate base angle

@@ -22,10 +22,17 @@
 #include <stdio.h>
 #include <sys/select.h> 
 #include <sys/time.h>
+#include <plog/Log.h>
 
 const long long framePeriod = 16667;
+const char* logFileName = "furSwarmLinux.log";
 
 int main(){
+
+  plog::init(plog::info, logFileName, 1000000, 3);
+  printf("Logging to -> %s\n", logFileName);
+  fflush(stdout);
+  
   furSwarmMemberLinux* member = new furSwarmMemberLinux();
   member->setup();
   int counter = 0;
@@ -36,8 +43,7 @@ int main(){
     member->update();
     counter++;
     if (counter % 60 == 0) {
-      printf(".");
-      fflush(stdout);
+      LOG_INFO << "tick";
     }
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
     long long updateLength = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
