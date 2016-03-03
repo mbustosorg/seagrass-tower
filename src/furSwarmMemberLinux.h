@@ -23,13 +23,16 @@
 
 class furSwarmMemberLinux {
 public:
-    bool test = false;
-    void setup();
-    void update();
-    void draw();
-    
-    std::vector <towerPatterns*> platforms;
-    std::list <uint8_t*> messages;
-    uint8_t data[7];
-    
+
+  furSwarmMemberLinux();
+  
+  bool test;
+  void setup();
+  void update();
+  void draw();
+  
+  std::vector <towerPatterns*> platforms;
+  std::list <uint8_t*> messages;
+  uint8_t data[7];
+  
 };

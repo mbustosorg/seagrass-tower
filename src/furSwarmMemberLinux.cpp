@@ -58,6 +58,10 @@ uint16_t frameCount = 0;
 unsigned long frameRateCount = 0;
 int frameStarted = 0;
 
+furSwarmMemberLinux::furSwarmMemberLinux() {
+  test = false;
+}
+
 void furSwarmMemberLinux::setup(){
 
   platforms.clear();
