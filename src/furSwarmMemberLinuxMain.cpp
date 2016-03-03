@@ -18,8 +18,26 @@
 */
 
 #include "furSwarmMemberLinux.h"
+#include <chrono>
+
+const long long framePeriod = 16667;
 
 int main(){
-  new furSwarmMemberLinux();
-  printf("ASDASD");
+  furSwarmMemberLinux* member = new furSwarmMemberLinux();
+  member->setup();
+  int counter = 0;
+  
+  struct timeval tv = {0, framePeriod};
+  while  (select(0, NULL, NULL, NULL, &tv) == 0) {
+    auto start = std::chrono::high_resolution_clock::now();
+    member->update();
+    counter++;
+    if (counter % 60 == 0) {
+      printf(".");
+      fflush(stdout);
+    }
+    auto elapsed = std::chrono::high_resolution_clock::now() - start;
+    long long updateLength = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+    tv.tv_usec = framePeriod - updateLength;
+  }
 }
