@@ -110,8 +110,8 @@ class towerPatterns : public furSwarmPatterns {
   towerBall ball;
 
   // GPS data
-  int32_t latitude = 0;
-  int32_t longitude = 0;
+  int32_t latitude;
+  int32_t longitude;
 
   // Accelerometer data
   accelerometer accel;
@@ -125,21 +125,21 @@ class towerPatterns : public furSwarmPatterns {
   bool wasShaking;  
   unsigned long shakeStart;
 
-  uint32_t shakingStart = 0;
-  uint32_t shakingTimestamp = 0;
-  uint8_t releaseCounter = 1;
-  uint8_t timeToDrop2 = 0;
-  uint8_t timeToDropInitial = 0;
-  uint8_t timeToDropRed = 0;
-  uint8_t sparkleDrops[7] = {0, 0, 0, 0, 0, 0, 0};
-  uint8_t adjustedRed = 0;
-  uint8_t adjustedBlue = 0;
-  uint8_t adjustedGreen = 0;
-  uint8_t adjustedPatternSpeed = 0;
-  uint8_t unadjustedIntensity = 0;
-  uint8_t unadjustedRed = 0;
-  uint8_t unadjustedBlue = 0;
-  uint8_t unadjustedGreen = 0;
+  uint32_t shakingStart;
+  uint32_t shakingTimestamp;
+  uint8_t releaseCounter;
+  uint8_t timeToDrop2;
+  uint8_t timeToDropInitial;
+  uint8_t timeToDropRed;
+  uint8_t sparkleDrops[7];
+  uint8_t adjustedRed;
+  uint8_t adjustedBlue;
+  uint8_t adjustedGreen;
+  uint8_t adjustedPatternSpeed;
+  uint8_t unadjustedIntensity;
+  uint8_t unadjustedRed;
+  uint8_t unadjustedBlue;
+  uint8_t unadjustedGreen;
 
   float ballY;
   float ballSpeed;
@@ -154,7 +154,7 @@ class towerPatterns : public furSwarmPatterns {
 
   // Animation data
   towerAnimations animations;
-  int frameNumber = 0;
+  int frameNumber;
   void setFrameNumber(int newFrameNumber);
 
   // Broken pattern
@@ -163,9 +163,9 @@ class towerPatterns : public furSwarmPatterns {
   uint8_t brokenBits[7], unBrokenBits[7];
 
   // Audio data
-  uint8_t spectrumTowerId = 0;
-  uint8_t spectrumTowerCount = 0;
-  uint32_t audioSampleInputIndex = 0;
+  uint8_t spectrumTowerId;
+  uint8_t spectrumTowerCount;
+  uint32_t audioSampleInputIndex;
   float32_t audioSampleInput[2 * FFT_LEN];
   float32_t audioMagnitudeOutput[FFT_LEN]; 
   float32_t audioMagnitudeBuckets[BUCKET_COUNT];

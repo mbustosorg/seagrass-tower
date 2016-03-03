@@ -38,8 +38,8 @@ class towerBall {
 
   float xSpeed, ySpeed;
   float paddleSpeed1, paddleSpeed2;
-  uint8_t participantCount = 0;
-  uint8_t participantNumber = 0;
+  uint8_t participantCount;
+  uint8_t participantNumber;
 
 };
 

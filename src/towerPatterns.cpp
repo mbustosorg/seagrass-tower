@@ -28,6 +28,29 @@ uint32_t PIT_TCTRL3 = 0;
 #endif
 
 towerPatterns::towerPatterns() : furSwarmPatterns(){
+  latitude = 0;
+  longitude = 0;
+
+  shakingStart = 0;
+  shakingTimestamp = 0;
+  releaseCounter = 1;
+  timeToDrop2 = 0;
+  timeToDropInitial = 0;
+  timeToDropRed = 0;
+  sparkleDrops = {0, 0, 0, 0, 0, 0, 0};
+  adjustedRed = 0;
+  adjustedBlue = 0;
+  adjustedGreen = 0;
+  adjustedPatternSpeed = 0;
+  unadjustedIntensity = 0;
+  unadjustedRed = 0;
+  unadjustedBlue = 0;
+  unadjustedGreen = 0;
+  frameNumber = 0;
+  spectrumTowerId = 0;
+  spectrumTowerCount = 0;
+  audioSampleInputIndex = 0;
+
   isShaking = false;
   wasShaking = false;
   shakingStart = 0;

@@ -20,6 +20,8 @@
 #include "towerBall.h"
 
 towerBall::towerBall() {
+  participantCount = 0;
+  participantNumber = 0;
   initialize(0, 0);
 }
 

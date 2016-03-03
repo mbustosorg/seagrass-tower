@@ -35,6 +35,8 @@
 
 //! Create the accelerometer object
 accelerometer::accelerometer() {
+  filterLength = 0;
+  shakingMovingAverageLength = 100;
   filteredReadings.x = 0.0;
   filteredReadings.y = 0.0;
   filteredReadings.z = 0.0;
