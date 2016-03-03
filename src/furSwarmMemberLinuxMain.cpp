@@ -19,6 +19,7 @@
 
 #include "furSwarmMemberLinux.h"
 #include <chrono>
+#include <stdio.h>
 
 const long long framePeriod = 16667;
 
