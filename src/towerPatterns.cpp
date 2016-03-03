@@ -38,7 +38,8 @@ towerPatterns::towerPatterns() : furSwarmPatterns(){
   timeToDrop2 = 0;
   timeToDropInitial = 0;
   timeToDropRed = 0;
-  sparkleDrops = {0, 0, 0, 0, 0, 0, 0};
+  uint8_t sparkleDropsInit = {0, 0, 0, 0, 0, 0, 0};
+  memcpy(sparkleDrops, sparkleDropsInit, 7 * sizeof(uint8_t));
   adjustedRed = 0;
   adjustedBlue = 0;
   adjustedGreen = 0;
@@ -914,7 +915,7 @@ void towerPatterns::iterateSpectrumAnalyzer() {
 
 //! Aggregate frequencies into their proper buckets
 void towerPatterns::updateFrequencyBuckets() {
-  float32_t binWidth = AUDIO_SAMPLE_RATE / FFT_LEN;
+  //float32_t binWidth = AUDIO_SAMPLE_RATE / FFT_LEN;
   int movingWindow = 1;
   float32_t buckets[BUCKET_COUNT];
 
