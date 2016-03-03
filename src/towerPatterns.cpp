@@ -38,7 +38,7 @@ towerPatterns::towerPatterns() : furSwarmPatterns(){
   timeToDrop2 = 0;
   timeToDropInitial = 0;
   timeToDropRed = 0;
-  uint8_t sparkleDropsInit = {0, 0, 0, 0, 0, 0, 0};
+  uint8_t sparkleDropsInit[7] = {0, 0, 0, 0, 0, 0, 0};
   memcpy(sparkleDrops, sparkleDropsInit, 7 * sizeof(uint8_t));
   adjustedRed = 0;
   adjustedBlue = 0;
