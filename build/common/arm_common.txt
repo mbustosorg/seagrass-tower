@@ -9,6 +9,6 @@ CXXFLAGS=$(MCU) $(CPU_SPEED) -c -g -Os -Wall -fno-exceptions -ffunction-sections
 CFLAGS=-DTEENSY -DUSE_WS2801 -DFS_TOWER $(MCU) $(CPU_SPEED) -c -g -Os -Wall -fno-exceptions -ffunction-sections -fdata-sections -MMD -DUSB_VID=null -DUSB_PID=null -DARDUINO=102 -mthumb -nostdlib -D__MK20DX128__ -DUSB_SERIAL -DLAYOUT_US_ENGLISH
 LIBRARIES=/Applications/development-embedded/Arduino_1.0.5_120.app/Contents/Resources/Java/libraries/
 CORES=/Applications/development-embedded/Arduino_1.0.5_120.app/Contents/Resources/Java/hardware/teensy/cores/teensy3/
-INCLUDE=-I$(CORES) -I/Applications/development-embedded/Arduino_1.0.5_120.app/Contents/Resources/Java/hardware/arduino/variants/standard -I$(LIBRARIES)XBee -I$(LIBRARIES)SPI -I$(LIBRARIES)TCL -I$(LIBRARIES)EEPROM -I$(LIBRARIES)adafruitLED -I$(LIBRARIES)Wire -I$(LIBRARIES)adafruitGFX -I$(LIBRARIES)adafruitOLED -I$(LIBRARIES)adafruitStrip -I$(LIBRARIES)TinyGPS
+INCLUDE=-I$(CORES) -I/Applications/development-embedded/Arduino_1.0.5_120.app/Contents/Resources/Java/hardware/arduino/variants/standard -I$(LIBRARIES)SPI -I$(LIBRARIES)TCL -I$(LIBRARIES)EEPROM -I$(LIBRARIES)adafruitLED -I$(LIBRARIES)Wire -I$(LIBRARIES)adafruitGFX -I$(LIBRARIES)adafruitOLED -I$(LIBRARIES)adafruitStrip -I$(LIBRARIES)TinyGPS
 BOARD=teensy
 LIBNAME=lib$(BOARD).a

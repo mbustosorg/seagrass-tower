@@ -17,17 +17,24 @@
 
 */
 
-#ifndef furSwarmControlMachine_h
-#define furSwarmControlMachine_h
+#include "towerPatterns.h"
+#include <vector>
+#include <list>
 
-#ifdef NOT_EMBEDDED
-// Do nothing
-#else
-#include <Arduino.h>
-#endif
-
-bool debouncePin(int pin);
-int clickCount(int pin);
-
-#endif
-
+class furSwarmMemberLinux {
+public:
+    bool test = false;
+    void setup();
+    void initializePattern();
+    void setupRadio();
+    void update();
+    void draw();
+    void drawGPSdata();
+    
+    void processIncoming();
+    
+    std::vector <towerPatterns*> platforms;
+    std::list <uint8_t*> messages;
+    uint8_t data[7];
+    
+};

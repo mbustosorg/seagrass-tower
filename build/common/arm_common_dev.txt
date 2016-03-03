@@ -12,6 +12,6 @@ CORES=/Applications/development-embedded/Arduino.app/Contents/Resources/Java/har
 INCLUDE=-I$(CORES)  -I/Applications/development-embedded/Arduino.app/Contents/Resources/Java/hardware/arduino/variants/standard \
  -I/Applications/development-embedded/Arduino.app/Contents/Resources/Java/hardware/teensy/cores/teensy3/CMSIS/CMSIS/Include \
  -I/Applications/development-embedded/Arduino.app/Contents/Resources/Java/hardware/teensy/cores/teensy3/CMSIS/Device/ARM/ARMCM4/Include \
- -I$(LIBRARIES)XBee -I$(LIBRARIES)SPI -I$(LIBRARIES)TCL -I$(LIBRARIES)EEPROM -I$(LIBRARIES)adafruitLED -I$(LIBRARIES)Wire -I$(LIBRARIES)adafruitGFX -I$(LIBRARIES)adafruitOLED -I$(LIBRARIES)adafruitStrip
+ -I$(LIBRARIES)SPI -I$(LIBRARIES)TCL -I$(LIBRARIES)EEPROM -I$(LIBRARIES)adafruitLED -I$(LIBRARIES)Wire -I$(LIBRARIES)adafruitGFX -I$(LIBRARIES)adafruitOLED -I$(LIBRARIES)adafruitStrip
 BOARD=teensy
 LIBNAME=lib$(BOARD).a

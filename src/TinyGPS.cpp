@@ -165,7 +165,7 @@ bool TinyGPS::term_complete()
 {
   if (_is_checksum_term)
   {
-    byte checksum = 16 * from_hex(_term[0]) + from_hex(_term[1]);
+    uint8_t checksum = 16 * from_hex(_term[0]) + from_hex(_term[1]);
     if (checksum == _parity)
     {
       if (_gps_data_good)

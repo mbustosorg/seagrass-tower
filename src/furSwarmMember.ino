@@ -1,35 +1,21 @@
-//
-//  furSwarmMember.ino
-//
-//  $Date: 2013-12-25 15:41:59 -0800 (Wed, 25 Dec 2013) $
-//  $Rev: 1138 $
-//  $Author: mauricio $
-//
-//  Copyright (c) 2012, Mauricio Bustos
-//  All rights reserved.
-//
-//  Redistribution and use in source and binary forms, 
-//  with or without modification, are permitted provided 
-//  that the following conditions are met:
-//
-//  - Redistributions must not be for profit.  This software in source or binary form, 
-//      with or without modification, cannot be included in anyproduct that is then sold.  
-//      Please contact Mauricio Bustos m@bustos.org if you are interested in a for-profit license.
-//  - Redistributions of source code or in binary form must reproduce the above copyright notice, 
-//      this list of conditions and the following disclaimer in the documentation 
-//      and/or other materials provided with the distribution.
-//
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-//  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-//  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
-//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON 
-//  ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
+/*
+
+    Copyright (C) 2016 Mauricio Bustos (m@bustos.org)
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
 
 //
 // To run the simulator:
@@ -41,27 +27,27 @@
 // HAT         : -DFS_HAT
 //
 
-#include "furSwarmPatterns.h"
 #include "furSwarmPatternConst.h"
 #include "furSwarmControlMachine.h"
 #include "xBeeConfiguration.h"
-#include <EEPROM.h>
 #ifdef TEENSY
-#include "towerPatterns.h"
+#include <EEPROM.h>
+#include <Wire.h>
 #include "TinyGPS.h"  
 #include "gps2rtc.h"
 #include "statusLED.h"
-#include <Wire.h>
 const int gps_1pps_pin = 9;
 const int gps_onoff_pin = 16;
 GPS2RTC gps2rtc;
 unsigned long gpsTimeStamp = 0;
-timeStruct clock;
 #define GPS_RESET_TIME (600000)
 #define GPS_DISPLAY_TIME (5000)
+statusLED led;
+#include "towerPatterns.h"
 #else
 #include "furSwarmPatterns.h"
 #endif
+timeStruct clock;
 
 #define Endian32_Swap(value) \
          ((((uint32_t)((value) & 0x000000FF)) << 24) | \
@@ -152,14 +138,12 @@ volatile uint16_t frameCount = 0;
 volatile unsigned long frameRateCount = 0;
 volatile int frameStarted = 0;
 bool daytimeShutdown = false;
-#ifdef FS_TOWN_CENTER
-unsigned long OnTime = 22 * 3600 + 25 * 60; // 22:25 UTC == 16:25 PDT
-#else
 unsigned long OnTime = 1 * 3600 + 30 * 60; // 01:30 UTC == 18:30 PDT
-#endif
 unsigned long OffTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
-#if (defined(FS_TOWN_CENTER) || defined(FS_TOWER)) && !defined(FS_TOWER_EYE)
+#if (defined(FS_TOWER)) && !defined(FS_TOWER_EYE)
 bool allowDaytimeShutdown = true;
+#elif defined(FS_TOWN_CENTER)
+bool allowDaytimeShutdown = false;
 #else
 bool allowDaytimeShutdown = false;
 #endif
@@ -177,7 +161,6 @@ uint32_t heartbeatTimestampStart;
 const int latitudeStartByte = 0;
 const int longitudeStartByte = 4;
 unsigned long lastMessageReceipt = 0;
-statusLED led;
 #else
 furSwarmPatterns Control;
 #endif
@@ -207,6 +190,7 @@ void setStartupPattern();
 void sendHeartbeat();
 void processIncoming();
 void processRXResponse();
+void pulseStatusLED(uint8_t red, uint8_t green, uint8_t blue, int duration, bool fade);
 
 //! Initialize the system
 void setup() {
@@ -226,13 +210,13 @@ void setup() {
 #ifdef TEENSY
 	batteryVoltagePin = 15;
 	Control.audioAnalogPin = AUDIO_INPUT_PIN;
-	pinMode(AUDIO_INPUT_PIN, INPUT);
-	analogReadResolution(ANALOG_READ_RESOLUTION);
-	analogReadAveraging(ANALOG_READ_AVERAGING);
 	commandSpeedUpPin = 10;
 	commandIntensityPin = 11;
 	commandSpeedDownPin = 12;
 	commandOffPin = 13;
+	pinMode(AUDIO_INPUT_PIN, INPUT);
+	analogReadResolution(ANALOG_READ_RESOLUTION);
+	analogReadAveraging(ANALOG_READ_AVERAGING);
 	pinMode(commandPatternPin, INPUT_PULLUP); // Down
 	pinMode(commandSpeedUpPin, INPUT_PULLUP); // Up
 	pinMode(commandIntensityPin, INPUT_PULLUP); // Left
@@ -257,12 +241,10 @@ void setup() {
 	Control.audioAnalogPin = 9;
 #endif
   }
-
   pinMode(commandPatternPin, INPUT);
   digitalWrite(commandPatternPin, HIGH);
   pinMode(suicidePin, OUTPUT);
   digitalWrite(suicidePin, HIGH);
-
   // Initialize client heartbeat timestamp
   heartbeatTimestamp = millis();
   // Initialize the radio
@@ -295,7 +277,7 @@ void setupTimers() {
 //! Long value from EEPROM starting at `startByte'
 unsigned long readEepromLong(const int startByte) {
   unsigned long storedValue = 0;
-  uint8_t retrievedByte; 
+  uint8_t retrievedByte;
   retrievedByte = EEPROM.read (startByte);
   memcpy ((char *)&storedValue, &retrievedByte, sizeof (uint8_t));
   retrievedByte = EEPROM.read (startByte + 1);
@@ -326,11 +308,9 @@ int writeEepromLong(unsigned long writeValue, const int startByte) {
 }
 
 //static void handle_gps_receiver_data(char a_char)
-void serialEvent3()
-  // Handle one character of data from the GPS receiver. 
-  {
-    gps2rtc.handle_gps_receiver_data(Serial3.read());
-  }
+void serialEvent3() {
+  gps2rtc.handle_gps_receiver_data(Serial3.read());
+}
 
 extern "C" {
 //! Frame rate interrupt handler running at 60Hz
@@ -356,13 +336,13 @@ void pit3_isr(void)
   Control.audioSampleInput[Control.audioSampleInputIndex * 2 + 1] = 0.0;
   Control.audioSampleInputIndex++;
   if (Control.audioSampleInputIndex >= TEST_LENGTH_SAMPLES / 2) {
-	Control.audioSampleInputIndex = 0;
-	// Turn off the timer and let the processor turn it back on once the data has been analyzed
-	PIT_TCTRL3 &= ~(1 << 0);
+    Control.audioSampleInputIndex = 0;
+    // Turn off the timer and let the processor turn it back on once the data has been analyzed
+    PIT_TCTRL3 &= ~(1 << 0);
   }
   PIT_TFLG3 = 1;
 }
-
+  
 void startup_late_hook(void) {
   // This is called from mk20dx128.c
   //Turn on interrupts:
@@ -384,7 +364,7 @@ void startup_late_hook(void) {
   PIT_TCTRL3 |= 0x1; // start Timer 3
   PIT_TFLG3 |= 1;
 }
-
+  
 void enableTimers() {
   startup_late_hook();
 }
@@ -428,13 +408,10 @@ void setupTimers() {
 //! Configure the XBee
 void setupRadio() {
   xBeeConfiguration XBconfiguration;
-#ifdef NOT_EMBEDDED
-#else
 #ifdef TEENSY
   HardwareSerial *radioSerial = &Serial1;
 #else
   HardwareSerial *radioSerial = &Serial;
-#endif
 #endif
   radioSerial->begin(XBeeBaudRate);
   xbee.setSerial(*radioSerial);
@@ -469,18 +446,15 @@ void setupRadio() {
   }
   uint8_t dataRed[] = {FS_ID_FULL_COLOR, 1, 255, 0, 0, 255};
   Control.initializePattern(dataRed, 6);
-  led.pulse (50, 0, 0, 500, true);
-  led.update();
+  pulseStatusLED (50, 0, 0, 500, true);
   delay (500);
   uint8_t dataGreen[] = {FS_ID_FULL_COLOR, 1, 0, 255, 0, 255};
   Control.initializePattern(dataGreen, 6);
-  led.pulse (0, 50, 0, 500, true);
-  led.update();
+  pulseStatusLED (0, 50, 0, 500, true);
   delay (500);
   uint8_t dataBlue[] = {FS_ID_FULL_COLOR, 1, 0, 0, 255, 255};
   Control.initializePattern(dataBlue, 6);
-  led.pulse (0, 0, 50, 500, true);
-  led.update();
+  pulseStatusLED (0, 0, 50, 500, true);
   delay (500);
 }
 
@@ -578,6 +552,7 @@ void updateGPSdata() {
 
 //! Debug output the GPS details
 void displayGPSdata(float lat, float lon) {
+#ifdef TEENSY
   Serial.print("lat:");
   Serial.print(lat);
   Serial.print(", lon:");
@@ -588,7 +563,8 @@ void displayGPSdata(float lat, float lon) {
   if (clock.minutes < 10) Serial.print ("0");
   Serial.print(clock.minutes); Serial.print(":"); 
   if (clock.seconds < 10) Serial.print ("0");
-  Serial.println(clock.seconds); 
+  Serial.println(clock.seconds);
+#endif
 }
 
 //! Update the status display
@@ -596,19 +572,19 @@ void updateDisplay() {
 #ifdef TEENSY
   led.update();
   if (lowBatteryWarningTime != 0 && (frameNumber == 0 || frameNumber == 29)) {
-	led.pulse (40, 0, 0, 100, true);
+	pulseStatusLED (40, 0, 0, 100, true);
   } else if (frameNumber == 0) {
 	unsigned long timeStamp = millis();
 	if (gps2rtc.last_sentence_receipt == 0 || timeStamp - gps2rtc.last_sentence_receipt > GPS_DISPLAY_TIME) {
 	  // No NMEA data
-	  led.pulse (40, 0, 0, 500, true);
+	  pulseStatusLED (40, 0, 0, 500, true);
 	} else if (gps2rtc.lastPPSTime == 0 || timeStamp - gps2rtc.lastPPSTime > GPS_DISPLAY_TIME) {
 	  // NMEA data but no 1pps
-	  led.pulse (40, 40, 0, 500, true);
+	  pulseStatusLED (40, 40, 0, 500, true);
 	} else {
 	  // NMEA data and 1pps
-	  if (clock.seconds % 10 == 0) led.pulse (0, 40, 40, 500, true);
-	  else led.pulse (0, 40, 0, 500, true);
+	  if (clock.seconds % 10 == 0) pulseStatusLED (0, 40, 40, 500, true);
+	  else pulseStatusLED (0, 40, 0, 500, true);
 	  // Reset GPS every GPS_RESET_TIME (10 minutes) to keep things fresh
 	  if (gps2rtc.gps_time != 0 && gpsTimeStamp == 0) {
 	    updateGPSdata();
@@ -640,7 +616,7 @@ void updateDisplay() {
 #endif
 	  bool inTheZone = OnTime < OffTime ? (gpsTime > OnTime) && (gpsTime < OffTime) : (gpsTime > OnTime) || (gpsTime < OffTime);
 	  if (daytimeShutdown) {
-	    led.pulse (50, 0, 50, 100, false);
+	    pulseStatusLED (50, 0, 50, 100, false);
 	    if (Control.pattern != FS_ID_OFF) {
 	      uint8_t data[] = {FS_ID_OFF};
 	      Control.initializePattern(data, 1);
@@ -732,7 +708,7 @@ void processRXResponse() {
     data = rxResponse.getData();
     dataLength = rxResponse.getDataLength();
   }
-  led.pulse (50, 25, 0, 100, false);
+  pulseStatusLED (50, 25, 0, 100, false);
   frameCount = 0;
   if (data[0] == FS_ID_PRISM_DISTANCE && data[1] == 128) {
     heartbeatPeriod = hifreqHeartbeatPeriod;
@@ -755,7 +731,7 @@ void sendHeartbeat() {
   unsigned long currentTimestamp = millis();
   unsigned long sinceLastHeartbeat = currentTimestamp - heartbeatTimestamp;
   if (sinceLastHeartbeat > heartbeatPeriod) {
-	led.pulse (0, 0, 40, 100, false);
+	pulseStatusLED (0, 0, 40, 100, false);
 	heartbeatCount++;
 	if (heartbeatCount % FULL_HEARTBEAT_PERIOD != 0) {
 	  uint8_t heartbeatShortPayload[] = {MESSAGE_TYPE_SHORT_VERSION, versionId};  // Short heartbeat
@@ -801,3 +777,11 @@ void sendHeartbeat() {
 	heartbeatTimestamp = millis();
   }
 }
+
+void pulseStatusLED(uint8_t red, uint8_t green, uint8_t blue, int duration, bool fade) {
+#ifdef TEENSY
+  led.pulse(red, green, blue, duration, fade);
+  led.update();
+#endif
+}
+

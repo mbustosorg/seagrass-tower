@@ -17,17 +17,9 @@
 
 */
 
-#ifndef furSwarmControlMachine_h
-#define furSwarmControlMachine_h
+#include "furSwarmMemberLinux.h"
 
-#ifdef NOT_EMBEDDED
-// Do nothing
-#else
-#include <Arduino.h>
-#endif
-
-bool debouncePin(int pin);
-int clickCount(int pin);
-
-#endif
-
+int main(){
+  new furSwarmMemberLinux();
+  printf("ASDASD");
+}
