@@ -116,6 +116,13 @@ const uint32_t animationTimes[] = {
 #endif
 };
 
+//! Constructor
+towerAnimations::towerAnimations() {
+  isAnimating = false;
+  animationStart = 0;
+  animationPosition = 0;
+}
+
 //! Start the animation at specific time
 void towerAnimations::startAnimation(unsigned long timestamp) {
   animationStart = timestamp;

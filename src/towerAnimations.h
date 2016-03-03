@@ -34,9 +34,9 @@ class towerAnimations {
   uint8_t* currentPattern();
   uint8_t* nextPattern(unsigned long timestamp);
 
-  bool isAnimating = false;
-  uint32_t animationStart = 0;
-  uint8_t animationPosition = 0;
+  bool isAnimating;
+  uint32_t animationStart;
+  uint8_t animationPosition;
 };
 
 #endif
