@@ -30,6 +30,8 @@ class towerAnimations {
 
  public:
 
+  towerAnimations();
+  
   void startAnimation(unsigned long timestamp);
   uint8_t* currentPattern();
   uint8_t* nextPattern(unsigned long timestamp);
