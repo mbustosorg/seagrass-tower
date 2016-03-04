@@ -28,6 +28,7 @@ public:
   
   bool test;
   void setup();
+  void setPattern(const uint8_t command[]);
   void update();
   void draw();
   

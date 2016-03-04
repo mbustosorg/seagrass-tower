@@ -19,15 +19,47 @@
 
 #include "ledDriver.h"
 
+#ifdef NOT_EMBEDDED
+
 ledDriver::ledDriver() {
-#ifndef NOT_EMBEDDED
+  opcSink = opc_new_sink("127.0.0.1:7890");
+    lowLevelPWMCounter = 0;
+}
+
+//! Send the start frame to start the display update
+void ledDriver::sendStartFrame() {
+    lowLevelPWMCounter++;
+    if (lowLevelPWMCounter > PWM_COUNTER_RESET) lowLevelPWMCounter = 1;
+}
+
+//! Send the end frame to complete the display
+void ledDriver::sendEndFrame() {
+  for (int i = 0; i < LED_COUNT; i++) {
+        pixels[i].r = nonEmbedRed[i];
+        pixels[i].g = nonEmbedGreen[i];
+        pixels[i].b = nonEmbedBlue[i];
+  }
+  opc_put_pixels(opcSink, 0, LED_COUNT, pixels);
+}
+
+//! Send a particular color to the whole strand
+void ledDriver::sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t blue) {
+    uint8_t trueRed, trueGreen, trueBlue;
+    trueRed = red;
+    trueGreen = green;
+    trueBlue = blue;
+    nonEmbedRed[pixelIndex] = trueRed;
+    nonEmbedGreen[pixelIndex] = trueGreen;
+    nonEmbedBlue[pixelIndex] = trueBlue;
+}
+#else // #ifdef NOT_EMBEDDED
+ledDriver::ledDriver() {
 #ifdef USE_TCL
     TCL.begin();
 #else
     // Adafruit strip
     pinMode(lpdDataPin, OUTPUT);
     pinMode(lpdClockPin, OUTPUT);
-#endif
 #endif
     lowLevelPWMCounter = 0;
 }
@@ -36,18 +68,15 @@ ledDriver::ledDriver() {
 void ledDriver::sendStartFrame() {
     lowLevelPWMCounter++;
     if (lowLevelPWMCounter > PWM_COUNTER_RESET) lowLevelPWMCounter = 1;
-#ifndef NOT_EMBEDDED
 #ifdef USE_TCL
     TCL.sendEmptyFrame();
 #else
     // Adafruit strip
 #endif
-#endif
 }
 
 //! Send the end frame to complete the display
 void ledDriver::sendEndFrame() {
-#ifndef NOT_EMBEDDED
 #ifdef USE_TCL
     TCL.sendEmptyFrame();
 #else
@@ -58,7 +87,6 @@ void ledDriver::sendEndFrame() {
         digitalWrite(lpdClockPin, HIGH);
         digitalWrite(lpdClockPin, LOW);
     }
-#endif
 #endif
 }
 
@@ -79,11 +107,6 @@ void ledDriver::sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t b
      trueBlue = 0;
      }
      */
-#ifdef NOT_EMBEDDED
-    nonEmbedRed[pixelIndex] = trueRed;
-    nonEmbedGreen[pixelIndex] = trueGreen;
-    nonEmbedBlue[pixelIndex] = trueBlue;
-#else
 #ifdef USE_TCL
     TCL.sendColor (trueRed, trueGreen, trueBlue);
 #else
@@ -119,7 +142,5 @@ void ledDriver::sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t b
         digitalWrite(lpdClockPin, LOW);
     }
 #endif
-#endif
 }
-
-
+#endif // #ifdef NOT_EMBEDDED

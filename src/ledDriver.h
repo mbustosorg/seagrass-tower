@@ -23,7 +23,7 @@
 #include <stdint.h>
 
 #ifdef NOT_EMBEDDED
-// Do Nothing
+#include "opc/opc.h"
 #elif USE_TCL
 #include "TCL.h"
 #elif USE_WS2801
@@ -63,6 +63,9 @@ class ledDriver {
 
   // Definitions for use by the simulator
 #ifdef NOT_EMBEDDED
+  opc_sink opcSink;
+  pixel pixels[LED_COUNT];
+  
   uint8_t nonEmbedRed[LED_COUNT];
   uint8_t nonEmbedGreen[LED_COUNT];
   uint8_t nonEmbedBlue[LED_COUNT];

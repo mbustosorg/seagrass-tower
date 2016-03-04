@@ -59,13 +59,13 @@ void furSwarmMemberLinux::setup(){
   for(int i = 0; i < platforms.size(); i++){
     platforms[i]->FS_BREATHE_MULTIPLIER = 50.0;
   }
+  uint8_t command[] = {FS_ID_RAINBOW_CHASE, 10, 130, 100, 130, 240, 0};
+  setPattern(command);
+}
+
+void furSwarmMemberLinux::setPattern(const uint8_t command[]) {
   // Speed, Red, Green, Blue, Intensity
-  //uint8_t sourceData[] = {FS_ID_ANIMATE_1, 120, 130, 100, 130, 240, 0};
-  //uint8_t sourceData[] = {FS_ID_BROKEN, 120, 130, 100, 130, 240, 0};
-  //uint8_t sourceData[] = {FS_ID_SEARCHING_EYE, 10, 250, 100, 130, 250, 0};
-  uint8_t sourceData[] = {FS_ID_RAINBOW_CHASE, 120, 130, 100, 130, 240, 0};
-  //uint8_t sourceData[] = {FS_ID_PONG, 60, 1, numberOfTowers, 130, 20};
-  memcpy (data, sourceData, 7);
+  memcpy (data, command, 7);
   for(int i = 0; i < platforms.size(); i++){
     if (data[0] == FS_ID_PONG) {
       data[2] = i + 1;

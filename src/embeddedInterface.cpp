@@ -19,14 +19,17 @@
 
 #include "embeddedInterface.h"
 #include <cstdlib>
-#include <time.h>
+#include <sys/time.h>
 #include <ctime>
+#include <stdio.h>
 
 #ifdef NOT_EMBEDDED
 
 int xTiltSetting = 512;
 int yTiltSetting = 512;
 int zTiltSetting = 512;
+
+static long startTime = 0;
 
 int analogRead(uint8_t val) {
   if (val == 18) { // xTiltPin
@@ -48,10 +51,12 @@ unsigned long rtc_get() {
 }
 
 uint32_t random(uint32_t val) {
+  randomSeed(0);
   return rand() % val;
 }
 
 uint32_t random(uint32_t val0, uint32_t val1) {
+  randomSeed(0);
   return rand() % (val1 - val0) + val0;
 }
 
@@ -61,7 +66,11 @@ void randomSeed(unsigned int val) {
 
 uint32_t millis(void) {
   // Add 1 because some patters need a non-zero start time
-  return (uint32_t) time(0) * 1000 + 1;
+  timeval tv;
+  gettimeofday(&tv, 0);
+  if (startTime == 0) startTime = tv.tv_sec * 1000;
+  //printf("%d\n", tv.tv_sec * 1000 + tv.tv_usec / 1000 - startTime);
+  return tv.tv_sec * 1000 + tv.tv_usec / 1000 + 1 - startTime;
 }
 
 void delay(uint32_t val) {

@@ -42,8 +42,14 @@ int main(){
     auto start = std::chrono::high_resolution_clock::now();
     member->update();
     counter++;
-    if (counter % 60 == 0) {
-      LOG_INFO << "tick";
+    if (counter % 600 == 0) {
+      uint8_t command[] = {FS_ID_RAINBOW_CHASE, 10, 130, 100, 130, 240, 0};
+      member->setPattern(command);
+      LOG_INFO << "RAINBOW_CHASE";
+    } else if (counter % 300 == 0) {
+      uint8_t command[] = {FS_ID_CYLON, 250, 255, 100, 0, 250, 255};
+      member->setPattern(command);
+      LOG_INFO << "CYLON";
     }
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
     long long updateLength = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
