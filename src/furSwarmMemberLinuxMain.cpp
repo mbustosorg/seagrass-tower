@@ -23,9 +23,18 @@
 #include <sys/select.h> 
 #include <sys/time.h>
 #include <plog/Log.h>
+#include <iostream>
+#include <csignal>
+
+using namespace std;
 
 const long long framePeriod = 16667;
 const char* logFileName = "furSwarmLinux.log";
+
+void signalHandler(int signum) {
+    cout << "Interrupt signal (" << signum << ") received.\n";
+   exit(signum);  
+}
 
 int main(){
 
@@ -39,7 +48,7 @@ int main(){
   
   struct timeval tv = {0, framePeriod};
   while  (select(0, NULL, NULL, NULL, &tv) == 0) {
-    auto start = std::chrono::high_resolution_clock::now();
+    auto start = chrono::high_resolution_clock::now();
     member->update();
     counter++;
     if (counter % 600 == 0) {
@@ -51,8 +60,9 @@ int main(){
       member->setPattern(command);
       LOG_INFO << "CYLON";
     }
-    auto elapsed = std::chrono::high_resolution_clock::now() - start;
-    long long updateLength = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+    auto elapsed = chrono::high_resolution_clock::now() - start;
+    long long updateLength = chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
     tv.tv_usec = framePeriod - updateLength;
   }
+  LOG_INFO << "EXITING";
 }
