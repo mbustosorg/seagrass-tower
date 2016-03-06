@@ -18,7 +18,6 @@
 */
 
 #include "embeddedInterface.h"
-
 #include "towerPatterns.h"
 #include "colorUtilities.h"
 #include "animation/flameFrames.h"

@@ -20,6 +20,8 @@
 #include "adxl335.h"
 #ifdef NOT_EMBEDDED
 #include "embeddedInterface.h"
+#include <algorithm>
+using namespace std;
 #else
 #include "Arduino.h"
 #endif
@@ -38,7 +40,8 @@ void adxl335::startup() {
 float adxl335::normalizedRead(int pin) {
   float tiltValue;
   tiltValue = analogRead(pin) - 512.0;
-  tiltValue = max (min(tiltValue, TILT_BOUND), -TILT_BOUND);
+  tiltValue = min(tiltValue, TILT_BOUND);
+  tiltValue = max (tiltValue, -TILT_BOUND);
   tiltValue = tiltValue * 3300.0 / 1024.0 / 348.0; // 348 mV/g @ 3.3 V 
   return tiltValue;
 }

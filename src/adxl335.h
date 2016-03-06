@@ -24,7 +24,7 @@
 #define Y_TILT_PIN (17)
 #define Z_TILT_PIN (16)
 
-#define TILT_BOUND (255)
+#define TILT_BOUND (255.0)
 
 class adxl335 {
 

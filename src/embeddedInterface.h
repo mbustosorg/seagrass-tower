@@ -17,6 +17,11 @@
 
 */
 
+#ifndef embeddedInterface_h
+#define embeddedInterface_h
+
+#ifdef NOT_EMBEDDED
+
 #include <stdint.h>
 
 // Prototype to divorce us from Arduino.h
@@ -29,14 +34,10 @@ int analogRead(uint8_t);
 #endif
 
 // Definitions for use by the simulator
-#ifdef NOT_EMBEDDED
 
 extern int xTiltSetting;
 extern int yTiltSetting;
 extern int zTiltSetting;
-
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
 
 #define LOW (0)
 #define HIGH (0)
@@ -49,5 +50,10 @@ uint32_t millis(void);
 void delay(uint32_t);
 uint8_t digitalRead(uint8_t);
 void digitalWrite(uint8_t, uint8_t);
+
+float max(float, float);
+float min(float, float);
+
+#endif
 
 #endif

@@ -22,8 +22,7 @@
 #include <sys/time.h>
 #include <ctime>
 #include <stdio.h>
-
-#ifdef NOT_EMBEDDED
+#include <algorithm>
 
 int xTiltSetting = 512;
 int yTiltSetting = 512;
@@ -78,4 +77,11 @@ void delay(uint32_t val) {
   while (timestamp + val > millis()) {}
 }
 
-#endif
+float max(float first, float second) {
+    return std::max(first, second);
+}
+
+float min(float first, float second) {
+    return std::min(first, second);
+}
+

@@ -22,7 +22,8 @@
 #ifdef NOT_EMBEDDED
 
 ledDriver::ledDriver() {
-  opcSink = opc_new_sink("127.0.0.1:7890");
+    char opc_target[] = "127.0.0.1:7890";
+    opcSink = opc_new_sink(opc_target);
     lowLevelPWMCounter = 0;
 }
 

@@ -39,15 +39,15 @@ void signalHandler(int signum) {
 int main(){
 
   plog::init(plog::info, logFileName, 1000000, 3);
-  printf("Logging to -> %s\n", logFileName);
-  fflush(stdout);
+  cout << "Logging to -> " << logFileName << endl;
   
   furSwarmMemberLinux* member = new furSwarmMemberLinux();
   member->setup();
   int counter = 0;
   
   struct timeval tv = {0, framePeriod};
-  while  (select(0, NULL, NULL, NULL, &tv) == 0) {
+  bool timeout = true;
+  while (timeout) {
     auto start = chrono::high_resolution_clock::now();
     member->update();
     counter++;
@@ -56,13 +56,17 @@ int main(){
       member->setPattern(command);
       LOG_INFO << "RAINBOW_CHASE";
     } else if (counter % 300 == 0) {
-      uint8_t command[] = {FS_ID_CYLON, 250, 255, 100, 0, 250, 255};
+      uint8_t command[] = {FS_ID_CYLON, 150, 255, 130, 0, 250, 255};
       member->setPattern(command);
       LOG_INFO << "CYLON";
     }
     auto elapsed = chrono::high_resolution_clock::now() - start;
     long long updateLength = chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+    tv.tv_sec = 0;
     tv.tv_usec = framePeriod - updateLength;
+    int selectResult = select(0, NULL, NULL, NULL, &tv);
+    if (selectResult != 0)  cout << "Select returned: " << selectResult << " errno: " << errno << endl;
+    timeout = selectResult == 0;
   }
   LOG_INFO << "EXITING";
 }
