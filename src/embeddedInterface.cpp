@@ -45,17 +45,21 @@ int analogRead(uint8_t val) {
   }
 }
 
+void digitalWrite(uint8_t pin, uint8_t state) {
+}
+
+void pinMode(uint8_t pin, uint8_t mode) {
+}
+
 unsigned long rtc_get() {
   return millis() / 1000;
 }
 
 uint32_t random(uint32_t val) {
-  randomSeed(0);
   return rand() % val;
 }
 
 uint32_t random(uint32_t val0, uint32_t val1) {
-  randomSeed(0);
   return rand() % (val1 - val0) + val0;
 }
 
@@ -64,7 +68,7 @@ void randomSeed(unsigned int val) {
 }
 
 uint32_t millis(void) {
-  // Add 1 because some patters need a non-zero start time
+  // Add 1 because some patterns need a non-zero start time
   timeval tv;
   gettimeofday(&tv, 0);
   if (startTime == 0) startTime = tv.tv_sec * 1000;

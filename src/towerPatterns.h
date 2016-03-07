@@ -25,6 +25,7 @@
 #include "towerAnimations.h"
 #include "towerBall.h"
 #include "accelerometer.h"
+#include "poofer.h"
 #include <XBee.h>
 
 #define SIN_TABLE_COUNT (80)
@@ -158,6 +159,9 @@ class towerPatterns : public furSwarmPatterns {
   uint32_t brokenOff;
   uint32_t brokenOn;
   uint8_t brokenBits[7], unBrokenBits[7];
+
+  // Poofer control
+  poofer pooferControl;
 
   // Audio data
   uint8_t spectrumTowerId;

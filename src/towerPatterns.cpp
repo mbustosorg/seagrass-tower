@@ -275,6 +275,9 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
     initializeCandle();
     pattern = messageType;
     break;
+  case FS_ID_POOF_1:
+    pooferControl.startPattern(FS_ID_POOF_1);
+    break;
   default:
     furSwarmPatterns::initializePattern(data, dataLength);
     break;
@@ -293,6 +296,7 @@ void towerPatterns::continuePatternDisplay() {
   }
   if (millis() - shakeStart > 180000) isShaking = false;
 #endif
+  pooferControl.iteratePattern();
   // Continue with pattern display
   switch (pattern) {
   case FS_ID_DANCING:

@@ -15,7 +15,7 @@ SOURCES=towerPatterns.cpp colorUtilities.cpp \
 furSwarmPatterns.cpp towerAnimations.cpp \
 towerBall.cpp ledDriver.cpp adxl335.cpp accelerometer.cpp \
 embeddedInterface.cpp furSwarmMemberLinux.cpp furSwarmMemberLinuxMain.cpp \
-opc/opc_client.cpp
+opc/opc_client.cpp poofer.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 

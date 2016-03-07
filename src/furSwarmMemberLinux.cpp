@@ -56,7 +56,7 @@ void furSwarmMemberLinux::setup(){
   for(int i = 0; i < numberOfTowers; i++){
     platforms.push_back(new towerPatterns);
   }
-  for(int i = 0; i < platforms.size(); i++){
+  for(unsigned int i = 0; i < platforms.size(); i++){
     platforms[i]->FS_BREATHE_MULTIPLIER = 50.0;
   }
   uint8_t command[] = {FS_ID_RAINBOW_CHASE, 10, 130, 100, 130, 240, 0};
@@ -66,7 +66,7 @@ void furSwarmMemberLinux::setup(){
 void furSwarmMemberLinux::setPattern(const uint8_t command[]) {
   // Speed, Red, Green, Blue, Intensity
   memcpy (data, command, 7);
-  for(int i = 0; i < platforms.size(); i++){
+  for(unsigned int i = 0; i < platforms.size(); i++){
     if (data[0] == FS_ID_PONG) {
       data[2] = i + 1;
     }
@@ -75,7 +75,7 @@ void furSwarmMemberLinux::setPattern(const uint8_t command[]) {
 }
 
 void furSwarmMemberLinux::update(){
-  for(int i = 0; i < platforms.size(); i++){
+  for(unsigned int i = 0; i < platforms.size(); i++){
     platforms[i]->continuePatternDisplay();
   }
 }

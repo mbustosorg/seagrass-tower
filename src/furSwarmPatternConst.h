@@ -65,7 +65,9 @@
 #define FS_ID_CANDLE (0x2c)
 #define FS_ID_SHAKING (0x2d)
 #define FS_ID_DANCING (0x2e)
-#define FS_ID_MAX_ID (0x2e)
+#define FS_ID_POOF_1 (0x2f)
+#define FS_ID_POOF_2 (0x30)
+#define FS_ID_MAX_ID (0x30)
 
 #define FS_NAME_FULL_COLOR "Full Color"
 #define FS_NAME_SPARKLE "Sparkle"
@@ -111,6 +113,8 @@
 #define FS_NAME_CANDLE "Candle"
 #define FS_NAME_SHAKING "Shaking"
 #define FS_NAME_DANCING "Dancing"
+#define FS_NAME_POOF_1 "Poof 1"
+#define FS_NAME_POOF_2 "Poof 2"
 
 #define FS_TYPE_VEST (0x01)
 #define FS_TYPE_HAT (0x02)

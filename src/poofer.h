@@ -20,16 +20,42 @@
 #ifndef poofer_h
 #define poofer_h
 
+#define POOFER_COUNT (2)
+#define POOFER_1_PIN (1)
+#define POOFER_2_PIN (1)
+
+#define PATTERN_COUNT (2)
+#define PATTERN_1_COUNT (2)
+#define PATTERN_2_COUNT (5)
+
+typedef struct {
+  long stepStart;
+  int pooferState[POOFER_COUNT];
+} patternStep;
+
+typedef struct {
+  int numberOfSteps;
+  patternStep* steps;
+} pattern;
+  
 class poofer {
 
  public:
 
   poofer();
-  poofer(int count, int * pins);
+  ~poofer();
 
-  void shortBlastAll(int length);
-
+  void startPattern(int id);
+  void iteratePattern();
+  
  private:
+  
+  int runningPattern;
+  long patternStartTime;
+  int stepNumber;
+  
+  int pooferPins[POOFER_COUNT] = { POOFER_1_PIN, POOFER_2_PIN };
+  pattern* patterns;
 
 };
 

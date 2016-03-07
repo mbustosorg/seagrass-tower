@@ -40,7 +40,9 @@ extern int yTiltSetting;
 extern int zTiltSetting;
 
 #define LOW (0)
-#define HIGH (0)
+#define HIGH (1)
+#define INPUT (0)
+#define OUTPUT (1)
 
 unsigned long rtc_get();
 uint32_t random(uint32_t);
@@ -50,6 +52,7 @@ uint32_t millis(void);
 void delay(uint32_t);
 uint8_t digitalRead(uint8_t);
 void digitalWrite(uint8_t, uint8_t);
+void pinMode(uint8_t, uint8_t);
 
 float max(float, float);
 float min(float, float);

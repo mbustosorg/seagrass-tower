@@ -22,8 +22,10 @@
 #ifdef NOT_EMBEDDED
 
 ledDriver::ledDriver() {
+#ifndef NOT_OPC
     char opc_target[] = "127.0.0.1:7890";
     opcSink = opc_new_sink(opc_target);
+#endif
     lowLevelPWMCounter = 0;
 }
 
@@ -40,7 +42,9 @@ void ledDriver::sendEndFrame() {
         pixels[i].g = nonEmbedGreen[i];
         pixels[i].b = nonEmbedBlue[i];
   }
+#ifndef NOT_OPC
   opc_put_pixels(opcSink, 0, LED_COUNT, pixels);
+#endif
 }
 
 //! Send a particular color to the whole strand

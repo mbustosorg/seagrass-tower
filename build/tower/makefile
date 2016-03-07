@@ -20,7 +20,7 @@ APP_CPP_SOURCES=TCL.cpp towerPatterns.cpp colorUtilities.cpp \
 furSwarmControlMachine.cpp furSwarmMember.cpp furSwarmPatterns.cpp \
 xBeeConfiguration.cpp gps2rtc.cpp towerAnimations.cpp \
 towerBall.cpp accelerometer.cpp adxl345.cpp adxl335.cpp statusLED.cpp \
-Adafruit_NeoPixel.cpp ledDriver.cpp XBee/XBee.cpp
+Adafruit_NeoPixel.cpp ledDriver.cpp XBee/XBee.cpp poofer.cpp
 
 APP_OBJECTS=$(addprefix $(OBJECT_DIR),$(APP_CPP_SOURCES:.cpp=.o))
 LIB_OBJECTS=$(addprefix $(PROJECT_LIB_LOC),*.o)
