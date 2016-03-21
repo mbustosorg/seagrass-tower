@@ -21,8 +21,8 @@
 #define poofer_h
 
 #define POOFER_COUNT (2)
-#define POOFER_1_PIN (1)
-#define POOFER_2_PIN (1)
+#define POOFER_1_PIN (21) // Teensy pin A7
+#define POOFER_2_PIN (20) // Teensy pin A6
 
 #define PATTERN_COUNT (2)
 #define PATTERN_1_COUNT (2)
@@ -47,6 +47,8 @@ class poofer {
 
   void startPattern(int id);
   void iteratePattern();
+
+  void poof(int id, int state);
   
  private:
   

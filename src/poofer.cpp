@@ -69,6 +69,7 @@ void poofer::startPattern(int id) {
   }
 }
 
+//! Iterate the current pattern
 void poofer::iteratePattern() {
   if (runningPattern > 0) {
     if (millis() - patternStartTime >= patterns[runningPattern].steps[stepNumber].stepStart) {
@@ -84,6 +85,14 @@ void poofer::iteratePattern() {
 	digitalWrite(pooferPins[i], LOW);
       }
     }
+  }
+}
+
+//! Poof on command
+void poofer::poof(int id, int state) {
+  if (id > 0 && id <= POOFER_COUNT) {
+    runningPattern = 0;
+    digitalWrite(pooferPins[id], state);
   }
 }
 

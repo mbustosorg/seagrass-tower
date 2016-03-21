@@ -20,7 +20,8 @@
 //
 // To run the simulator:
 // TOWER       : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER
-// TOWER VEST  : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER_VEST
+// TOWER_VEST  : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER_VEST
+// TOWER_EYE   : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER_EYE
 // TOWN_CENTER : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWN_CENTER
 // TOWER_HAT   : -DTEENSY -DADX345 -FS_TOWER_HAT
 // VEST        : -DUSE_TCL -DFS_VEST 
@@ -127,6 +128,8 @@ int commandSpeedUpPin = 10;
 int commandSpeedDownPin = 12;
 int commandIntensityPin = 11;
 int suicidePin;
+int aux1pin = 23;
+int aux2pin = 22;
 const int AUDIO_INPUT_PIN = 14;        // Input ADC pin for audio data.
 const int ANALOG_READ_RESOLUTION = 10; // Bits of resolution for the ADC.
 const int ANALOG_READ_AVERAGING = 16;  // Number of samples to average with each ADC reading.
@@ -188,6 +191,7 @@ void setupRadio();
 void setupTimers();
 void setStartupPattern();
 void sendHeartbeat();
+void processAuxCommands();
 void processIncoming();
 void processRXResponse();
 void pulseStatusLED(uint8_t red, uint8_t green, uint8_t blue, int duration, bool fade);
@@ -245,6 +249,8 @@ void setup() {
   digitalWrite(commandPatternPin, HIGH);
   pinMode(suicidePin, OUTPUT);
   digitalWrite(suicidePin, HIGH);
+  pinMode(aux1pin, INPUT);
+  pinMode(aux2pin, INPUT);
   // Initialize client heartbeat timestamp
   heartbeatTimestamp = millis();
   // Initialize the radio
@@ -301,9 +307,9 @@ int writeEepromLong(unsigned long writeValue, const int startByte) {
   memcpy (&writeByte, (char *)&writeValue + 3, sizeof (uint8_t));
   EEPROM.write (startByte + 3, writeByte);
   if (readEepromLong(startByte) == writeValue) {
-	return 1;
+    return 1;
   } else {
-	return 0;
+    return 0;
   }
 }
 
@@ -534,6 +540,7 @@ void loop() {
 	sendHeartbeat();
 	frameStarted = 0;
   }
+  processAuxCommands();
   processIncoming();
 }
 
@@ -644,7 +651,13 @@ void updateDisplay() {
 #endif
 }
 
-//!Process incoming commands
+//! Process incoming aux commands
+void processAuxCommands() {
+  Control.pooferControl.poof(1, digitalRead(aux1pin));
+  Control.pooferControl.poof(2, digitalRead(aux2pin));
+}
+
+//! Process incoming radio commands
 void processIncoming() {
   int commandPatternMode = clickCount(commandPatternPin);
   int commandOffMode = 0;
