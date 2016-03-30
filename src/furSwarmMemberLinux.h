@@ -31,6 +31,7 @@ public:
   void setPattern(const uint8_t command[]);
   void update();
   void draw();
+  void handleMessage(char * buffer, int * messageSize);
   
   std::vector <towerPatterns*> platforms;
   std::list <uint8_t*> messages;

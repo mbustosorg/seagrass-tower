@@ -1,6 +1,6 @@
 DFLAGS=-DTEENSY -DUSE_TCL -DTCL_DIO -DFS_TOWN_CENTER -DNOT_EMBEDDED
 
-PRODUCT_NAME=linux
+PRODUCT_NAME=furSwarmLinux
 PROJECT_LOC=../../src/
 VPATH=$(PROJECT_LOC)
 OBJECT_DIR=./
@@ -19,7 +19,7 @@ opc/opc_client.cpp poofer.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 
-EXECUTABLE=linux
+EXECUTABLE=furSwarmLinux
 
 all: $(EXECUTABLE)
 

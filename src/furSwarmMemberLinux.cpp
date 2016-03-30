@@ -20,21 +20,24 @@
 #include "furSwarmMemberLinux.h"
 #include "furSwarmPatternConst.h"
 #include "embeddedInterface.h"
+#include <plog/log.h>
+#include <string.h>
 
 // Heartbeat message layout
-uint8_t heartbeatPayload[] = {
-  0x01,       // Byte 0: Message Type ID (1 byte)
-  0,          // Byte 1: Version ID (1 byte)
-  0,          // Byte 2: Frame location (2 bytes)
-  0,
-  0,          // Byte 4: Current Pattern
-  0,          // Byte 5: Battery Voltage (2 bytes)
-  0,
-  0,          // Byte 7: Frame Rate (1 byte)
-  0,          // Byte 8: Member type
-  0,          // Byte 9: Failed messages (2 bytes)
-  0
+char heartbeatPayload[] = {
+  0x46,       // Byte 0: Message Type ID (1 byte)
+  0x46,       // Byte 1: Version ID (1 byte)
+  0x46,       // Byte 2: Frame location (2 bytes)
+  0x46,
+  0x46,       // Byte 4: Current Pattern
+  0x46,       // Byte 5: Battery Voltage (2 bytes)
+  0x46,
+  0x46,       // Byte 7: Frame Rate (1 byte)
+  0x46,       // Byte 8: Member type
+  0x46,       // Byte 9: Failed messages (2 bytes)
+  0x46
 };
+#define heartbeatPayloadSize (11)
 #define frameCountPosition (2)
 #define patternPosition (4)
 #define voltagePosition (5)
@@ -48,6 +51,7 @@ int frameStarted = 0;
 
 furSwarmMemberLinux::furSwarmMemberLinux() {
   test = false;
+  heartbeatPayload[8] = 1;
 }
 
 void furSwarmMemberLinux::setup(){
@@ -74,12 +78,23 @@ void furSwarmMemberLinux::setPattern(const uint8_t command[]) {
   }
 }
 
-void furSwarmMemberLinux::update(){
+void furSwarmMemberLinux::update() {
   for(unsigned int i = 0; i < platforms.size(); i++){
     platforms[i]->continuePatternDisplay();
   }
 }
 
-void furSwarmMemberLinux::draw(){
+
+void furSwarmMemberLinux::draw() {
+}
+
+void furSwarmMemberLinux::handleMessage(char * buffer, int * messageSize) {
+  *messageSize = 0;
+  if (strncmp(buffer, "HB", 2) == 0) {
+    LOG_INFO << "Received heartbeat request";
+    strncpy(buffer, heartbeatPayload, heartbeatPayloadSize);
+    buffer[heartbeatPayloadSize] = '\0';
+    *messageSize = heartbeatPayloadSize;
+  }
 }
 
