@@ -7,7 +7,7 @@ OBJECT_DIR=./
 
 CC=gcc
 CXX=g++
-CFLAGS=-c -Wall -std=gnu++0x
+CFLAGS=-c -Wall -std=gnu++0x -g
 LDFLAGS=-lstdc++
 INCLUDE=-I../../src/XBee -I../../src/plog-1.0.0/include -I../../src/opc
 

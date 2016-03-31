@@ -1,4 +1,4 @@
-/*
+    /*
 
   Copyright (C) 2016 Mauricio Bustos (m@bustos.org)
 
@@ -25,6 +25,7 @@
 #include <iostream>
 #include <netinet/in.h>
 #include <plog/Log.h>
+#include <plog/Appenders/ConsoleAppender.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/select.h> 
@@ -101,8 +102,11 @@ int main() {
   int valread, sd, max_sd, new_socket;
   fd_set readfds;
   
-  plog::init(plog::info, logFileName, 1000000, 3);
-  cout << "Logging to -> " << logFileName << endl;
+  static plog::RollingFileAppender<plog::CsvFormatter> fileAppender(logFileName, 1000000, 3);
+  static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender;
+  plog::init(plog::info, &fileAppender).addAppender(&consoleAppender);
+
+  LOG_INFO << "Logging to -> " << logFileName;
   
   member = new furSwarmMemberLinux();
   member->setup();
@@ -160,8 +164,7 @@ int main() {
 	  } else {
 	    LOG_INFO << "From " << inet_ntoa(address.sin_addr) << ":" << ntohs(address.sin_port) << " - " << buffer;
 	    member->handleMessage(buffer, &valread);
-	    LOG_INFO << "Back " << hex << buffer << dec;
-	    send(sd, buffer, strlen(buffer), 0);
+	    send(sd, buffer, valread, 0);
 	  }
 	}
       }

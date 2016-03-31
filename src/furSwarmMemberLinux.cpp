@@ -24,18 +24,18 @@
 #include <string.h>
 
 // Heartbeat message layout
-char heartbeatPayload[] = {
-  0x46,       // Byte 0: Message Type ID (1 byte)
-  0x46,       // Byte 1: Version ID (1 byte)
-  0x46,       // Byte 2: Frame location (2 bytes)
-  0x46,
-  0x46,       // Byte 4: Current Pattern
-  0x46,       // Byte 5: Battery Voltage (2 bytes)
-  0x46,
-  0x46,       // Byte 7: Frame Rate (1 byte)
-  0x46,       // Byte 8: Member type
-  0x46,       // Byte 9: Failed messages (2 bytes)
-  0x46
+uint8_t heartbeatPayload[11] = {
+  0x01,       // Byte 0: Message Type ID (1 byte)
+  0,       // Byte 1: Version ID (1 byte)
+  0,       // Byte 2: Frame location (2 bytes)
+  0,
+  0,       // Byte 4: Current Pattern
+  0,       // Byte 5: Battery Voltage (2 bytes)
+  0,
+  0,       // Byte 7: Frame Rate (1 byte)
+  0,       // Byte 8: Member type
+  0,       // Byte 9: Failed messages (2 bytes)
+  0
 };
 #define heartbeatPayloadSize (11)
 #define frameCountPosition (2)
@@ -55,14 +55,8 @@ furSwarmMemberLinux::furSwarmMemberLinux() {
 }
 
 void furSwarmMemberLinux::setup(){
-  platforms.clear();
-  int numberOfTowers = 1;
-  for(int i = 0; i < numberOfTowers; i++){
-    platforms.push_back(new towerPatterns);
-  }
-  for(unsigned int i = 0; i < platforms.size(); i++){
-    platforms[i]->FS_BREATHE_MULTIPLIER = 50.0;
-  }
+  platform = new towerPatterns;
+  platform->FS_BREATHE_MULTIPLIER = 50.0;
   uint8_t command[] = {FS_ID_RAINBOW_CHASE, 10, 130, 100, 130, 240, 0};
   setPattern(command);
 }
@@ -70,20 +64,12 @@ void furSwarmMemberLinux::setup(){
 void furSwarmMemberLinux::setPattern(const uint8_t command[]) {
   // Speed, Red, Green, Blue, Intensity
   memcpy (data, command, 7);
-  for(unsigned int i = 0; i < platforms.size(); i++){
-    if (data[0] == FS_ID_PONG) {
-      data[2] = i + 1;
-    }
-    platforms[i]->initializePattern(data, 7);
-  }
+  platform->initializePattern(data, 7);
 }
 
 void furSwarmMemberLinux::update() {
-  for(unsigned int i = 0; i < platforms.size(); i++){
-    platforms[i]->continuePatternDisplay();
-  }
+  platform->continuePatternDisplay();
 }
-
 
 void furSwarmMemberLinux::draw() {
 }
@@ -92,8 +78,11 @@ void furSwarmMemberLinux::handleMessage(char * buffer, int * messageSize) {
   *messageSize = 0;
   if (strncmp(buffer, "HB", 2) == 0) {
     LOG_INFO << "Received heartbeat request";
-    strncpy(buffer, heartbeatPayload, heartbeatPayloadSize);
-    buffer[heartbeatPayloadSize] = '\0';
+    heartbeatPayload[4] = platform->pattern;
+    for (int i = 0; i < heartbeatPayloadSize; i++) {
+        buffer[i] = heartbeatPayload[i];
+    }
+    (buffer)[heartbeatPayloadSize] = '\0';
     *messageSize = heartbeatPayloadSize;
   }
 }

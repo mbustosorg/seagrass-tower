@@ -33,8 +33,8 @@ public:
   void draw();
   void handleMessage(char * buffer, int * messageSize);
   
-  std::vector <towerPatterns*> platforms;
-  std::list <uint8_t*> messages;
+  towerPatterns* platform;
+  
   uint8_t data[7];
   
 };
