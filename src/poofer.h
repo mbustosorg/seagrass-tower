@@ -29,7 +29,7 @@
 #define PATTERN_2_COUNT (5)
 
 typedef struct {
-  long stepStart;
+  unsigned long stepStart;
   int pooferState[POOFER_COUNT];
 } patternStep;
 
