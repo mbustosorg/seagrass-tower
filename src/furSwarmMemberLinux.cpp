@@ -20,7 +20,7 @@
 #include "furSwarmMemberLinux.h"
 #include "furSwarmPatternConst.h"
 #include "embeddedInterface.h"
-#include <plog/log.h>
+#include <plog/Log.h>
 #include <string.h>
 
 // Heartbeat message layout

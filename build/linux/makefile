@@ -9,7 +9,7 @@ CC=gcc
 CXX=g++
 CFLAGS=-c -Wall -std=gnu++0x -g
 LDFLAGS=-lstdc++
-INCLUDE=-I../../src/XBee -I../../src/plog/include -I../../src/opc
+INCLUDE=-I../../src/XBee -I../../src/plog-1.0.0/include -I../../src/opc
 
 SOURCES=towerPatterns.cpp colorUtilities.cpp \
 furSwarmPatterns.cpp towerAnimations.cpp \
