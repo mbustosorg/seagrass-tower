@@ -28,7 +28,7 @@
 //! Create the poofer object
 poofer::poofer() {
   pooferPins[0] = POOFER_1_PIN;
-  pooferPins(1) = POOFER_2_PIN;
+  pooferPins[1] = POOFER_2_PIN;
   pinMode(POOFER_1_PIN, OUTPUT);
   digitalWrite(POOFER_1_PIN, LOW);
   pinMode(POOFER_2_PIN, OUTPUT);
