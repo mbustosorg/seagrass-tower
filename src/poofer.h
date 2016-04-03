@@ -56,7 +56,7 @@ class poofer {
   long patternStartTime;
   int stepNumber;
   
-  int pooferPins[POOFER_COUNT] = { POOFER_1_PIN, POOFER_2_PIN };
+  int pooferPins[POOFER_COUNT];
   pattern* patterns;
 
 };
