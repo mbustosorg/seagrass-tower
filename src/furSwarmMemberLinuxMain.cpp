@@ -48,11 +48,6 @@ const char *message = "FUR_SWARM_MEMBER";
 char buffer[1025];
 furSwarmMemberLinux* member;
 
-void signalHandler(int signum) {
-  LOG_WARNING << "Interrupt signal (" << signum << ") received";
-  exit(signum);  
-}
-
 void setupServer() {
   int opt = 1;
       
@@ -101,6 +96,8 @@ int main() {
 
   int valread, sd, max_sd, new_socket;
   fd_set readfds;
+
+  signal(SIGPIPE, SIG_IGN);
   
   static plog::RollingFileAppender<plog::CsvFormatter> fileAppender(logFileName, 1000000, 3);
   static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender;
