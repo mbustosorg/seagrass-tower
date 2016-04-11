@@ -57,9 +57,7 @@ timeStruct clock;
          (((uint32_t)((value) & 0xFF000000)) >> 24))
 
 // System configuration
-#define MESSAGE_TYPE_FULL 0x01
-#define MESSAGE_TYPE_SHORT_VERSION 0x02
-#define versionId 0x15
+#define versionId 0x20
 const bool legacyPro = false;
 #if defined (FS_VEST) || (FS_TOWER_VEST)
 const uint8_t memberType = FS_TYPE_VEST;
@@ -73,7 +71,7 @@ const uint8_t memberType = FS_TYPE_TOWN_CENTER;
 
 // Heartbeat message layout
 uint8_t heartbeatPayload[] = { 
-  MESSAGE_TYPE_FULL,      // Byte 0: Message Type ID (1 byte)
+  FS_ID_MESSAGE_TYPE_FULL,      // Byte 0: Message Type ID (1 byte)
   versionId,  // Byte 1: Version ID (1 byte)
   0,          // Byte 2: Frame location (2 bytes)
   0,
@@ -747,7 +745,7 @@ void sendHeartbeat() {
 	pulseStatusLED (0, 0, 40, 100, false);
 	heartbeatCount++;
 	if (heartbeatCount % FULL_HEARTBEAT_PERIOD != 0) {
-	  uint8_t heartbeatShortPayload[] = {MESSAGE_TYPE_SHORT_VERSION, versionId};  // Short heartbeat
+	  uint8_t heartbeatShortPayload[] = {FS_ID_MESSAGE_TYPE_SHORT_VERSION, versionId};  // Short heartbeat
 	  ZBTxRequest heartbeatShortMessage = ZBTxRequest(addr64, heartbeatShortPayload, sizeof(heartbeatShortPayload));
 	  xbee.send(heartbeatShortMessage);
 	} else {

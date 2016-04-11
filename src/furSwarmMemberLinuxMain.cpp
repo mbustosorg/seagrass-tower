@@ -41,7 +41,7 @@ using namespace std;
 
 int counter = 0;
 const long long framePeriod = 16667;
-const char* logFileName = "furSwarmLinux.log";
+const char* logFileName = "logs/furSwarmLinux.log";
 int master_socket, addrlen, client_socket[30];
 struct sockaddr_in address;
 const char *message = "FUR_SWARM_MEMBER";

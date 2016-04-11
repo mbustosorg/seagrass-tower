@@ -38,6 +38,7 @@ uint8_t heartbeatPayload[11] = {
   0,       // Byte 9: Failed messages (2 bytes)
   0
 };
+char heartbeatPatternName[MAX_PATTERN_NAME_LENGTH];
 #define heartbeatPayloadSize (11)
 #define frameCountPosition (2)
 #define patternPosition (4)
@@ -83,8 +84,10 @@ void furSwarmMemberLinux::handleMessage(char * buffer, int * messageSize) {
     for (int i = 0; i < heartbeatPayloadSize; i++) {
         buffer[i] = heartbeatPayload[i];
     }
-    (buffer)[heartbeatPayloadSize] = '\0';
-    *messageSize = heartbeatPayloadSize;
+    for (int i = 0; i < MAX_PATTERN_NAME_LENGTH; i++) {
+        buffer[i + heartbeatPayloadSize] = patternNames[heartbeatPayload[4]][i];
+    }
+    *messageSize = heartbeatPayloadSize + MAX_PATTERN_NAME_LENGTH;
   }
 }
 
