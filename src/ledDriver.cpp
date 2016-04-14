@@ -61,6 +61,8 @@ void ledDriver::sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t b
 ledDriver::ledDriver() {
 #ifdef USE_TCL
     TCL.begin();
+#elif USE_NEOPIXEL
+    // Do nothing
 #else
     // Adafruit strip
     pinMode(lpdDataPin, OUTPUT);
@@ -76,7 +78,7 @@ void ledDriver::sendStartFrame() {
 #ifdef USE_TCL
     TCL.sendEmptyFrame();
 #else
-    // Adafruit strip
+    // Adafruit strip & Neopixel
 #endif
 }
 
@@ -84,6 +86,8 @@ void ledDriver::sendStartFrame() {
 void ledDriver::sendEndFrame() {
 #ifdef USE_TCL
     TCL.sendEmptyFrame();
+#elif USE_NEOPIXEL
+    NEOPIXEL.show();
 #else
     // Adafruit strip
     digitalWrite(lpdDataPin, LOW);
@@ -114,6 +118,8 @@ void ledDriver::sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t b
      */
 #ifdef USE_TCL
     TCL.sendColor (trueRed, trueGreen, trueBlue);
+#elif USE_NEOPIXEL
+    NEOPIXEL.setPixelColor(pixelIndex, trueRed, trueGreen, trueBlue);
 #else
     // Adafruit strip
     uint8_t greenByte = trueGreen >> 1;

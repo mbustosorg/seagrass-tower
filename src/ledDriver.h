@@ -26,6 +26,9 @@
 #include "opc/opc.h"
 #elif USE_TCL
 #include "TCL.h"
+#elif USE_NEOPIXEL
+#include "Adafruit_NeoPixel.h"
+#define NEOPIXEL_DATA_PIN (3)
 #elif USE_WS2801
 // Adafruit RGB strand
 #include "Adafruit_WS2801.h"
@@ -69,6 +72,10 @@ class ledDriver {
   uint8_t nonEmbedRed[LED_COUNT];
   uint8_t nonEmbedGreen[LED_COUNT];
   uint8_t nonEmbedBlue[LED_COUNT];
+#endif
+
+#ifdef USE_NEOPIXEL
+  Adafruit_NeoPixel NEOPIXEL = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL_DATA_PIN, NEO_GRB + NEO_KHZ800);
 #endif
 
 };

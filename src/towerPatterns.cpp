@@ -276,7 +276,10 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
     pattern = messageType;
     break;
   case FS_ID_POOF_1:
-    pooferControl.startPattern(FS_ID_POOF_1);
+    pooferControl.startPattern(0);
+    break;
+  case FS_ID_POOF_2:
+    pooferControl.startPattern(1);
     break;
   default:
     furSwarmPatterns::initializePattern(data, dataLength);

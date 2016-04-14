@@ -180,5 +180,6 @@ static const char patternNames[FS_ID_MAX_ID + 1][MAX_PATTERN_NAME_LENGTH] = {
 #define FS_TYPE_TOWER (0x03)
 #define FS_TYPE_TOWN_CENTER (0x04)
 #define FS_TYPE_TOWER_EYE (0x05)
+#define FS_TYPE_DRESS (0x06)
 
 #endif

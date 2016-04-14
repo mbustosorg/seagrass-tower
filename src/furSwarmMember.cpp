@@ -67,6 +67,8 @@ const uint8_t memberType = FS_TYPE_HAT;
 const uint8_t memberType = FS_TYPE_TOWER;
 #elif FS_TOWN_CENTER
 const uint8_t memberType = FS_TYPE_TOWN_CENTER;
+#elif FS_DRESS
+const uint8_t memberType = FS_TYPE_DRESS;
 #endif
 
 // Heartbeat message layout
@@ -126,8 +128,8 @@ int commandSpeedUpPin = 10;
 int commandSpeedDownPin = 12;
 int commandIntensityPin = 11;
 int suicidePin;
-int aux1pin = 23;
-int aux2pin = 22;
+int aux1pin = 28;
+int aux2pin = 29;
 const int AUDIO_INPUT_PIN = 14;        // Input ADC pin for audio data.
 const int ANALOG_READ_RESOLUTION = 10; // Bits of resolution for the ADC.
 const int ANALOG_READ_AVERAGING = 16;  // Number of samples to average with each ADC reading.
@@ -496,6 +498,8 @@ void setStartupPattern() {
   uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
 #elif FS_TOWN_CENTER
   uint8_t data[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
+#elif FS_TOWER_EYE
+  uint8_t data[] = {FS_ID_POOF_1, 0, 228, 0, 0, 228};
 #else
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
@@ -651,8 +655,8 @@ void updateDisplay() {
 
 //! Process incoming aux commands
 void processAuxCommands() {
-  Control.pooferControl.poof(1, digitalRead(aux1pin));
-  Control.pooferControl.poof(2, digitalRead(aux2pin));
+  Control.pooferControl.poof(0, digitalRead(aux1pin));
+  Control.pooferControl.poof(1, digitalRead(aux2pin));
 }
 
 //! Process incoming radio commands

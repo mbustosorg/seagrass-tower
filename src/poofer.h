@@ -21,12 +21,14 @@
 #define poofer_h
 
 #define POOFER_COUNT (2)
-#define POOFER_1_PIN (21) // Teensy pin A7
-#define POOFER_2_PIN (20) // Teensy pin A6
+#define POOFER_1_PIN (30)
+#define POOFER_2_PIN (27)
 
 #define PATTERN_COUNT (2)
 #define PATTERN_1_COUNT (2)
 #define PATTERN_2_COUNT (5)
+
+#define PATTERNS_OFF (-1)
 
 typedef struct {
   unsigned long stepStart;

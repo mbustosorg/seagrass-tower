@@ -34,7 +34,7 @@ poofer::poofer() {
   pinMode(POOFER_2_PIN, OUTPUT);
   digitalWrite(POOFER_2_PIN, LOW);
 
-  runningPattern = 0;
+  runningPattern = PATTERNS_OFF;
   patternStartTime = 0;
   stepNumber = 0;
 
@@ -67,33 +67,35 @@ void poofer::startPattern(int id) {
     runningPattern = id;
     patternStartTime = millis();
     stepNumber = 0;
-    iteratePattern();
+    for (int i = 0; i < POOFER_COUNT; i++) {
+      digitalWrite(pooferPins[i], patterns[runningPattern].steps[stepNumber].pooferState[i]);
+    }
+    stepNumber++;
   }
 }
 
 //! Iterate the current pattern
 void poofer::iteratePattern() {
-  if (runningPattern > 0) {
+  if (stepNumber >= patterns[runningPattern].numberOfSteps) {
+    runningPattern = PATTERNS_OFF;
+    // Safety Shutdown
+    for (int i = 0; i < POOFER_COUNT; i++) {
+      digitalWrite(pooferPins[i], LOW);
+    }
+  } else if (runningPattern >= 0) {
     if (millis() - patternStartTime >= patterns[runningPattern].steps[stepNumber].stepStart) {
       for (int i = 0; i < POOFER_COUNT; i++) {
 	digitalWrite(pooferPins[i], patterns[runningPattern].steps[stepNumber].pooferState[i]);
       }
       stepNumber++;
     }
-    if (stepNumber >= patterns[runningPattern].numberOfSteps) {
-      runningPattern = 0;
-      // Safety Shutdown
-      for (int i = 0; i < POOFER_COUNT; i++) {
-	digitalWrite(pooferPins[i], LOW);
-      }
-    }
   }
 }
 
 //! Poof on command
 void poofer::poof(int id, int state) {
-  if (id > 0 && id <= POOFER_COUNT) {
-    runningPattern = 0;
+  if (id >= 0 && id < POOFER_COUNT) {
+    runningPattern = PATTERNS_OFF;
     digitalWrite(pooferPins[id], state);
   }
 }
