@@ -499,11 +499,12 @@ void setStartupPattern() {
 #elif FS_TOWN_CENTER
   uint8_t data[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
 #elif FS_TOWER_EYE
-  uint8_t data[] = {FS_ID_POOF_1, 0, 228, 0, 0, 228};
+  uint8_t data[] = {FS_ID_POOF_2, 0, 228, 0, 0, 228};
 #else
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
-  uint8_t data[] = {FS_ID_CYLON_VERTICAL, 200, 0, 200, 0, 120};
+  uint8_t data[] = {FS_ID_RAINBOW_CHASE, 250, 200, 100, 130, 150};
+  //uint8_t data[] = {FS_ID_CYLON_VERTICAL, 200, 0, 200, 0, 120};
   //uint8_t data[] = {FS_ID_TILT, 100, 200, 0, 40, 120};
 #endif
   Control.initializePattern(data, 6);

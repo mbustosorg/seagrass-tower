@@ -104,6 +104,8 @@ int main() {
   plog::init(plog::info, &fileAppender).addAppender(&consoleAppender);
 
   LOG_INFO << "Logging to -> " << logFileName;
+  LOG_INFO << "Build date  : " << __BUILD_TIME;
+  LOG_INFO << "Build number: " << __BUILD_NUMBER;
   
   member = new furSwarmMemberLinux();
   member->setup();

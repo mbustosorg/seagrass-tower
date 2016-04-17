@@ -1,5 +1,10 @@
 DFLAGS=-DTEENSY -DUSE_TCL -DTCL_DIO -DFS_TOWN_CENTER -DNOT_EMBEDDED
 
+BUILD_NUMBER_FILE=build-number.txt
+
+DFLAGS+=-D__BUILD_TIME=$$(date +'%Y-%m-%dT%H:%M')
+DFLAGS+=-D__BUILD_NUMBER=$$(cat $(BUILD_NUMBER_FILE))
+
 PRODUCT_NAME=furSwarmLinux
 PROJECT_LOC=../../src/
 VPATH=$(PROJECT_LOC)
@@ -24,6 +29,8 @@ EXECUTABLE=furSwarmLinux
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
+	@if ! test -f $(BUILD_NUMBER_FILE); then echo 0 > $(BUILD_NUMBER_FILE); fi
+	@echo $$(($$(cat $(BUILD_NUMBER_FILE)) + 1)) > $(BUILD_NUMBER_FILE)
 	$(CXX) $(LDFLAGS) $(OBJECTS) -o $@
 
 .cpp.o:
