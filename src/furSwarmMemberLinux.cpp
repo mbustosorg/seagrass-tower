@@ -21,6 +21,7 @@
 #include "furSwarmMemberLinux.h"
 #include "furSwarmPatternConst.h"
 #include "embeddedInterface.h"
+#include "protobuf/FabricProtos.pb.h"
 #include <plog/Log.h>
 #include <string.h>
 
@@ -76,18 +77,33 @@ void furSwarmMemberLinux::update() {
 void furSwarmMemberLinux::draw() {
 }
 
-void furSwarmMemberLinux::handleMessage(char * buffer, int * messageSize) {
+void furSwarmMemberLinux::handleMessage(uint8_t * buffer, int * messageSize) {
+
+  FabricWrapperMessage wrapperMessage;
+  
   *messageSize = 0;
-  if (strncmp(buffer, "HB", 2) == 0) {
+  if (strncmp((char *)buffer, "HB", 2) == 0) {
     LOG_INFO << "Received heartbeat request";
-    heartbeatPayload[4] = platform->pattern;
-    for (int i = 0; i < heartbeatPayloadSize; i++) {
-        buffer[i] = heartbeatPayload[i];
-    }
-    for (int i = 0; i < MAX_PATTERN_NAME_LENGTH; i++) {
-        buffer[i + heartbeatPayloadSize] = patternNames[heartbeatPayload[4]][i];
-    }
-    *messageSize = heartbeatPayloadSize + MAX_PATTERN_NAME_LENGTH;
+
+      HeartbeatMessage* heartbeat = wrapperMessage.mutable_heartbeat();;
+      heartbeat->set_membertype(heartbeatPayload[0]);
+      heartbeat->set_versionid(heartbeatPayload[1]);
+      heartbeat->set_framelocation(0);
+      heartbeat->set_currentpattern(platform->pattern);
+      heartbeat->set_batteryvoltage(0);
+      heartbeat->set_framerate(0);
+      heartbeat->set_membertype(heartbeatPayload[8]);
+      heartbeat->set_failedmessages(0);
+      heartbeat->set_currentpatternname(patternNames[platform->pattern]);
+  } else if (strncmp((char *)buffer, "PN", 2) == 0) {
+    LOG_INFO << "Received pattern names request";
+
+      PatternNamesMessage* patternName = wrapperMessage.mutable_patternnames();
+      for (int i = 1; i < FS_ID_MAX_ID_COUNT; i++) {
+          patternName->add_name(patternNames[i]);
+      }
   }
+  wrapperMessage.SerializeToArray(buffer, wrapperMessage.ByteSize());
+  *messageSize = wrapperMessage.ByteSize();
 }
 

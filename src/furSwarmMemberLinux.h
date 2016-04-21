@@ -31,7 +31,7 @@ public:
   void setPattern(const uint8_t command[]);
   void update();
   void draw();
-  void handleMessage(char * buffer, int * messageSize);
+  void handleMessage(uint8_t * buffer, int * messageSize);
   
   towerPatterns* platform;
   

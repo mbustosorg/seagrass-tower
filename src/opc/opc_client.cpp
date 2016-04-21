@@ -38,7 +38,6 @@ static opc_sink_info opc_sinks[OPC_MAX_SINKS];
 static opc_sink opc_next_sink = 0;
 
 int opc_resolve(char* s, struct sockaddr_in* address, u16 default_port) {
-  struct hostent* host;
   struct addrinfo* addr;
   struct addrinfo* ai;
   long port = 0;

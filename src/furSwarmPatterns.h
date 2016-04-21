@@ -89,9 +89,9 @@ class furSwarmPatterns {
   uint8_t ledChangeRate;
   uint8_t flashLedChangeRate;
  
-  uint32_t heartbeatPumpShortStart;
-  uint32_t heartbeatPumpShortPeriod;
-  uint32_t heartbeatPumpLongStart;
+  unsigned long heartbeatPumpShortStart;
+  unsigned long heartbeatPumpShortPeriod;
+  unsigned long heartbeatPumpLongStart;
   uint8_t breatheUpperLevel;
   uint8_t heartbeatIntensity;
   uint8_t patternSpeed;

@@ -37,6 +37,9 @@
 #define PORT 8888
 #define MAX_CLIENTS (30)
 
+#define STRINGIZE(x) #x
+#define STRINGIZE_VALUE_OF(x) STRINGIZE(x)
+
 using namespace std;
 
 int counter = 0;
@@ -45,7 +48,7 @@ const char* logFileName = "logs/furSwarmLinux.log";
 int master_socket, addrlen, client_socket[30];
 struct sockaddr_in address;
 const char *message = "FUR_SWARM_MEMBER";
-char buffer[1025];
+uint8_t buffer[1025];
 furSwarmMemberLinux* member;
 
 void setupServer() {
@@ -94,6 +97,8 @@ void updateMember() {
 
 int main() {
 
+    char * buildTime = STRINGIZE_VALUE_OF(__BUILD_TIME);
+    char * buildNumber = STRINGIZE_VALUE_OF(__BUILD_NUMBER);
   int valread, sd, max_sd, new_socket;
   fd_set readfds;
 
@@ -104,8 +109,8 @@ int main() {
   plog::init(plog::info, &fileAppender).addAppender(&consoleAppender);
 
   LOG_INFO << "Logging to -> " << logFileName;
-  LOG_INFO << "Build date  : " << __BUILD_TIME;
-  LOG_INFO << "Build number: " << __BUILD_NUMBER;
+  LOG_INFO << "Build time  : " << buildTime;
+  LOG_INFO << "Build number: " << buildNumber;
   
   member = new furSwarmMemberLinux();
   member->setup();
@@ -140,10 +145,12 @@ int main() {
 	  exit(EXIT_FAILURE);
 	}
 	LOG_INFO << "New connection, socket fd:" << new_socket << ", ip: " << inet_ntoa(address.sin_addr) << ", port: " << ntohs(address.sin_port);
-	if (send(new_socket, message, strlen(message), 0) != strlen(message)) {
+    memcpy(buffer, buildTime, strlen(buildTime));
+    memcpy(buffer + strlen(buildTime), buildNumber, strlen(buildNumber));
+          
+	if (send(new_socket, buffer, strlen(buildTime) + strlen(buildNumber), 0) != strlen(buildTime) + strlen(buildNumber)) {
 	  LOG_WARNING << "Could not send welcome message";
 	}
-	LOG_INFO << "Welcome message sent successfully";
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 	  if (client_socket[i] == 0) {
 	    client_socket[i] = new_socket;
@@ -152,10 +159,10 @@ int main() {
 	  }
 	}
       }
-      for (int i = 0; i < MAX_CLIENTS; i++) {
+        for (int i = 0; i < MAX_CLIENTS; i++) {
 	sd = client_socket[i];
 	if (FD_ISSET(sd , &readfds)) {
-	  if ((valread = read( sd , buffer, 1024)) == 0) {
+	  if ((valread = read( sd , buffer, 1024)) == 0L) {
 	    getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);
 	    LOG_INFO << "Host " << inet_ntoa(address.sin_addr) << ":" << ntohs(address.sin_port) << " disconnected";
 	    close(sd);

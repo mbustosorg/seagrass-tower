@@ -71,6 +71,7 @@
 #define FS_ID_POOF_1 (0x2f)
 #define FS_ID_POOF_2 (0x30)
 #define FS_ID_MAX_ID (0x30)
+#define FS_ID_MAX_ID_COUNT (0x31)
 
 #define FS_NAME_NULL ""
 #define FS_NAME_MESSAGE_TYPE_FULL "Full HB"
@@ -181,5 +182,7 @@ static const char patternNames[FS_ID_MAX_ID + 1][MAX_PATTERN_NAME_LENGTH] = {
 #define FS_TYPE_TOWN_CENTER (0x04)
 #define FS_TYPE_TOWER_EYE (0x05)
 #define FS_TYPE_DRESS (0x06)
+#define FS_TYPE_WINDFLOWERS (0x07)
+#define FS_TYPE_REEDS (0x08)
 
 #endif
