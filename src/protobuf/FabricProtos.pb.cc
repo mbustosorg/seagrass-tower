@@ -130,7 +130,7 @@ void protobuf_AssignDesc_FabricProtos_2eproto() {
   CommandMessage_CommandList_descriptor_ = CommandMessage_descriptor_->enum_type(0);
   WelcomeMessage_descriptor_ = file->message_type(4);
   static const int WelcomeMessage_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(WelcomeMessage, startuptime_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(WelcomeMessage, buildtime_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(WelcomeMessage, version_),
   };
   WelcomeMessage_reflection_ =
@@ -210,10 +210,10 @@ void protobuf_AddDesc_FabricProtos_2eproto() {
     "essage\022\014\n\004name\030\001 \003(\t\"\201\001\n\016CommandMessage\022"
     ",\n\007command\030\001 \002(\0162\033.CommandMessage.Comman"
     "dList\"A\n\013CommandList\022\026\n\022PROTOBUF_HEARTBE"
-    "AT\020\001\022\032\n\026PROTOBUF_PATTERN_NAMES\020\002\"6\n\016Welc"
-    "omeMessage\022\023\n\013startupTime\030\001 \002(\t\022\017\n\007versi"
-    "on\030\002 \002(\tB9\n)com._338oaklandcreations.fab"
-    "ric.machineryB\014FabricProtos", 907);
+    "AT\020\001\022\032\n\026PROTOBUF_PATTERN_NAMES\020\002\"4\n\016Welc"
+    "omeMessage\022\021\n\tbuildTime\030\001 \002(\t\022\017\n\007version"
+    "\030\002 \002(\tB9\n)com._338oaklandcreations.fabri"
+    "c.machineryB\014FabricProtos", 905);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "FabricProtos.proto", &protobuf_RegisterTypes);
   FabricWrapperMessage::default_instance_ = new FabricWrapperMessage();
@@ -2325,7 +2325,7 @@ void CommandMessage::clear_command() {
 // ===================================================================
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int WelcomeMessage::kStartupTimeFieldNumber;
+const int WelcomeMessage::kBuildTimeFieldNumber;
 const int WelcomeMessage::kVersionFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -2349,7 +2349,7 @@ WelcomeMessage::WelcomeMessage(const WelcomeMessage& from)
 void WelcomeMessage::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  startuptime_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  buildtime_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   version_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -2360,7 +2360,7 @@ WelcomeMessage::~WelcomeMessage() {
 }
 
 void WelcomeMessage::SharedDtor() {
-  startuptime_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  buildtime_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   version_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (this != default_instance_) {
   }
@@ -2393,8 +2393,8 @@ WelcomeMessage* WelcomeMessage::New(::google::protobuf::Arena* arena) const {
 
 void WelcomeMessage::Clear() {
   if (_has_bits_[0 / 32] & 3u) {
-    if (has_startuptime()) {
-      startuptime_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    if (has_buildtime()) {
+      buildtime_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
     }
     if (has_version()) {
       version_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
@@ -2416,15 +2416,15 @@ bool WelcomeMessage::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string startupTime = 1;
+      // required string buildTime = 1;
       case 1: {
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_startuptime()));
+                input, this->mutable_buildtime()));
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->startuptime().data(), this->startuptime().length(),
+            this->buildtime().data(), this->buildtime().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "WelcomeMessage.startupTime");
+            "WelcomeMessage.buildTime");
         } else {
           goto handle_unusual;
         }
@@ -2474,14 +2474,14 @@ failure:
 void WelcomeMessage::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:WelcomeMessage)
-  // required string startupTime = 1;
-  if (has_startuptime()) {
+  // required string buildTime = 1;
+  if (has_buildtime()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->startuptime().data(), this->startuptime().length(),
+      this->buildtime().data(), this->buildtime().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "WelcomeMessage.startupTime");
+      "WelcomeMessage.buildTime");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->startuptime(), output);
+      1, this->buildtime(), output);
   }
 
   // required string version = 2;
@@ -2504,15 +2504,15 @@ void WelcomeMessage::SerializeWithCachedSizes(
 ::google::protobuf::uint8* WelcomeMessage::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:WelcomeMessage)
-  // required string startupTime = 1;
-  if (has_startuptime()) {
+  // required string buildTime = 1;
+  if (has_buildtime()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->startuptime().data(), this->startuptime().length(),
+      this->buildtime().data(), this->buildtime().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "WelcomeMessage.startupTime");
+      "WelcomeMessage.buildTime");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->startuptime(), target);
+        1, this->buildtime(), target);
   }
 
   // required string version = 2;
@@ -2537,11 +2537,11 @@ void WelcomeMessage::SerializeWithCachedSizes(
 int WelcomeMessage::RequiredFieldsByteSizeFallback() const {
   int total_size = 0;
 
-  if (has_startuptime()) {
-    // required string startupTime = 1;
+  if (has_buildtime()) {
+    // required string buildTime = 1;
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->startuptime());
+        this->buildtime());
   }
 
   if (has_version()) {
@@ -2557,10 +2557,10 @@ int WelcomeMessage::ByteSize() const {
   int total_size = 0;
 
   if (((_has_bits_[0] & 0x00000003) ^ 0x00000003) == 0) {  // All required fields are present.
-    // required string startupTime = 1;
+    // required string buildTime = 1;
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->startuptime());
+        this->buildtime());
 
     // required string version = 2;
     total_size += 1 +
@@ -2596,9 +2596,9 @@ void WelcomeMessage::MergeFrom(const ::google::protobuf::Message& from) {
 void WelcomeMessage::MergeFrom(const WelcomeMessage& from) {
   if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_startuptime()) {
-      set_has_startuptime();
-      startuptime_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.startuptime_);
+    if (from.has_buildtime()) {
+      set_has_buildtime();
+      buildtime_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.buildtime_);
     }
     if (from.has_version()) {
       set_has_version();
@@ -2633,7 +2633,7 @@ void WelcomeMessage::Swap(WelcomeMessage* other) {
   InternalSwap(other);
 }
 void WelcomeMessage::InternalSwap(WelcomeMessage* other) {
-  startuptime_.Swap(&other->startuptime_);
+  buildtime_.Swap(&other->buildtime_);
   version_.Swap(&other->version_);
   std::swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
@@ -2651,57 +2651,57 @@ void WelcomeMessage::InternalSwap(WelcomeMessage* other) {
 #if PROTOBUF_INLINE_NOT_IN_HEADERS
 // WelcomeMessage
 
-// required string startupTime = 1;
-bool WelcomeMessage::has_startuptime() const {
+// required string buildTime = 1;
+bool WelcomeMessage::has_buildtime() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-void WelcomeMessage::set_has_startuptime() {
+void WelcomeMessage::set_has_buildtime() {
   _has_bits_[0] |= 0x00000001u;
 }
-void WelcomeMessage::clear_has_startuptime() {
+void WelcomeMessage::clear_has_buildtime() {
   _has_bits_[0] &= ~0x00000001u;
 }
-void WelcomeMessage::clear_startuptime() {
-  startuptime_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  clear_has_startuptime();
+void WelcomeMessage::clear_buildtime() {
+  buildtime_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  clear_has_buildtime();
 }
- const ::std::string& WelcomeMessage::startuptime() const {
-  // @@protoc_insertion_point(field_get:WelcomeMessage.startupTime)
-  return startuptime_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+ const ::std::string& WelcomeMessage::buildtime() const {
+  // @@protoc_insertion_point(field_get:WelcomeMessage.buildTime)
+  return buildtime_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
- void WelcomeMessage::set_startuptime(const ::std::string& value) {
-  set_has_startuptime();
-  startuptime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:WelcomeMessage.startupTime)
+ void WelcomeMessage::set_buildtime(const ::std::string& value) {
+  set_has_buildtime();
+  buildtime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:WelcomeMessage.buildTime)
 }
- void WelcomeMessage::set_startuptime(const char* value) {
-  set_has_startuptime();
-  startuptime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:WelcomeMessage.startupTime)
+ void WelcomeMessage::set_buildtime(const char* value) {
+  set_has_buildtime();
+  buildtime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:WelcomeMessage.buildTime)
 }
- void WelcomeMessage::set_startuptime(const char* value, size_t size) {
-  set_has_startuptime();
-  startuptime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+ void WelcomeMessage::set_buildtime(const char* value, size_t size) {
+  set_has_buildtime();
+  buildtime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:WelcomeMessage.startupTime)
+  // @@protoc_insertion_point(field_set_pointer:WelcomeMessage.buildTime)
 }
- ::std::string* WelcomeMessage::mutable_startuptime() {
-  set_has_startuptime();
-  // @@protoc_insertion_point(field_mutable:WelcomeMessage.startupTime)
-  return startuptime_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+ ::std::string* WelcomeMessage::mutable_buildtime() {
+  set_has_buildtime();
+  // @@protoc_insertion_point(field_mutable:WelcomeMessage.buildTime)
+  return buildtime_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
- ::std::string* WelcomeMessage::release_startuptime() {
-  clear_has_startuptime();
-  return startuptime_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+ ::std::string* WelcomeMessage::release_buildtime() {
+  clear_has_buildtime();
+  return buildtime_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
- void WelcomeMessage::set_allocated_startuptime(::std::string* startuptime) {
-  if (startuptime != NULL) {
-    set_has_startuptime();
+ void WelcomeMessage::set_allocated_buildtime(::std::string* buildtime) {
+  if (buildtime != NULL) {
+    set_has_buildtime();
   } else {
-    clear_has_startuptime();
+    clear_has_buildtime();
   }
-  startuptime_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), startuptime);
-  // @@protoc_insertion_point(field_set_allocated:WelcomeMessage.startupTime)
+  buildtime_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), buildtime);
+  // @@protoc_insertion_point(field_set_allocated:WelcomeMessage.buildTime)
 }
 
 // required string version = 2;

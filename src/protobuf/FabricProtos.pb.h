@@ -708,17 +708,17 @@ class WelcomeMessage : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required string startupTime = 1;
-  bool has_startuptime() const;
-  void clear_startuptime();
-  static const int kStartupTimeFieldNumber = 1;
-  const ::std::string& startuptime() const;
-  void set_startuptime(const ::std::string& value);
-  void set_startuptime(const char* value);
-  void set_startuptime(const char* value, size_t size);
-  ::std::string* mutable_startuptime();
-  ::std::string* release_startuptime();
-  void set_allocated_startuptime(::std::string* startuptime);
+  // required string buildTime = 1;
+  bool has_buildtime() const;
+  void clear_buildtime();
+  static const int kBuildTimeFieldNumber = 1;
+  const ::std::string& buildtime() const;
+  void set_buildtime(const ::std::string& value);
+  void set_buildtime(const char* value);
+  void set_buildtime(const char* value, size_t size);
+  ::std::string* mutable_buildtime();
+  ::std::string* release_buildtime();
+  void set_allocated_buildtime(::std::string* buildtime);
 
   // required string version = 2;
   bool has_version() const;
@@ -734,8 +734,8 @@ class WelcomeMessage : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:WelcomeMessage)
  private:
-  inline void set_has_startuptime();
-  inline void clear_has_startuptime();
+  inline void set_has_buildtime();
+  inline void clear_has_buildtime();
   inline void set_has_version();
   inline void clear_has_version();
 
@@ -745,7 +745,7 @@ class WelcomeMessage : public ::google::protobuf::Message {
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::google::protobuf::internal::ArenaStringPtr startuptime_;
+  ::google::protobuf::internal::ArenaStringPtr buildtime_;
   ::google::protobuf::internal::ArenaStringPtr version_;
   friend void  protobuf_AddDesc_FabricProtos_2eproto();
   friend void protobuf_AssignDesc_FabricProtos_2eproto();
@@ -1299,57 +1299,57 @@ inline void CommandMessage::set_command(::CommandMessage_CommandList value) {
 
 // WelcomeMessage
 
-// required string startupTime = 1;
-inline bool WelcomeMessage::has_startuptime() const {
+// required string buildTime = 1;
+inline bool WelcomeMessage::has_buildtime() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void WelcomeMessage::set_has_startuptime() {
+inline void WelcomeMessage::set_has_buildtime() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void WelcomeMessage::clear_has_startuptime() {
+inline void WelcomeMessage::clear_has_buildtime() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void WelcomeMessage::clear_startuptime() {
-  startuptime_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  clear_has_startuptime();
+inline void WelcomeMessage::clear_buildtime() {
+  buildtime_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  clear_has_buildtime();
 }
-inline const ::std::string& WelcomeMessage::startuptime() const {
-  // @@protoc_insertion_point(field_get:WelcomeMessage.startupTime)
-  return startuptime_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+inline const ::std::string& WelcomeMessage::buildtime() const {
+  // @@protoc_insertion_point(field_get:WelcomeMessage.buildTime)
+  return buildtime_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void WelcomeMessage::set_startuptime(const ::std::string& value) {
-  set_has_startuptime();
-  startuptime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:WelcomeMessage.startupTime)
+inline void WelcomeMessage::set_buildtime(const ::std::string& value) {
+  set_has_buildtime();
+  buildtime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:WelcomeMessage.buildTime)
 }
-inline void WelcomeMessage::set_startuptime(const char* value) {
-  set_has_startuptime();
-  startuptime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:WelcomeMessage.startupTime)
+inline void WelcomeMessage::set_buildtime(const char* value) {
+  set_has_buildtime();
+  buildtime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:WelcomeMessage.buildTime)
 }
-inline void WelcomeMessage::set_startuptime(const char* value, size_t size) {
-  set_has_startuptime();
-  startuptime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+inline void WelcomeMessage::set_buildtime(const char* value, size_t size) {
+  set_has_buildtime();
+  buildtime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:WelcomeMessage.startupTime)
+  // @@protoc_insertion_point(field_set_pointer:WelcomeMessage.buildTime)
 }
-inline ::std::string* WelcomeMessage::mutable_startuptime() {
-  set_has_startuptime();
-  // @@protoc_insertion_point(field_mutable:WelcomeMessage.startupTime)
-  return startuptime_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+inline ::std::string* WelcomeMessage::mutable_buildtime() {
+  set_has_buildtime();
+  // @@protoc_insertion_point(field_mutable:WelcomeMessage.buildTime)
+  return buildtime_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* WelcomeMessage::release_startuptime() {
-  clear_has_startuptime();
-  return startuptime_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+inline ::std::string* WelcomeMessage::release_buildtime() {
+  clear_has_buildtime();
+  return buildtime_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void WelcomeMessage::set_allocated_startuptime(::std::string* startuptime) {
-  if (startuptime != NULL) {
-    set_has_startuptime();
+inline void WelcomeMessage::set_allocated_buildtime(::std::string* buildtime) {
+  if (buildtime != NULL) {
+    set_has_buildtime();
   } else {
-    clear_has_startuptime();
+    clear_has_buildtime();
   }
-  startuptime_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), startuptime);
-  // @@protoc_insertion_point(field_set_allocated:WelcomeMessage.startupTime)
+  buildtime_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), buildtime);
+  // @@protoc_insertion_point(field_set_allocated:WelcomeMessage.buildTime)
 }
 
 // required string version = 2;

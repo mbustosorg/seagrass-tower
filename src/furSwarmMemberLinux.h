@@ -18,6 +18,7 @@
 */
 
 #include "towerPatterns.h"
+#include "protobuf/FabricProtos.pb.h"
 #include <vector>
 #include <list>
 
@@ -30,8 +31,7 @@ public:
   void setup();
   void setPattern(const uint8_t command[]);
   void update();
-  void draw();
-  void handleMessage(uint8_t * buffer, int * messageSize);
+  void handleMessage(const CommandMessage command, uint8_t * buffer, int * messageSize);
   
   towerPatterns* platform;
   

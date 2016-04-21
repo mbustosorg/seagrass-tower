@@ -116,9 +116,7 @@ PROGMEM prog_uint8_t bmLEDMap[] = {
  This table provides the mapping between the array representation in
  the Cylon pattern and LED position.
  */
-#ifdef FS_TOWER_EYE
-const uint8_t LED_CYMAP = 100;  // Number of bytes using the bitmap scheme
-#else
+#if defined (FS_VEST) || defined (FS_TOWER_VEST)
 const uint8_t LED_CYMAP = 50;  // Number of bytes using the bitmap scheme
 PROGMEM prog_uint8_t cyLEDMap[] = {
     0x00, 0x01, 0x02, 0x03, 0x04,
@@ -133,6 +131,8 @@ PROGMEM prog_uint8_t cyLEDMap[] = {
     0x28, 0x29, 0x2a, 0x2b, 0x2c,
     0x2d, 0x2e, 0x2f, 0x30, 0x31
 };
+#else
+const uint8_t LED_CYMAP = LED_COUNT;  // Number of bytes using the bitmap scheme
 #endif
 
 /*

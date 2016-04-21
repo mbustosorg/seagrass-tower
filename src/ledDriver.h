@@ -48,6 +48,10 @@ const int lpdClockPin = 2;
 // LED parameters
 #ifdef FS_TOWER_EYE
 #define LED_COUNT (100)
+#elif FS_REEDS
+#define LED_COUNT (75)
+#elif FS_WINDFLOWERS
+#define LED_COUNT (250)
 #else
 #define LED_COUNT (50)
 #endif
