@@ -59,8 +59,6 @@ furSwarmMemberLinux::furSwarmMemberLinux() {
 void furSwarmMemberLinux::setup(){
     platform = new towerPatterns;
     platform->FS_BREATHE_MULTIPLIER = 50.0;
-    uint8_t command[] = {FS_ID_RAINBOW_CHASE, 10, 130, 100, 130, 240, 0};
-    setPattern(command);
 }
 
 void furSwarmMemberLinux::setPattern(const uint8_t command[]) {
@@ -73,21 +71,24 @@ void furSwarmMemberLinux::update() {
     platform->continuePatternDisplay();
 }
 
+void furSwarmMemberLinux::updateHeartbeatMessage(HeartbeatMessage* heartbeat) {
+    heartbeat->set_membertype(heartbeatPayload[0]);
+    heartbeat->set_versionid(heartbeatPayload[1]);
+    heartbeat->set_framelocation(0);
+    heartbeat->set_currentpattern(platform->pattern);
+    heartbeat->set_batteryvoltage(0);
+    heartbeat->set_framerate(0);
+    heartbeat->set_membertype(heartbeatPayload[8]);
+    heartbeat->set_failedmessages(0);
+    heartbeat->set_currentpatternname(patternNames[platform->pattern]);
+}
+
 void furSwarmMemberLinux::handleMessage(const CommandMessage command, uint8_t* buffer, int* messageSize) {
     
     FabricWrapperMessage wrapperMessage;
     if (command.command() == command.PROTOBUF_HEARTBEAT) {
         LOG_DEBUG << "Received heartbeat request";
-        HeartbeatMessage* heartbeat = wrapperMessage.mutable_heartbeat();;
-        heartbeat->set_membertype(heartbeatPayload[0]);
-        heartbeat->set_versionid(heartbeatPayload[1]);
-        heartbeat->set_framelocation(0);
-        heartbeat->set_currentpattern(platform->pattern);
-        heartbeat->set_batteryvoltage(0);
-        heartbeat->set_framerate(0);
-        heartbeat->set_membertype(heartbeatPayload[8]);
-        heartbeat->set_failedmessages(0);
-        heartbeat->set_currentpatternname(patternNames[platform->pattern]);
+        updateHeartbeatMessage(wrapperMessage.mutable_heartbeat());
     } else if (command.command() == command.PROTOBUF_PATTERN_NAMES) {
         LOG_INFO << "Received pattern names request";
         PatternNamesMessage* patternName = wrapperMessage.mutable_patternnames();
@@ -99,3 +100,28 @@ void furSwarmMemberLinux::handleMessage(const CommandMessage command, uint8_t* b
     *messageSize = wrapperMessage.ByteSize();
 }
 
+void furSwarmMemberLinux::handlePatternCommand(const PatternCommand patterncommand, uint8_t* buffer, int* messageSize){
+
+    if (patterncommand.patternnumber() <= 0 || patterncommand.patternnumber() > FS_ID_MAX_ID_COUNT) {
+        LOG_WARNING << "Received invalid pattern command request - " << patterncommand.patternnumber();
+    } else {
+        LOG_INFO << "Received pattern command request - " << patternNames[patterncommand.patternnumber()];
+        
+        FabricWrapperMessage wrapperMessage;
+        
+        uint8_t command[7];
+        command[0] = (uint8_t)patterncommand.patternnumber();
+        command[1] = (uint8_t)patterncommand.speed();
+        command[2] = (uint8_t)patterncommand.red();
+        command[3] = (uint8_t)patterncommand.green();
+        command[4] = (uint8_t)patterncommand.blue();
+        command[5] = (uint8_t)patterncommand.intensity();
+        command[6] = 0;
+        
+        setPattern(command);
+        
+        updateHeartbeatMessage(wrapperMessage.mutable_heartbeat());
+        wrapperMessage.SerializeToArray(buffer, wrapperMessage.ByteSize());
+        *messageSize = wrapperMessage.ByteSize();
+    }
+}

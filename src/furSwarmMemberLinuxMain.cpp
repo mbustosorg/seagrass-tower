@@ -85,14 +85,22 @@ void setupServer() {
 void updateMember() {
     member->update();
     counter++;
-    if (counter % 600 == 0) {
+    if (counter == 1) {
+        uint8_t command[] = {FS_ID_FULL_COLOR, 255, 255, 0, 0, 255, 0};
+        member->setPattern(command);
+        LOG_INFO << "Red Initialization";
+    } else if (counter == 120) {
+        uint8_t command[] = {FS_ID_FULL_COLOR, 255, 0, 255, 0, 255, 0};
+        member->setPattern(command);
+        LOG_INFO << "Green Initialization";
+    } else if (counter == 180) {
+        uint8_t command[] = {FS_ID_FULL_COLOR, 255, 0, 0, 255, 255, 0};
+        member->setPattern(command);
+        LOG_INFO << "Blue Initialization";
+    } else if (counter == 185) {
         uint8_t command[] = {FS_ID_RAINBOW_CHASE, 10, 130, 100, 130, 240, 0};
         member->setPattern(command);
         LOG_INFO << "RAINBOW_CHASE";
-    } else if (counter % 300 == 0) {
-        uint8_t command[] = {FS_ID_CYLON, 150, 255, 130, 0, 250, 255};
-        member->setPattern(command);
-        LOG_INFO << "CYLON";
     }
 }
 
@@ -183,6 +191,9 @@ int main() {
                         wrapperMessage.ParseFromArray(buffer, (int)received);
                         if (wrapperMessage.has_command()) {
                             member->handleMessage(wrapperMessage.command(), buffer, &valread);
+                            send(sd, buffer, valread, 0);
+                        } else if (wrapperMessage.has_patterncommand()) {
+                            member->handlePatternCommand(wrapperMessage.patterncommand(), buffer, &valread);
                             send(sd, buffer, valread, 0);
                         }
                     }

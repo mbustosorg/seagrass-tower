@@ -31,8 +31,12 @@ public:
   void setup();
   void setPattern(const uint8_t command[]);
   void update();
-  void handleMessage(const CommandMessage command, uint8_t * buffer, int * messageSize);
+    void handleMessage(const CommandMessage command, uint8_t * buffer, int * messageSize);
+    void handlePatternCommand(const PatternCommand patterncommand, uint8_t * buffer, int * messageSize);
   
+private:
+    
+    void updateHeartbeatMessage(HeartbeatMessage* heartbeat);
   towerPatterns* platform;
   
   uint8_t data[7];

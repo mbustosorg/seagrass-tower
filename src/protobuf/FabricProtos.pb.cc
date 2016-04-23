@@ -27,6 +27,7 @@ struct FabricWrapperMessageOneofInstance {
   const ::PatternNamesMessage* patternnames_;
   const ::CommandMessage* command_;
   const ::WelcomeMessage* welcome_;
+  const ::PatternCommand* patterncommand_;
 }* FabricWrapperMessage_default_oneof_instance_ = NULL;
 const ::google::protobuf::Descriptor* HeartbeatMessage_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
@@ -35,6 +36,9 @@ const ::google::protobuf::EnumDescriptor* HeartbeatMessage_MemberType_descriptor
 const ::google::protobuf::Descriptor* PatternNamesMessage_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   PatternNamesMessage_reflection_ = NULL;
+const ::google::protobuf::Descriptor* PatternCommand_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  PatternCommand_reflection_ = NULL;
 const ::google::protobuf::Descriptor* CommandMessage_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   CommandMessage_reflection_ = NULL;
@@ -53,11 +57,12 @@ void protobuf_AssignDesc_FabricProtos_2eproto() {
       "FabricProtos.proto");
   GOOGLE_CHECK(file != NULL);
   FabricWrapperMessage_descriptor_ = file->message_type(0);
-  static const int FabricWrapperMessage_offsets_[5] = {
+  static const int FabricWrapperMessage_offsets_[6] = {
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FabricWrapperMessage_default_oneof_instance_, heartbeat_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FabricWrapperMessage_default_oneof_instance_, patternnames_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FabricWrapperMessage_default_oneof_instance_, command_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FabricWrapperMessage_default_oneof_instance_, welcome_),
+    PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(FabricWrapperMessage_default_oneof_instance_, patterncommand_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FabricWrapperMessage, msg_),
   };
   FabricWrapperMessage_reflection_ =
@@ -112,9 +117,30 @@ void protobuf_AssignDesc_FabricProtos_2eproto() {
       sizeof(PatternNamesMessage),
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PatternNamesMessage, _internal_metadata_),
       -1);
-  CommandMessage_descriptor_ = file->message_type(3);
-  static const int CommandMessage_offsets_[1] = {
+  PatternCommand_descriptor_ = file->message_type(3);
+  static const int PatternCommand_offsets_[6] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PatternCommand, patternnumber_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PatternCommand, speed_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PatternCommand, intensity_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PatternCommand, red_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PatternCommand, green_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PatternCommand, blue_),
+  };
+  PatternCommand_reflection_ =
+    ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
+      PatternCommand_descriptor_,
+      PatternCommand::default_instance_,
+      PatternCommand_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PatternCommand, _has_bits_[0]),
+      -1,
+      -1,
+      sizeof(PatternCommand),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PatternCommand, _internal_metadata_),
+      -1);
+  CommandMessage_descriptor_ = file->message_type(4);
+  static const int CommandMessage_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CommandMessage, command_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CommandMessage, patterncommand_),
   };
   CommandMessage_reflection_ =
     ::google::protobuf::internal::GeneratedMessageReflection::NewGeneratedMessageReflection(
@@ -128,7 +154,7 @@ void protobuf_AssignDesc_FabricProtos_2eproto() {
       GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CommandMessage, _internal_metadata_),
       -1);
   CommandMessage_CommandList_descriptor_ = CommandMessage_descriptor_->enum_type(0);
-  WelcomeMessage_descriptor_ = file->message_type(4);
+  WelcomeMessage_descriptor_ = file->message_type(5);
   static const int WelcomeMessage_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(WelcomeMessage, buildtime_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(WelcomeMessage, version_),
@@ -163,6 +189,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
       PatternNamesMessage_descriptor_, &PatternNamesMessage::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+      PatternCommand_descriptor_, &PatternCommand::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
       CommandMessage_descriptor_, &CommandMessage::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
       WelcomeMessage_descriptor_, &WelcomeMessage::default_instance());
@@ -178,6 +206,8 @@ void protobuf_ShutdownFile_FabricProtos_2eproto() {
   delete HeartbeatMessage_reflection_;
   delete PatternNamesMessage::default_instance_;
   delete PatternNamesMessage_reflection_;
+  delete PatternCommand::default_instance_;
+  delete PatternCommand_reflection_;
   delete CommandMessage::default_instance_;
   delete CommandMessage_reflection_;
   delete WelcomeMessage::default_instance_;
@@ -191,40 +221,48 @@ void protobuf_AddDesc_FabricProtos_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\022FabricProtos.proto\"\273\001\n\024FabricWrapperMe"
+    "\n\022FabricProtos.proto\"\346\001\n\024FabricWrapperMe"
     "ssage\022&\n\theartbeat\030\001 \001(\0132\021.HeartbeatMess"
     "ageH\000\022,\n\014patternNames\030\002 \001(\0132\024.PatternNam"
     "esMessageH\000\022\"\n\007command\030\003 \001(\0132\017.CommandMe"
     "ssageH\000\022\"\n\007welcome\030\004 \001(\0132\017.WelcomeMessag"
-    "eH\000B\005\n\003msg\"\232\003\n\020HeartbeatMessage\022\025\n\rmessa"
-    "geTypeID\030\001 \002(\005\022\021\n\tversionID\030\002 \002(\005\022\025\n\rfra"
-    "meLocation\030\003 \001(\005\022\026\n\016currentPattern\030\004 \002(\005"
-    "\022\026\n\016batteryVoltage\030\005 \001(\005\022\021\n\tframeRate\030\006 "
-    "\001(\005\022\022\n\nmemberType\030\007 \002(\005\022\026\n\016failedMessage"
-    "s\030\010 \001(\005\022\032\n\022currentPatternName\030\t \002(\t\"\271\001\n\n"
-    "MemberType\022\021\n\rPROTOBUF_VEST\020\001\022\020\n\014PROTOBU"
-    "F_HAT\020\002\022\022\n\016PROTOBUF_TOWER\020\003\022\030\n\024PROTOBUF_"
-    "TOWN_CENTER\020\004\022\026\n\022PROTOBUF_TOWER_EYE\020\005\022\022\n"
-    "\016PROTOBUF_DRESS\020\006\022\030\n\024PROTOBUF_WINDFLOWER"
-    "S\020\007\022\022\n\016PROTOBUF_REEDS\020\010\"#\n\023PatternNamesM"
-    "essage\022\014\n\004name\030\001 \003(\t\"\201\001\n\016CommandMessage\022"
+    "eH\000\022)\n\016patternCommand\030\005 \001(\0132\017.PatternCom"
+    "mandH\000B\005\n\003msg\"\232\003\n\020HeartbeatMessage\022\025\n\rme"
+    "ssageTypeID\030\001 \002(\005\022\021\n\tversionID\030\002 \002(\005\022\025\n\r"
+    "frameLocation\030\003 \001(\005\022\026\n\016currentPattern\030\004 "
+    "\002(\005\022\026\n\016batteryVoltage\030\005 \001(\005\022\021\n\tframeRate"
+    "\030\006 \001(\005\022\022\n\nmemberType\030\007 \002(\005\022\026\n\016failedMess"
+    "ages\030\010 \001(\005\022\032\n\022currentPatternName\030\t \002(\t\"\271"
+    "\001\n\nMemberType\022\021\n\rPROTOBUF_VEST\020\001\022\020\n\014PROT"
+    "OBUF_HAT\020\002\022\022\n\016PROTOBUF_TOWER\020\003\022\030\n\024PROTOB"
+    "UF_TOWN_CENTER\020\004\022\026\n\022PROTOBUF_TOWER_EYE\020\005"
+    "\022\022\n\016PROTOBUF_DRESS\020\006\022\030\n\024PROTOBUF_WINDFLO"
+    "WERS\020\007\022\022\n\016PROTOBUF_REEDS\020\010\"#\n\023PatternNam"
+    "esMessage\022\014\n\004name\030\001 \003(\t\"s\n\016PatternComman"
+    "d\022\025\n\rpatternNumber\030\001 \002(\005\022\r\n\005speed\030\002 \002(\005\022"
+    "\021\n\tintensity\030\003 \002(\005\022\013\n\003red\030\004 \002(\005\022\r\n\005green"
+    "\030\005 \002(\005\022\014\n\004blue\030\006 \002(\005\"\310\001\n\016CommandMessage\022"
     ",\n\007command\030\001 \002(\0162\033.CommandMessage.Comman"
-    "dList\"A\n\013CommandList\022\026\n\022PROTOBUF_HEARTBE"
-    "AT\020\001\022\032\n\026PROTOBUF_PATTERN_NAMES\020\002\"4\n\016Welc"
-    "omeMessage\022\021\n\tbuildTime\030\001 \002(\t\022\017\n\007version"
-    "\030\002 \002(\tB9\n)com._338oaklandcreations.fabri"
-    "c.machineryB\014FabricProtos", 905);
+    "dList\022\'\n\016patternCommand\030\002 \001(\0132\017.PatternC"
+    "ommand\"_\n\013CommandList\022\026\n\022PROTOBUF_HEARTB"
+    "EAT\020\001\022\032\n\026PROTOBUF_PATTERN_NAMES\020\002\022\034\n\030PRO"
+    "TOBUF_PATTERN_COMMAND\020\003\"4\n\016WelcomeMessag"
+    "e\022\021\n\tbuildTime\030\001 \002(\t\022\017\n\007version\030\002 \002(\tB9\n"
+    ")com._338oaklandcreations.fabric.machine"
+    "ryB\014FabricProtos", 1136);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "FabricProtos.proto", &protobuf_RegisterTypes);
   FabricWrapperMessage::default_instance_ = new FabricWrapperMessage();
   FabricWrapperMessage_default_oneof_instance_ = new FabricWrapperMessageOneofInstance();
   HeartbeatMessage::default_instance_ = new HeartbeatMessage();
   PatternNamesMessage::default_instance_ = new PatternNamesMessage();
+  PatternCommand::default_instance_ = new PatternCommand();
   CommandMessage::default_instance_ = new CommandMessage();
   WelcomeMessage::default_instance_ = new WelcomeMessage();
   FabricWrapperMessage::default_instance_->InitAsDefaultInstance();
   HeartbeatMessage::default_instance_->InitAsDefaultInstance();
   PatternNamesMessage::default_instance_->InitAsDefaultInstance();
+  PatternCommand::default_instance_->InitAsDefaultInstance();
   CommandMessage::default_instance_->InitAsDefaultInstance();
   WelcomeMessage::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_FabricProtos_2eproto);
@@ -254,6 +292,7 @@ const int FabricWrapperMessage::kHeartbeatFieldNumber;
 const int FabricWrapperMessage::kPatternNamesFieldNumber;
 const int FabricWrapperMessage::kCommandFieldNumber;
 const int FabricWrapperMessage::kWelcomeFieldNumber;
+const int FabricWrapperMessage::kPatternCommandFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 FabricWrapperMessage::FabricWrapperMessage()
@@ -267,6 +306,7 @@ void FabricWrapperMessage::InitAsDefaultInstance() {
   FabricWrapperMessage_default_oneof_instance_->patternnames_ = const_cast< ::PatternNamesMessage*>(&::PatternNamesMessage::default_instance());
   FabricWrapperMessage_default_oneof_instance_->command_ = const_cast< ::CommandMessage*>(&::CommandMessage::default_instance());
   FabricWrapperMessage_default_oneof_instance_->welcome_ = const_cast< ::WelcomeMessage*>(&::WelcomeMessage::default_instance());
+  FabricWrapperMessage_default_oneof_instance_->patterncommand_ = const_cast< ::PatternCommand*>(&::PatternCommand::default_instance());
 }
 
 FabricWrapperMessage::FabricWrapperMessage(const FabricWrapperMessage& from)
@@ -337,6 +377,10 @@ void FabricWrapperMessage::clear_msg() {
     }
     case kWelcome: {
       delete msg_.welcome_;
+      break;
+    }
+    case kPatternCommand: {
+      delete msg_.patterncommand_;
       break;
     }
     case MSG_NOT_SET: {
@@ -412,6 +456,19 @@ bool FabricWrapperMessage::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(42)) goto parse_patternCommand;
+        break;
+      }
+
+      // optional .PatternCommand patternCommand = 5;
+      case 5: {
+        if (tag == 42) {
+         parse_patternCommand:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_patterncommand()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -465,6 +522,12 @@ void FabricWrapperMessage::SerializeWithCachedSizes(
       4, *msg_.welcome_, output);
   }
 
+  // optional .PatternCommand patternCommand = 5;
+  if (has_patterncommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      5, *msg_.patterncommand_, output);
+  }
+
   if (_internal_metadata_.have_unknown_fields()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -501,6 +564,13 @@ void FabricWrapperMessage::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         4, *msg_.welcome_, target);
+  }
+
+  // optional .PatternCommand patternCommand = 5;
+  if (has_patterncommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        5, *msg_.patterncommand_, target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -541,6 +611,13 @@ int FabricWrapperMessage::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           *msg_.welcome_);
+      break;
+    }
+    // optional .PatternCommand patternCommand = 5;
+    case kPatternCommand: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          *msg_.patterncommand_);
       break;
     }
     case MSG_NOT_SET: {
@@ -589,6 +666,10 @@ void FabricWrapperMessage::MergeFrom(const FabricWrapperMessage& from) {
       mutable_welcome()->::WelcomeMessage::MergeFrom(from.welcome());
       break;
     }
+    case kPatternCommand: {
+      mutable_patterncommand()->::PatternCommand::MergeFrom(from.patterncommand());
+      break;
+    }
     case MSG_NOT_SET: {
       break;
     }
@@ -620,6 +701,9 @@ bool FabricWrapperMessage::IsInitialized() const {
   }
   if (has_welcome()) {
     if (!this->welcome().IsInitialized()) return false;
+  }
+  if (has_patterncommand()) {
+    if (!this->patterncommand().IsInitialized()) return false;
   }
   return true;
 }
@@ -833,6 +917,53 @@ void FabricWrapperMessage::set_allocated_welcome(::WelcomeMessage* welcome) {
     msg_.welcome_ = welcome;
   }
   // @@protoc_insertion_point(field_set_allocated:FabricWrapperMessage.welcome)
+}
+
+// optional .PatternCommand patternCommand = 5;
+bool FabricWrapperMessage::has_patterncommand() const {
+  return msg_case() == kPatternCommand;
+}
+void FabricWrapperMessage::set_has_patterncommand() {
+  _oneof_case_[0] = kPatternCommand;
+}
+void FabricWrapperMessage::clear_patterncommand() {
+  if (has_patterncommand()) {
+    delete msg_.patterncommand_;
+    clear_has_msg();
+  }
+}
+ const ::PatternCommand& FabricWrapperMessage::patterncommand() const {
+  // @@protoc_insertion_point(field_get:FabricWrapperMessage.patternCommand)
+  return has_patterncommand()
+      ? *msg_.patterncommand_
+      : ::PatternCommand::default_instance();
+}
+::PatternCommand* FabricWrapperMessage::mutable_patterncommand() {
+  if (!has_patterncommand()) {
+    clear_msg();
+    set_has_patterncommand();
+    msg_.patterncommand_ = new ::PatternCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:FabricWrapperMessage.patternCommand)
+  return msg_.patterncommand_;
+}
+::PatternCommand* FabricWrapperMessage::release_patterncommand() {
+  if (has_patterncommand()) {
+    clear_has_msg();
+    ::PatternCommand* temp = msg_.patterncommand_;
+    msg_.patterncommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+void FabricWrapperMessage::set_allocated_patterncommand(::PatternCommand* patterncommand) {
+  clear_msg();
+  if (patterncommand) {
+    set_has_patterncommand();
+    msg_.patterncommand_ = patterncommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:FabricWrapperMessage.patternCommand)
 }
 
 bool FabricWrapperMessage::has_msg() const {
@@ -2037,6 +2168,629 @@ PatternNamesMessage::mutable_name() {
 
 // ===================================================================
 
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int PatternCommand::kPatternNumberFieldNumber;
+const int PatternCommand::kSpeedFieldNumber;
+const int PatternCommand::kIntensityFieldNumber;
+const int PatternCommand::kRedFieldNumber;
+const int PatternCommand::kGreenFieldNumber;
+const int PatternCommand::kBlueFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+PatternCommand::PatternCommand()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:PatternCommand)
+}
+
+void PatternCommand::InitAsDefaultInstance() {
+}
+
+PatternCommand::PatternCommand(const PatternCommand& from)
+  : ::google::protobuf::Message(),
+    _internal_metadata_(NULL) {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:PatternCommand)
+}
+
+void PatternCommand::SharedCtor() {
+  _cached_size_ = 0;
+  patternnumber_ = 0;
+  speed_ = 0;
+  intensity_ = 0;
+  red_ = 0;
+  green_ = 0;
+  blue_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+PatternCommand::~PatternCommand() {
+  // @@protoc_insertion_point(destructor:PatternCommand)
+  SharedDtor();
+}
+
+void PatternCommand::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void PatternCommand::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* PatternCommand::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return PatternCommand_descriptor_;
+}
+
+const PatternCommand& PatternCommand::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_FabricProtos_2eproto();
+  return *default_instance_;
+}
+
+PatternCommand* PatternCommand::default_instance_ = NULL;
+
+PatternCommand* PatternCommand::New(::google::protobuf::Arena* arena) const {
+  PatternCommand* n = new PatternCommand;
+  if (arena != NULL) {
+    arena->Own(n);
+  }
+  return n;
+}
+
+void PatternCommand::Clear() {
+#define ZR_HELPER_(f) reinterpret_cast<char*>(\
+  &reinterpret_cast<PatternCommand*>(16)->f)
+
+#define ZR_(first, last) do {\
+  ::memset(&first, 0,\
+           ZR_HELPER_(last) - ZR_HELPER_(first) + sizeof(last));\
+} while (0)
+
+  if (_has_bits_[0 / 32] & 63u) {
+    ZR_(patternnumber_, blue_);
+  }
+
+#undef ZR_HELPER_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  if (_internal_metadata_.have_unknown_fields()) {
+    mutable_unknown_fields()->Clear();
+  }
+}
+
+bool PatternCommand::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:PatternCommand)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required int32 patternNumber = 1;
+      case 1: {
+        if (tag == 8) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &patternnumber_)));
+          set_has_patternnumber();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(16)) goto parse_speed;
+        break;
+      }
+
+      // required int32 speed = 2;
+      case 2: {
+        if (tag == 16) {
+         parse_speed:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &speed_)));
+          set_has_speed();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(24)) goto parse_intensity;
+        break;
+      }
+
+      // required int32 intensity = 3;
+      case 3: {
+        if (tag == 24) {
+         parse_intensity:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &intensity_)));
+          set_has_intensity();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(32)) goto parse_red;
+        break;
+      }
+
+      // required int32 red = 4;
+      case 4: {
+        if (tag == 32) {
+         parse_red:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &red_)));
+          set_has_red();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(40)) goto parse_green;
+        break;
+      }
+
+      // required int32 green = 5;
+      case 5: {
+        if (tag == 40) {
+         parse_green:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &green_)));
+          set_has_green();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(48)) goto parse_blue;
+        break;
+      }
+
+      // required int32 blue = 6;
+      case 6: {
+        if (tag == 48) {
+         parse_blue:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &blue_)));
+          set_has_blue();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:PatternCommand)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:PatternCommand)
+  return false;
+#undef DO_
+}
+
+void PatternCommand::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:PatternCommand)
+  // required int32 patternNumber = 1;
+  if (has_patternnumber()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->patternnumber(), output);
+  }
+
+  // required int32 speed = 2;
+  if (has_speed()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->speed(), output);
+  }
+
+  // required int32 intensity = 3;
+  if (has_intensity()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->intensity(), output);
+  }
+
+  // required int32 red = 4;
+  if (has_red()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->red(), output);
+  }
+
+  // required int32 green = 5;
+  if (has_green()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(5, this->green(), output);
+  }
+
+  // required int32 blue = 6;
+  if (has_blue()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(6, this->blue(), output);
+  }
+
+  if (_internal_metadata_.have_unknown_fields()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:PatternCommand)
+}
+
+::google::protobuf::uint8* PatternCommand::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:PatternCommand)
+  // required int32 patternNumber = 1;
+  if (has_patternnumber()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->patternnumber(), target);
+  }
+
+  // required int32 speed = 2;
+  if (has_speed()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->speed(), target);
+  }
+
+  // required int32 intensity = 3;
+  if (has_intensity()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->intensity(), target);
+  }
+
+  // required int32 red = 4;
+  if (has_red()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->red(), target);
+  }
+
+  // required int32 green = 5;
+  if (has_green()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(5, this->green(), target);
+  }
+
+  // required int32 blue = 6;
+  if (has_blue()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(6, this->blue(), target);
+  }
+
+  if (_internal_metadata_.have_unknown_fields()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:PatternCommand)
+  return target;
+}
+
+int PatternCommand::RequiredFieldsByteSizeFallback() const {
+  int total_size = 0;
+
+  if (has_patternnumber()) {
+    // required int32 patternNumber = 1;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->patternnumber());
+  }
+
+  if (has_speed()) {
+    // required int32 speed = 2;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->speed());
+  }
+
+  if (has_intensity()) {
+    // required int32 intensity = 3;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->intensity());
+  }
+
+  if (has_red()) {
+    // required int32 red = 4;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->red());
+  }
+
+  if (has_green()) {
+    // required int32 green = 5;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->green());
+  }
+
+  if (has_blue()) {
+    // required int32 blue = 6;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->blue());
+  }
+
+  return total_size;
+}
+int PatternCommand::ByteSize() const {
+  int total_size = 0;
+
+  if (((_has_bits_[0] & 0x0000003f) ^ 0x0000003f) == 0) {  // All required fields are present.
+    // required int32 patternNumber = 1;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->patternnumber());
+
+    // required int32 speed = 2;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->speed());
+
+    // required int32 intensity = 3;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->intensity());
+
+    // required int32 red = 4;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->red());
+
+    // required int32 green = 5;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->green());
+
+    // required int32 blue = 6;
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->blue());
+
+  } else {
+    total_size += RequiredFieldsByteSizeFallback();
+  }
+  if (_internal_metadata_.have_unknown_fields()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void PatternCommand::MergeFrom(const ::google::protobuf::Message& from) {
+  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  const PatternCommand* source = 
+      ::google::protobuf::internal::DynamicCastToGenerated<const PatternCommand>(
+          &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void PatternCommand::MergeFrom(const PatternCommand& from) {
+  if (GOOGLE_PREDICT_FALSE(&from == this)) MergeFromFail(__LINE__);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_patternnumber()) {
+      set_patternnumber(from.patternnumber());
+    }
+    if (from.has_speed()) {
+      set_speed(from.speed());
+    }
+    if (from.has_intensity()) {
+      set_intensity(from.intensity());
+    }
+    if (from.has_red()) {
+      set_red(from.red());
+    }
+    if (from.has_green()) {
+      set_green(from.green());
+    }
+    if (from.has_blue()) {
+      set_blue(from.blue());
+    }
+  }
+  if (from._internal_metadata_.have_unknown_fields()) {
+    mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+  }
+}
+
+void PatternCommand::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void PatternCommand::CopyFrom(const PatternCommand& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool PatternCommand::IsInitialized() const {
+  if ((_has_bits_[0] & 0x0000003f) != 0x0000003f) return false;
+
+  return true;
+}
+
+void PatternCommand::Swap(PatternCommand* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void PatternCommand::InternalSwap(PatternCommand* other) {
+  std::swap(patternnumber_, other->patternnumber_);
+  std::swap(speed_, other->speed_);
+  std::swap(intensity_, other->intensity_);
+  std::swap(red_, other->red_);
+  std::swap(green_, other->green_);
+  std::swap(blue_, other->blue_);
+  std::swap(_has_bits_[0], other->_has_bits_[0]);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  std::swap(_cached_size_, other->_cached_size_);
+}
+
+::google::protobuf::Metadata PatternCommand::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = PatternCommand_descriptor_;
+  metadata.reflection = PatternCommand_reflection_;
+  return metadata;
+}
+
+#if PROTOBUF_INLINE_NOT_IN_HEADERS
+// PatternCommand
+
+// required int32 patternNumber = 1;
+bool PatternCommand::has_patternnumber() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+void PatternCommand::set_has_patternnumber() {
+  _has_bits_[0] |= 0x00000001u;
+}
+void PatternCommand::clear_has_patternnumber() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+void PatternCommand::clear_patternnumber() {
+  patternnumber_ = 0;
+  clear_has_patternnumber();
+}
+ ::google::protobuf::int32 PatternCommand::patternnumber() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.patternNumber)
+  return patternnumber_;
+}
+ void PatternCommand::set_patternnumber(::google::protobuf::int32 value) {
+  set_has_patternnumber();
+  patternnumber_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.patternNumber)
+}
+
+// required int32 speed = 2;
+bool PatternCommand::has_speed() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+void PatternCommand::set_has_speed() {
+  _has_bits_[0] |= 0x00000002u;
+}
+void PatternCommand::clear_has_speed() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+void PatternCommand::clear_speed() {
+  speed_ = 0;
+  clear_has_speed();
+}
+ ::google::protobuf::int32 PatternCommand::speed() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.speed)
+  return speed_;
+}
+ void PatternCommand::set_speed(::google::protobuf::int32 value) {
+  set_has_speed();
+  speed_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.speed)
+}
+
+// required int32 intensity = 3;
+bool PatternCommand::has_intensity() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+void PatternCommand::set_has_intensity() {
+  _has_bits_[0] |= 0x00000004u;
+}
+void PatternCommand::clear_has_intensity() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+void PatternCommand::clear_intensity() {
+  intensity_ = 0;
+  clear_has_intensity();
+}
+ ::google::protobuf::int32 PatternCommand::intensity() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.intensity)
+  return intensity_;
+}
+ void PatternCommand::set_intensity(::google::protobuf::int32 value) {
+  set_has_intensity();
+  intensity_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.intensity)
+}
+
+// required int32 red = 4;
+bool PatternCommand::has_red() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+void PatternCommand::set_has_red() {
+  _has_bits_[0] |= 0x00000008u;
+}
+void PatternCommand::clear_has_red() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+void PatternCommand::clear_red() {
+  red_ = 0;
+  clear_has_red();
+}
+ ::google::protobuf::int32 PatternCommand::red() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.red)
+  return red_;
+}
+ void PatternCommand::set_red(::google::protobuf::int32 value) {
+  set_has_red();
+  red_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.red)
+}
+
+// required int32 green = 5;
+bool PatternCommand::has_green() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+void PatternCommand::set_has_green() {
+  _has_bits_[0] |= 0x00000010u;
+}
+void PatternCommand::clear_has_green() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+void PatternCommand::clear_green() {
+  green_ = 0;
+  clear_has_green();
+}
+ ::google::protobuf::int32 PatternCommand::green() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.green)
+  return green_;
+}
+ void PatternCommand::set_green(::google::protobuf::int32 value) {
+  set_has_green();
+  green_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.green)
+}
+
+// required int32 blue = 6;
+bool PatternCommand::has_blue() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+void PatternCommand::set_has_blue() {
+  _has_bits_[0] |= 0x00000020u;
+}
+void PatternCommand::clear_has_blue() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+void PatternCommand::clear_blue() {
+  blue_ = 0;
+  clear_has_blue();
+}
+ ::google::protobuf::int32 PatternCommand::blue() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.blue)
+  return blue_;
+}
+ void PatternCommand::set_blue(::google::protobuf::int32 value) {
+  set_has_blue();
+  blue_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.blue)
+}
+
+#endif  // PROTOBUF_INLINE_NOT_IN_HEADERS
+
+// ===================================================================
+
 const ::google::protobuf::EnumDescriptor* CommandMessage_CommandList_descriptor() {
   protobuf_AssignDescriptorsOnce();
   return CommandMessage_CommandList_descriptor_;
@@ -2045,6 +2799,7 @@ bool CommandMessage_CommandList_IsValid(int value) {
   switch(value) {
     case 1:
     case 2:
+    case 3:
       return true;
     default:
       return false;
@@ -2054,12 +2809,14 @@ bool CommandMessage_CommandList_IsValid(int value) {
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const CommandMessage_CommandList CommandMessage::PROTOBUF_HEARTBEAT;
 const CommandMessage_CommandList CommandMessage::PROTOBUF_PATTERN_NAMES;
+const CommandMessage_CommandList CommandMessage::PROTOBUF_PATTERN_COMMAND;
 const CommandMessage_CommandList CommandMessage::CommandList_MIN;
 const CommandMessage_CommandList CommandMessage::CommandList_MAX;
 const int CommandMessage::CommandList_ARRAYSIZE;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int CommandMessage::kCommandFieldNumber;
+const int CommandMessage::kPatternCommandFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 CommandMessage::CommandMessage()
@@ -2069,6 +2826,7 @@ CommandMessage::CommandMessage()
 }
 
 void CommandMessage::InitAsDefaultInstance() {
+  patterncommand_ = const_cast< ::PatternCommand*>(&::PatternCommand::default_instance());
 }
 
 CommandMessage::CommandMessage(const CommandMessage& from)
@@ -2082,6 +2840,7 @@ CommandMessage::CommandMessage(const CommandMessage& from)
 void CommandMessage::SharedCtor() {
   _cached_size_ = 0;
   command_ = 1;
+  patterncommand_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -2092,6 +2851,7 @@ CommandMessage::~CommandMessage() {
 
 void CommandMessage::SharedDtor() {
   if (this != default_instance_) {
+    delete patterncommand_;
   }
 }
 
@@ -2121,7 +2881,12 @@ CommandMessage* CommandMessage::New(::google::protobuf::Arena* arena) const {
 }
 
 void CommandMessage::Clear() {
-  command_ = 1;
+  if (_has_bits_[0 / 32] & 3u) {
+    command_ = 1;
+    if (has_patterncommand()) {
+      if (patterncommand_ != NULL) patterncommand_->::PatternCommand::Clear();
+    }
+  }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   if (_internal_metadata_.have_unknown_fields()) {
     mutable_unknown_fields()->Clear();
@@ -2150,6 +2915,19 @@ bool CommandMessage::MergePartialFromCodedStream(
           } else {
             mutable_unknown_fields()->AddVarint(1, value);
           }
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_patternCommand;
+        break;
+      }
+
+      // optional .PatternCommand patternCommand = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_patternCommand:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_patterncommand()));
         } else {
           goto handle_unusual;
         }
@@ -2188,6 +2966,12 @@ void CommandMessage::SerializeWithCachedSizes(
       1, this->command(), output);
   }
 
+  // optional .PatternCommand patternCommand = 2;
+  if (has_patterncommand()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, *this->patterncommand_, output);
+  }
+
   if (_internal_metadata_.have_unknown_fields()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2202,6 +2986,13 @@ void CommandMessage::SerializeWithCachedSizes(
   if (has_command()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
       1, this->command(), target);
+  }
+
+  // optional .PatternCommand patternCommand = 2;
+  if (has_patterncommand()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, *this->patterncommand_, target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -2220,6 +3011,13 @@ int CommandMessage::ByteSize() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::EnumSize(this->command());
   }
+  // optional .PatternCommand patternCommand = 2;
+  if (has_patterncommand()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        *this->patterncommand_);
+  }
+
   if (_internal_metadata_.have_unknown_fields()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -2249,6 +3047,9 @@ void CommandMessage::MergeFrom(const CommandMessage& from) {
     if (from.has_command()) {
       set_command(from.command());
     }
+    if (from.has_patterncommand()) {
+      mutable_patterncommand()->::PatternCommand::MergeFrom(from.patterncommand());
+    }
   }
   if (from._internal_metadata_.have_unknown_fields()) {
     mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -2270,6 +3071,9 @@ void CommandMessage::CopyFrom(const CommandMessage& from) {
 bool CommandMessage::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
 
+  if (has_patterncommand()) {
+    if (!this->patterncommand_->IsInitialized()) return false;
+  }
   return true;
 }
 
@@ -2279,6 +3083,7 @@ void CommandMessage::Swap(CommandMessage* other) {
 }
 void CommandMessage::InternalSwap(CommandMessage* other) {
   std::swap(command_, other->command_);
+  std::swap(patterncommand_, other->patterncommand_);
   std::swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   std::swap(_cached_size_, other->_cached_size_);
@@ -2318,6 +3123,49 @@ void CommandMessage::clear_command() {
   set_has_command();
   command_ = value;
   // @@protoc_insertion_point(field_set:CommandMessage.command)
+}
+
+// optional .PatternCommand patternCommand = 2;
+bool CommandMessage::has_patterncommand() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+void CommandMessage::set_has_patterncommand() {
+  _has_bits_[0] |= 0x00000002u;
+}
+void CommandMessage::clear_has_patterncommand() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+void CommandMessage::clear_patterncommand() {
+  if (patterncommand_ != NULL) patterncommand_->::PatternCommand::Clear();
+  clear_has_patterncommand();
+}
+const ::PatternCommand& CommandMessage::patterncommand() const {
+  // @@protoc_insertion_point(field_get:CommandMessage.patternCommand)
+  return patterncommand_ != NULL ? *patterncommand_ : *default_instance_->patterncommand_;
+}
+::PatternCommand* CommandMessage::mutable_patterncommand() {
+  set_has_patterncommand();
+  if (patterncommand_ == NULL) {
+    patterncommand_ = new ::PatternCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:CommandMessage.patternCommand)
+  return patterncommand_;
+}
+::PatternCommand* CommandMessage::release_patterncommand() {
+  clear_has_patterncommand();
+  ::PatternCommand* temp = patterncommand_;
+  patterncommand_ = NULL;
+  return temp;
+}
+void CommandMessage::set_allocated_patterncommand(::PatternCommand* patterncommand) {
+  delete patterncommand_;
+  patterncommand_ = patterncommand;
+  if (patterncommand) {
+    set_has_patterncommand();
+  } else {
+    clear_has_patterncommand();
+  }
+  // @@protoc_insertion_point(field_set_allocated:CommandMessage.patternCommand)
 }
 
 #endif  // PROTOBUF_INLINE_NOT_IN_HEADERS

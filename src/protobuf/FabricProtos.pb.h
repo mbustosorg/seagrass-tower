@@ -38,6 +38,7 @@ void protobuf_ShutdownFile_FabricProtos_2eproto();
 class CommandMessage;
 class FabricWrapperMessage;
 class HeartbeatMessage;
+class PatternCommand;
 class PatternNamesMessage;
 class WelcomeMessage;
 
@@ -68,11 +69,12 @@ inline bool HeartbeatMessage_MemberType_Parse(
 }
 enum CommandMessage_CommandList {
   CommandMessage_CommandList_PROTOBUF_HEARTBEAT = 1,
-  CommandMessage_CommandList_PROTOBUF_PATTERN_NAMES = 2
+  CommandMessage_CommandList_PROTOBUF_PATTERN_NAMES = 2,
+  CommandMessage_CommandList_PROTOBUF_PATTERN_COMMAND = 3
 };
 bool CommandMessage_CommandList_IsValid(int value);
 const CommandMessage_CommandList CommandMessage_CommandList_CommandList_MIN = CommandMessage_CommandList_PROTOBUF_HEARTBEAT;
-const CommandMessage_CommandList CommandMessage_CommandList_CommandList_MAX = CommandMessage_CommandList_PROTOBUF_PATTERN_NAMES;
+const CommandMessage_CommandList CommandMessage_CommandList_CommandList_MAX = CommandMessage_CommandList_PROTOBUF_PATTERN_COMMAND;
 const int CommandMessage_CommandList_CommandList_ARRAYSIZE = CommandMessage_CommandList_CommandList_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* CommandMessage_CommandList_descriptor();
@@ -115,6 +117,7 @@ class FabricWrapperMessage : public ::google::protobuf::Message {
     kPatternNames = 2,
     kCommand = 3,
     kWelcome = 4,
+    kPatternCommand = 5,
     MSG_NOT_SET = 0,
   };
 
@@ -195,6 +198,15 @@ class FabricWrapperMessage : public ::google::protobuf::Message {
   ::WelcomeMessage* release_welcome();
   void set_allocated_welcome(::WelcomeMessage* welcome);
 
+  // optional .PatternCommand patternCommand = 5;
+  bool has_patterncommand() const;
+  void clear_patterncommand();
+  static const int kPatternCommandFieldNumber = 5;
+  const ::PatternCommand& patterncommand() const;
+  ::PatternCommand* mutable_patterncommand();
+  ::PatternCommand* release_patterncommand();
+  void set_allocated_patterncommand(::PatternCommand* patterncommand);
+
   MsgCase msg_case() const;
   // @@protoc_insertion_point(class_scope:FabricWrapperMessage)
  private:
@@ -202,6 +214,7 @@ class FabricWrapperMessage : public ::google::protobuf::Message {
   inline void set_has_patternnames();
   inline void set_has_command();
   inline void set_has_welcome();
+  inline void set_has_patterncommand();
 
   inline bool has_msg() const;
   void clear_msg();
@@ -216,6 +229,7 @@ class FabricWrapperMessage : public ::google::protobuf::Message {
     ::PatternNamesMessage* patternnames_;
     ::CommandMessage* command_;
     ::WelcomeMessage* welcome_;
+    ::PatternCommand* patterncommand_;
   } msg_;
   ::google::protobuf::uint32 _oneof_case_[1];
 
@@ -531,6 +545,148 @@ class PatternNamesMessage : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class PatternCommand : public ::google::protobuf::Message {
+ public:
+  PatternCommand();
+  virtual ~PatternCommand();
+
+  PatternCommand(const PatternCommand& from);
+
+  inline PatternCommand& operator=(const PatternCommand& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PatternCommand& default_instance();
+
+  void Swap(PatternCommand* other);
+
+  // implements Message ----------------------------------------------
+
+  inline PatternCommand* New() const { return New(NULL); }
+
+  PatternCommand* New(::google::protobuf::Arena* arena) const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const PatternCommand& from);
+  void MergeFrom(const PatternCommand& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(PatternCommand* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return _internal_metadata_.arena();
+  }
+  inline void* MaybeArenaPtr() const {
+    return _internal_metadata_.raw_arena_ptr();
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required int32 patternNumber = 1;
+  bool has_patternnumber() const;
+  void clear_patternnumber();
+  static const int kPatternNumberFieldNumber = 1;
+  ::google::protobuf::int32 patternnumber() const;
+  void set_patternnumber(::google::protobuf::int32 value);
+
+  // required int32 speed = 2;
+  bool has_speed() const;
+  void clear_speed();
+  static const int kSpeedFieldNumber = 2;
+  ::google::protobuf::int32 speed() const;
+  void set_speed(::google::protobuf::int32 value);
+
+  // required int32 intensity = 3;
+  bool has_intensity() const;
+  void clear_intensity();
+  static const int kIntensityFieldNumber = 3;
+  ::google::protobuf::int32 intensity() const;
+  void set_intensity(::google::protobuf::int32 value);
+
+  // required int32 red = 4;
+  bool has_red() const;
+  void clear_red();
+  static const int kRedFieldNumber = 4;
+  ::google::protobuf::int32 red() const;
+  void set_red(::google::protobuf::int32 value);
+
+  // required int32 green = 5;
+  bool has_green() const;
+  void clear_green();
+  static const int kGreenFieldNumber = 5;
+  ::google::protobuf::int32 green() const;
+  void set_green(::google::protobuf::int32 value);
+
+  // required int32 blue = 6;
+  bool has_blue() const;
+  void clear_blue();
+  static const int kBlueFieldNumber = 6;
+  ::google::protobuf::int32 blue() const;
+  void set_blue(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:PatternCommand)
+ private:
+  inline void set_has_patternnumber();
+  inline void clear_has_patternnumber();
+  inline void set_has_speed();
+  inline void clear_has_speed();
+  inline void set_has_intensity();
+  inline void clear_has_intensity();
+  inline void set_has_red();
+  inline void clear_has_red();
+  inline void set_has_green();
+  inline void clear_has_green();
+  inline void set_has_blue();
+  inline void clear_has_blue();
+
+  // helper for ByteSize()
+  int RequiredFieldsByteSizeFallback() const;
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::int32 patternnumber_;
+  ::google::protobuf::int32 speed_;
+  ::google::protobuf::int32 intensity_;
+  ::google::protobuf::int32 red_;
+  ::google::protobuf::int32 green_;
+  ::google::protobuf::int32 blue_;
+  friend void  protobuf_AddDesc_FabricProtos_2eproto();
+  friend void protobuf_AssignDesc_FabricProtos_2eproto();
+  friend void protobuf_ShutdownFile_FabricProtos_2eproto();
+
+  void InitAsDefaultInstance();
+  static PatternCommand* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class CommandMessage : public ::google::protobuf::Message {
  public:
   CommandMessage();
@@ -596,6 +752,7 @@ class CommandMessage : public ::google::protobuf::Message {
   typedef CommandMessage_CommandList CommandList;
   static const CommandList PROTOBUF_HEARTBEAT = CommandMessage_CommandList_PROTOBUF_HEARTBEAT;
   static const CommandList PROTOBUF_PATTERN_NAMES = CommandMessage_CommandList_PROTOBUF_PATTERN_NAMES;
+  static const CommandList PROTOBUF_PATTERN_COMMAND = CommandMessage_CommandList_PROTOBUF_PATTERN_COMMAND;
   static inline bool CommandList_IsValid(int value) {
     return CommandMessage_CommandList_IsValid(value);
   }
@@ -626,14 +783,26 @@ class CommandMessage : public ::google::protobuf::Message {
   ::CommandMessage_CommandList command() const;
   void set_command(::CommandMessage_CommandList value);
 
+  // optional .PatternCommand patternCommand = 2;
+  bool has_patterncommand() const;
+  void clear_patterncommand();
+  static const int kPatternCommandFieldNumber = 2;
+  const ::PatternCommand& patterncommand() const;
+  ::PatternCommand* mutable_patterncommand();
+  ::PatternCommand* release_patterncommand();
+  void set_allocated_patterncommand(::PatternCommand* patterncommand);
+
   // @@protoc_insertion_point(class_scope:CommandMessage)
  private:
   inline void set_has_command();
   inline void clear_has_command();
+  inline void set_has_patterncommand();
+  inline void clear_has_patterncommand();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
+  ::PatternCommand* patterncommand_;
   int command_;
   friend void  protobuf_AddDesc_FabricProtos_2eproto();
   friend void protobuf_AssignDesc_FabricProtos_2eproto();
@@ -948,6 +1117,53 @@ inline void FabricWrapperMessage::set_allocated_welcome(::WelcomeMessage* welcom
     msg_.welcome_ = welcome;
   }
   // @@protoc_insertion_point(field_set_allocated:FabricWrapperMessage.welcome)
+}
+
+// optional .PatternCommand patternCommand = 5;
+inline bool FabricWrapperMessage::has_patterncommand() const {
+  return msg_case() == kPatternCommand;
+}
+inline void FabricWrapperMessage::set_has_patterncommand() {
+  _oneof_case_[0] = kPatternCommand;
+}
+inline void FabricWrapperMessage::clear_patterncommand() {
+  if (has_patterncommand()) {
+    delete msg_.patterncommand_;
+    clear_has_msg();
+  }
+}
+inline  const ::PatternCommand& FabricWrapperMessage::patterncommand() const {
+  // @@protoc_insertion_point(field_get:FabricWrapperMessage.patternCommand)
+  return has_patterncommand()
+      ? *msg_.patterncommand_
+      : ::PatternCommand::default_instance();
+}
+inline ::PatternCommand* FabricWrapperMessage::mutable_patterncommand() {
+  if (!has_patterncommand()) {
+    clear_msg();
+    set_has_patterncommand();
+    msg_.patterncommand_ = new ::PatternCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:FabricWrapperMessage.patternCommand)
+  return msg_.patterncommand_;
+}
+inline ::PatternCommand* FabricWrapperMessage::release_patterncommand() {
+  if (has_patterncommand()) {
+    clear_has_msg();
+    ::PatternCommand* temp = msg_.patterncommand_;
+    msg_.patterncommand_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void FabricWrapperMessage::set_allocated_patterncommand(::PatternCommand* patterncommand) {
+  clear_msg();
+  if (patterncommand) {
+    set_has_patterncommand();
+    msg_.patterncommand_ = patterncommand;
+  }
+  // @@protoc_insertion_point(field_set_allocated:FabricWrapperMessage.patternCommand)
 }
 
 inline bool FabricWrapperMessage::has_msg() const {
@@ -1268,6 +1484,154 @@ PatternNamesMessage::mutable_name() {
 
 // -------------------------------------------------------------------
 
+// PatternCommand
+
+// required int32 patternNumber = 1;
+inline bool PatternCommand::has_patternnumber() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void PatternCommand::set_has_patternnumber() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void PatternCommand::clear_has_patternnumber() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void PatternCommand::clear_patternnumber() {
+  patternnumber_ = 0;
+  clear_has_patternnumber();
+}
+inline ::google::protobuf::int32 PatternCommand::patternnumber() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.patternNumber)
+  return patternnumber_;
+}
+inline void PatternCommand::set_patternnumber(::google::protobuf::int32 value) {
+  set_has_patternnumber();
+  patternnumber_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.patternNumber)
+}
+
+// required int32 speed = 2;
+inline bool PatternCommand::has_speed() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void PatternCommand::set_has_speed() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void PatternCommand::clear_has_speed() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void PatternCommand::clear_speed() {
+  speed_ = 0;
+  clear_has_speed();
+}
+inline ::google::protobuf::int32 PatternCommand::speed() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.speed)
+  return speed_;
+}
+inline void PatternCommand::set_speed(::google::protobuf::int32 value) {
+  set_has_speed();
+  speed_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.speed)
+}
+
+// required int32 intensity = 3;
+inline bool PatternCommand::has_intensity() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void PatternCommand::set_has_intensity() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void PatternCommand::clear_has_intensity() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void PatternCommand::clear_intensity() {
+  intensity_ = 0;
+  clear_has_intensity();
+}
+inline ::google::protobuf::int32 PatternCommand::intensity() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.intensity)
+  return intensity_;
+}
+inline void PatternCommand::set_intensity(::google::protobuf::int32 value) {
+  set_has_intensity();
+  intensity_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.intensity)
+}
+
+// required int32 red = 4;
+inline bool PatternCommand::has_red() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void PatternCommand::set_has_red() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void PatternCommand::clear_has_red() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void PatternCommand::clear_red() {
+  red_ = 0;
+  clear_has_red();
+}
+inline ::google::protobuf::int32 PatternCommand::red() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.red)
+  return red_;
+}
+inline void PatternCommand::set_red(::google::protobuf::int32 value) {
+  set_has_red();
+  red_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.red)
+}
+
+// required int32 green = 5;
+inline bool PatternCommand::has_green() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void PatternCommand::set_has_green() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void PatternCommand::clear_has_green() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void PatternCommand::clear_green() {
+  green_ = 0;
+  clear_has_green();
+}
+inline ::google::protobuf::int32 PatternCommand::green() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.green)
+  return green_;
+}
+inline void PatternCommand::set_green(::google::protobuf::int32 value) {
+  set_has_green();
+  green_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.green)
+}
+
+// required int32 blue = 6;
+inline bool PatternCommand::has_blue() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void PatternCommand::set_has_blue() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void PatternCommand::clear_has_blue() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void PatternCommand::clear_blue() {
+  blue_ = 0;
+  clear_has_blue();
+}
+inline ::google::protobuf::int32 PatternCommand::blue() const {
+  // @@protoc_insertion_point(field_get:PatternCommand.blue)
+  return blue_;
+}
+inline void PatternCommand::set_blue(::google::protobuf::int32 value) {
+  set_has_blue();
+  blue_ = value;
+  // @@protoc_insertion_point(field_set:PatternCommand.blue)
+}
+
+// -------------------------------------------------------------------
+
 // CommandMessage
 
 // required .CommandMessage.CommandList command = 1;
@@ -1293,6 +1657,49 @@ inline void CommandMessage::set_command(::CommandMessage_CommandList value) {
   set_has_command();
   command_ = value;
   // @@protoc_insertion_point(field_set:CommandMessage.command)
+}
+
+// optional .PatternCommand patternCommand = 2;
+inline bool CommandMessage::has_patterncommand() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void CommandMessage::set_has_patterncommand() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void CommandMessage::clear_has_patterncommand() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void CommandMessage::clear_patterncommand() {
+  if (patterncommand_ != NULL) patterncommand_->::PatternCommand::Clear();
+  clear_has_patterncommand();
+}
+inline const ::PatternCommand& CommandMessage::patterncommand() const {
+  // @@protoc_insertion_point(field_get:CommandMessage.patternCommand)
+  return patterncommand_ != NULL ? *patterncommand_ : *default_instance_->patterncommand_;
+}
+inline ::PatternCommand* CommandMessage::mutable_patterncommand() {
+  set_has_patterncommand();
+  if (patterncommand_ == NULL) {
+    patterncommand_ = new ::PatternCommand;
+  }
+  // @@protoc_insertion_point(field_mutable:CommandMessage.patternCommand)
+  return patterncommand_;
+}
+inline ::PatternCommand* CommandMessage::release_patterncommand() {
+  clear_has_patterncommand();
+  ::PatternCommand* temp = patterncommand_;
+  patterncommand_ = NULL;
+  return temp;
+}
+inline void CommandMessage::set_allocated_patterncommand(::PatternCommand* patterncommand) {
+  delete patterncommand_;
+  patterncommand_ = patterncommand;
+  if (patterncommand) {
+    set_has_patterncommand();
+  } else {
+    clear_has_patterncommand();
+  }
+  // @@protoc_insertion_point(field_set_allocated:CommandMessage.patternCommand)
 }
 
 // -------------------------------------------------------------------
@@ -1406,6 +1813,8 @@ inline void WelcomeMessage::set_allocated_version(::std::string* version) {
 }
 
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
