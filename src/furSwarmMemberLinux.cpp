@@ -120,6 +120,8 @@ void furSwarmMemberLinux::handlePatternCommand(const PatternCommand patterncomma
         
         setPattern(command);
         
+        LOG_INFO << "Pattern Set - " << patternNames[platform->pattern];
+
         updateHeartbeatMessage(wrapperMessage.mutable_heartbeat());
         wrapperMessage.SerializeToArray(buffer, wrapperMessage.ByteSize());
         *messageSize = wrapperMessage.ByteSize();
