@@ -2,7 +2,7 @@ DFLAGS=-DTEENSY -DUSE_TCL -DTCL_DIO -DFS_TOWN_CENTER -DNOT_EMBEDDED
 
 BUILD_NUMBER_FILE=build-number.txt
 
-DFLAGS+=-D__BUILD_TIME=$$(date +'%Y-%m-%d')
+DFLAGS+=-D__BUILD_TIME=$$(date +'%Y-%m-%d_%H-%M-%S')
 DFLAGS+=-D__BUILD_NUMBER=$$(cat $(BUILD_NUMBER_FILE))
 
 PRODUCT_NAME=furSwarmLinux
