@@ -43,20 +43,7 @@ void statusLED::update() {
   red = pulseValue.red * proportion;
   green = pulseValue.green * proportion;
   blue = pulseValue.blue * proportion;
-#ifdef FS_DRESS
   led.setPixelColor(0, red, green, blue);
-  led.setPixelColor(1, red, green, blue);
-  led.setPixelColor(2, red, green, blue);
-  led.setPixelColor(3, red, green, blue);
-  led.setPixelColor(4, red, green, blue);
-  led.setPixelColor(5, red, green, blue);
-  led.setPixelColor(6, red, green, blue);
-  led.setPixelColor(7, red, green, blue);
-  led.setPixelColor(8, red, green, blue);
-  led.setPixelColor(9, red, green, blue);
-#else  
-  led.setPixelColor(0, red, green, blue);
-#endif
   led.show();
 }
 

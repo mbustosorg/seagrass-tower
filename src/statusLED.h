@@ -40,11 +40,7 @@ class statusLED {
   void pulse(uint8_t red, uint8_t green, uint8_t blue, int duration, bool fade);
 
  private:
-#ifdef FS_DRESS
-  Adafruit_NeoPixel led = Adafruit_NeoPixel(9, STATUS_LED_PIN, NEO_GRB + NEO_KHZ800);
-#else
-  Adafruit_NeoPixel led = Adafruit_NeoPixel(1, STATUS_LED_PIN, NEO_GRB + NEO_KHZ800);
-#endif
+  Adafruit_NeoPixel led = Adafruit_NeoPixel(1, STATUS_LED_PIN, NEO_GRB + NEO_KHZ400);
 
   led_pulse pulseValue;
 

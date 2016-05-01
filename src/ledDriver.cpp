@@ -62,7 +62,7 @@ ledDriver::ledDriver() {
 #ifdef USE_TCL
     TCL.begin();
 #elif USE_NEOPIXEL
-    // Do nothing
+    NEOPIXEL.begin();
 #else
     // Adafruit strip
     pinMode(lpdDataPin, OUTPUT);

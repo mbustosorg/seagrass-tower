@@ -834,7 +834,7 @@ void furSwarmPatterns::displaySoundActivate() {
     if (intensityLevel > 255.0) intensityLevel = 255.0;
     else if (intensityLevel < 0.0) intensityLevel = 0.0;
     
-#if (defined (FS_TOWER) || defined (FS_TOWER_HAT) || defined (FS_TOWN_CENTER)) && !defined(FS_TOWER_EYE)
+#if (defined (FS_TOWER) || defined (FS_TOWER_HAT) || defined (FS_TOWN_CENTER) || defined(FS_DRESS)) && !defined(FS_TOWER_EYE)
     // Slow down the intensity level retraction and display a peak for a short period
     uint32_t timeStamp = millis();
     if (intensityLevel > peakSoundLevel) {

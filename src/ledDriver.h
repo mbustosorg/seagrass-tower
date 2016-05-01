@@ -28,7 +28,7 @@
 #include "TCL.h"
 #elif USE_NEOPIXEL
 #include "Adafruit_NeoPixel.h"
-#define NEOPIXEL_DATA_PIN (3)
+#define NEOPIXEL_DATA_PIN (2)
 #elif USE_WS2801
 // Adafruit RGB strand
 #include "Adafruit_WS2801.h"
@@ -79,7 +79,7 @@ class ledDriver {
 #endif
 
 #ifdef USE_NEOPIXEL
-  Adafruit_NeoPixel NEOPIXEL = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL_DATA_PIN, NEO_GRB + NEO_KHZ800);
+  Adafruit_NeoPixel NEOPIXEL = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL_DATA_PIN, NEO_GRB + NEO_KHZ400);
 #endif
 
 };
