@@ -27,7 +27,7 @@
 // Heartbeat message layout
 uint8_t heartbeatPayload[11] = {
     0x01,       // Byte 0: Message Type ID (1 byte)
-    0,       // Byte 1: Version ID (1 byte)
+    0x01,       // Byte 1: Version ID (1 byte)
     0,       // Byte 2: Frame location (2 bytes)
     0,
     0,       // Byte 4: Current Pattern
@@ -72,14 +72,15 @@ void furSwarmMemberLinux::update() {
 }
 
 void furSwarmMemberLinux::updateHeartbeatMessage(HeartbeatMessage* heartbeat) {
-    heartbeat->set_membertype(heartbeatPayload[0]);
+    heartbeat->set_messagetypeid(heartbeatPayload[0]);
     heartbeat->set_versionid(heartbeatPayload[1]);
-    heartbeat->set_framelocation(0);
     heartbeat->set_currentpattern(platform->pattern);
-    heartbeat->set_batteryvoltage(0);
-    heartbeat->set_framerate(0);
+    heartbeat->set_red(platform->redLevel);
+    heartbeat->set_green(platform->greenLevel);
+    heartbeat->set_blue(platform->blueLevel);
+    heartbeat->set_speed(platform->patternSpeedLevel);
+    heartbeat->set_intensity(platform->intensityLevel);
     heartbeat->set_membertype(heartbeatPayload[8]);
-    heartbeat->set_failedmessages(0);
     heartbeat->set_currentpatternname(patternNames[platform->pattern]);
 }
 
@@ -93,7 +94,7 @@ void furSwarmMemberLinux::handleMessage(const CommandMessage command, uint8_t* b
         LOG_INFO << "Received pattern names request";
         PatternNamesMessage* patternName = wrapperMessage.mutable_patternnames();
         for (int i = 1; i < FS_ID_MAX_ID_COUNT; i++) {
-            patternName->add_name(patternNames[i]);
+            patternName->add_name(fabricPatternNames[i]);
         }
     }
     wrapperMessage.SerializeToArray(buffer, wrapperMessage.ByteSize());

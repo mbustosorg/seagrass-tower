@@ -150,6 +150,7 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   //messageType = (int) data[0];
   transitionRequested = 0x80 & data[0];
   patternSpeed = (int) data[1];
+  patternSpeedLevel = patternSpeed;
   switch (messageType) {
   case FS_ID_DANCING:
     patternSpeed = 255 - (int) data [1];

@@ -1141,6 +1141,7 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
     transitionRequested = (0x80 & data[0]) > 0;
     if (transitionRequested) cycleSpot = 0;
     patternSpeed = (int) data[1];
+    patternSpeedLevel = patternSpeed;
     switch (messageType) {
         case FS_ID_HEARTBEAT_REQUEST:
             break;

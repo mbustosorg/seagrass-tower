@@ -43,6 +43,7 @@ class PatternNamesMessage;
 class WelcomeMessage;
 
 enum HeartbeatMessage_MemberType {
+  HeartbeatMessage_MemberType_PROTOBUF_UNKNOWN = 0,
   HeartbeatMessage_MemberType_PROTOBUF_VEST = 1,
   HeartbeatMessage_MemberType_PROTOBUF_HAT = 2,
   HeartbeatMessage_MemberType_PROTOBUF_TOWER = 3,
@@ -50,10 +51,12 @@ enum HeartbeatMessage_MemberType {
   HeartbeatMessage_MemberType_PROTOBUF_TOWER_EYE = 5,
   HeartbeatMessage_MemberType_PROTOBUF_DRESS = 6,
   HeartbeatMessage_MemberType_PROTOBUF_WINDFLOWERS = 7,
-  HeartbeatMessage_MemberType_PROTOBUF_REEDS = 8
+  HeartbeatMessage_MemberType_PROTOBUF_REEDS = 8,
+  HeartbeatMessage_MemberType_HeartbeatMessage_MemberType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
+  HeartbeatMessage_MemberType_HeartbeatMessage_MemberType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool HeartbeatMessage_MemberType_IsValid(int value);
-const HeartbeatMessage_MemberType HeartbeatMessage_MemberType_MemberType_MIN = HeartbeatMessage_MemberType_PROTOBUF_VEST;
+const HeartbeatMessage_MemberType HeartbeatMessage_MemberType_MemberType_MIN = HeartbeatMessage_MemberType_PROTOBUF_UNKNOWN;
 const HeartbeatMessage_MemberType HeartbeatMessage_MemberType_MemberType_MAX = HeartbeatMessage_MemberType_PROTOBUF_REEDS;
 const int HeartbeatMessage_MemberType_MemberType_ARRAYSIZE = HeartbeatMessage_MemberType_MemberType_MAX + 1;
 
@@ -68,9 +71,11 @@ inline bool HeartbeatMessage_MemberType_Parse(
     HeartbeatMessage_MemberType_descriptor(), name, value);
 }
 enum CommandMessage_CommandList {
-  CommandMessage_CommandList_PROTOBUF_HEARTBEAT = 1,
-  CommandMessage_CommandList_PROTOBUF_PATTERN_NAMES = 2,
-  CommandMessage_CommandList_PROTOBUF_PATTERN_COMMAND = 3
+  CommandMessage_CommandList_PROTOBUF_HEARTBEAT = 0,
+  CommandMessage_CommandList_PROTOBUF_PATTERN_NAMES = 1,
+  CommandMessage_CommandList_PROTOBUF_PATTERN_COMMAND = 2,
+  CommandMessage_CommandList_CommandMessage_CommandList_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
+  CommandMessage_CommandList_CommandMessage_CommandList_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool CommandMessage_CommandList_IsValid(int value);
 const CommandMessage_CommandList CommandMessage_CommandList_CommandList_MIN = CommandMessage_CommandList_PROTOBUF_HEARTBEAT;
@@ -99,14 +104,6 @@ class FabricWrapperMessage : public ::google::protobuf::Message {
   inline FabricWrapperMessage& operator=(const FabricWrapperMessage& from) {
     CopyFrom(from);
     return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
@@ -221,8 +218,7 @@ class FabricWrapperMessage : public ::google::protobuf::Message {
   inline void clear_has_msg();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
+  bool _is_default_instance_;
   union MsgUnion {
     MsgUnion() {}
     ::HeartbeatMessage* heartbeat_;
@@ -231,6 +227,7 @@ class FabricWrapperMessage : public ::google::protobuf::Message {
     ::WelcomeMessage* welcome_;
     ::PatternCommand* patterncommand_;
   } msg_;
+  mutable int _cached_size_;
   ::google::protobuf::uint32 _oneof_case_[1];
 
   friend void  protobuf_AddDesc_FabricProtos_2eproto();
@@ -252,14 +249,6 @@ class HeartbeatMessage : public ::google::protobuf::Message {
   inline HeartbeatMessage& operator=(const HeartbeatMessage& from) {
     CopyFrom(from);
     return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
@@ -305,6 +294,7 @@ class HeartbeatMessage : public ::google::protobuf::Message {
   // nested types ----------------------------------------------------
 
   typedef HeartbeatMessage_MemberType MemberType;
+  static const MemberType PROTOBUF_UNKNOWN = HeartbeatMessage_MemberType_PROTOBUF_UNKNOWN;
   static const MemberType PROTOBUF_VEST = HeartbeatMessage_MemberType_PROTOBUF_VEST;
   static const MemberType PROTOBUF_HAT = HeartbeatMessage_MemberType_PROTOBUF_HAT;
   static const MemberType PROTOBUF_TOWER = HeartbeatMessage_MemberType_PROTOBUF_TOWER;
@@ -336,66 +326,63 @@ class HeartbeatMessage : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required int32 messageTypeID = 1;
-  bool has_messagetypeid() const;
+  // optional int32 messageTypeID = 1;
   void clear_messagetypeid();
   static const int kMessageTypeIDFieldNumber = 1;
   ::google::protobuf::int32 messagetypeid() const;
   void set_messagetypeid(::google::protobuf::int32 value);
 
-  // required int32 versionID = 2;
-  bool has_versionid() const;
+  // optional int32 versionID = 2;
   void clear_versionid();
   static const int kVersionIDFieldNumber = 2;
   ::google::protobuf::int32 versionid() const;
   void set_versionid(::google::protobuf::int32 value);
 
-  // optional int32 frameLocation = 3;
-  bool has_framelocation() const;
-  void clear_framelocation();
-  static const int kFrameLocationFieldNumber = 3;
-  ::google::protobuf::int32 framelocation() const;
-  void set_framelocation(::google::protobuf::int32 value);
-
-  // required int32 currentPattern = 4;
-  bool has_currentpattern() const;
+  // optional int32 currentPattern = 3;
   void clear_currentpattern();
-  static const int kCurrentPatternFieldNumber = 4;
+  static const int kCurrentPatternFieldNumber = 3;
   ::google::protobuf::int32 currentpattern() const;
   void set_currentpattern(::google::protobuf::int32 value);
 
-  // optional int32 batteryVoltage = 5;
-  bool has_batteryvoltage() const;
-  void clear_batteryvoltage();
-  static const int kBatteryVoltageFieldNumber = 5;
-  ::google::protobuf::int32 batteryvoltage() const;
-  void set_batteryvoltage(::google::protobuf::int32 value);
+  // optional int32 red = 4;
+  void clear_red();
+  static const int kRedFieldNumber = 4;
+  ::google::protobuf::int32 red() const;
+  void set_red(::google::protobuf::int32 value);
 
-  // optional int32 frameRate = 6;
-  bool has_framerate() const;
-  void clear_framerate();
-  static const int kFrameRateFieldNumber = 6;
-  ::google::protobuf::int32 framerate() const;
-  void set_framerate(::google::protobuf::int32 value);
+  // optional int32 green = 5;
+  void clear_green();
+  static const int kGreenFieldNumber = 5;
+  ::google::protobuf::int32 green() const;
+  void set_green(::google::protobuf::int32 value);
 
-  // required int32 memberType = 7;
-  bool has_membertype() const;
+  // optional int32 blue = 6;
+  void clear_blue();
+  static const int kBlueFieldNumber = 6;
+  ::google::protobuf::int32 blue() const;
+  void set_blue(::google::protobuf::int32 value);
+
+  // optional int32 speed = 7;
+  void clear_speed();
+  static const int kSpeedFieldNumber = 7;
+  ::google::protobuf::int32 speed() const;
+  void set_speed(::google::protobuf::int32 value);
+
+  // optional int32 intensity = 8;
+  void clear_intensity();
+  static const int kIntensityFieldNumber = 8;
+  ::google::protobuf::int32 intensity() const;
+  void set_intensity(::google::protobuf::int32 value);
+
+  // optional int32 memberType = 9;
   void clear_membertype();
-  static const int kMemberTypeFieldNumber = 7;
+  static const int kMemberTypeFieldNumber = 9;
   ::google::protobuf::int32 membertype() const;
   void set_membertype(::google::protobuf::int32 value);
 
-  // optional int32 failedMessages = 8;
-  bool has_failedmessages() const;
-  void clear_failedmessages();
-  static const int kFailedMessagesFieldNumber = 8;
-  ::google::protobuf::int32 failedmessages() const;
-  void set_failedmessages(::google::protobuf::int32 value);
-
-  // required string currentPatternName = 9;
-  bool has_currentpatternname() const;
+  // optional string currentPatternName = 10;
   void clear_currentpatternname();
-  static const int kCurrentPatternNameFieldNumber = 9;
+  static const int kCurrentPatternNameFieldNumber = 10;
   const ::std::string& currentpatternname() const;
   void set_currentpatternname(const ::std::string& value);
   void set_currentpatternname(const char* value);
@@ -406,40 +393,20 @@ class HeartbeatMessage : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:HeartbeatMessage)
  private:
-  inline void set_has_messagetypeid();
-  inline void clear_has_messagetypeid();
-  inline void set_has_versionid();
-  inline void clear_has_versionid();
-  inline void set_has_framelocation();
-  inline void clear_has_framelocation();
-  inline void set_has_currentpattern();
-  inline void clear_has_currentpattern();
-  inline void set_has_batteryvoltage();
-  inline void clear_has_batteryvoltage();
-  inline void set_has_framerate();
-  inline void clear_has_framerate();
-  inline void set_has_membertype();
-  inline void clear_has_membertype();
-  inline void set_has_failedmessages();
-  inline void clear_has_failedmessages();
-  inline void set_has_currentpatternname();
-  inline void clear_has_currentpatternname();
-
-  // helper for ByteSize()
-  int RequiredFieldsByteSizeFallback() const;
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
+  bool _is_default_instance_;
   ::google::protobuf::int32 messagetypeid_;
   ::google::protobuf::int32 versionid_;
-  ::google::protobuf::int32 framelocation_;
   ::google::protobuf::int32 currentpattern_;
-  ::google::protobuf::int32 batteryvoltage_;
-  ::google::protobuf::int32 framerate_;
-  ::google::protobuf::int32 membertype_;
-  ::google::protobuf::int32 failedmessages_;
+  ::google::protobuf::int32 red_;
+  ::google::protobuf::int32 green_;
+  ::google::protobuf::int32 blue_;
+  ::google::protobuf::int32 speed_;
+  ::google::protobuf::int32 intensity_;
   ::google::protobuf::internal::ArenaStringPtr currentpatternname_;
+  ::google::protobuf::int32 membertype_;
+  mutable int _cached_size_;
   friend void  protobuf_AddDesc_FabricProtos_2eproto();
   friend void protobuf_AssignDesc_FabricProtos_2eproto();
   friend void protobuf_ShutdownFile_FabricProtos_2eproto();
@@ -459,14 +426,6 @@ class PatternNamesMessage : public ::google::protobuf::Message {
   inline PatternNamesMessage& operator=(const PatternNamesMessage& from) {
     CopyFrom(from);
     return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
@@ -533,9 +492,9 @@ class PatternNamesMessage : public ::google::protobuf::Message {
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
+  bool _is_default_instance_;
   ::google::protobuf::RepeatedPtrField< ::std::string> name_;
+  mutable int _cached_size_;
   friend void  protobuf_AddDesc_FabricProtos_2eproto();
   friend void protobuf_AssignDesc_FabricProtos_2eproto();
   friend void protobuf_ShutdownFile_FabricProtos_2eproto();
@@ -555,14 +514,6 @@ class PatternCommand : public ::google::protobuf::Message {
   inline PatternCommand& operator=(const PatternCommand& from) {
     CopyFrom(from);
     return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
@@ -609,43 +560,37 @@ class PatternCommand : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required int32 patternNumber = 1;
-  bool has_patternnumber() const;
+  // optional int32 patternNumber = 1;
   void clear_patternnumber();
   static const int kPatternNumberFieldNumber = 1;
   ::google::protobuf::int32 patternnumber() const;
   void set_patternnumber(::google::protobuf::int32 value);
 
-  // required int32 speed = 2;
-  bool has_speed() const;
+  // optional int32 speed = 2;
   void clear_speed();
   static const int kSpeedFieldNumber = 2;
   ::google::protobuf::int32 speed() const;
   void set_speed(::google::protobuf::int32 value);
 
-  // required int32 intensity = 3;
-  bool has_intensity() const;
+  // optional int32 intensity = 3;
   void clear_intensity();
   static const int kIntensityFieldNumber = 3;
   ::google::protobuf::int32 intensity() const;
   void set_intensity(::google::protobuf::int32 value);
 
-  // required int32 red = 4;
-  bool has_red() const;
+  // optional int32 red = 4;
   void clear_red();
   static const int kRedFieldNumber = 4;
   ::google::protobuf::int32 red() const;
   void set_red(::google::protobuf::int32 value);
 
-  // required int32 green = 5;
-  bool has_green() const;
+  // optional int32 green = 5;
   void clear_green();
   static const int kGreenFieldNumber = 5;
   ::google::protobuf::int32 green() const;
   void set_green(::google::protobuf::int32 value);
 
-  // required int32 blue = 6;
-  bool has_blue() const;
+  // optional int32 blue = 6;
   void clear_blue();
   static const int kBlueFieldNumber = 6;
   ::google::protobuf::int32 blue() const;
@@ -653,31 +598,16 @@ class PatternCommand : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:PatternCommand)
  private:
-  inline void set_has_patternnumber();
-  inline void clear_has_patternnumber();
-  inline void set_has_speed();
-  inline void clear_has_speed();
-  inline void set_has_intensity();
-  inline void clear_has_intensity();
-  inline void set_has_red();
-  inline void clear_has_red();
-  inline void set_has_green();
-  inline void clear_has_green();
-  inline void set_has_blue();
-  inline void clear_has_blue();
-
-  // helper for ByteSize()
-  int RequiredFieldsByteSizeFallback() const;
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
+  bool _is_default_instance_;
   ::google::protobuf::int32 patternnumber_;
   ::google::protobuf::int32 speed_;
   ::google::protobuf::int32 intensity_;
   ::google::protobuf::int32 red_;
   ::google::protobuf::int32 green_;
   ::google::protobuf::int32 blue_;
+  mutable int _cached_size_;
   friend void  protobuf_AddDesc_FabricProtos_2eproto();
   friend void protobuf_AssignDesc_FabricProtos_2eproto();
   friend void protobuf_ShutdownFile_FabricProtos_2eproto();
@@ -697,14 +627,6 @@ class CommandMessage : public ::google::protobuf::Message {
   inline CommandMessage& operator=(const CommandMessage& from) {
     CopyFrom(from);
     return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
@@ -776,8 +698,7 @@ class CommandMessage : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required .CommandMessage.CommandList command = 1;
-  bool has_command() const;
+  // optional .CommandMessage.CommandList command = 1;
   void clear_command();
   static const int kCommandFieldNumber = 1;
   ::CommandMessage_CommandList command() const;
@@ -794,16 +715,12 @@ class CommandMessage : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:CommandMessage)
  private:
-  inline void set_has_command();
-  inline void clear_has_command();
-  inline void set_has_patterncommand();
-  inline void clear_has_patterncommand();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
+  bool _is_default_instance_;
   ::PatternCommand* patterncommand_;
   int command_;
+  mutable int _cached_size_;
   friend void  protobuf_AddDesc_FabricProtos_2eproto();
   friend void protobuf_AssignDesc_FabricProtos_2eproto();
   friend void protobuf_ShutdownFile_FabricProtos_2eproto();
@@ -823,14 +740,6 @@ class WelcomeMessage : public ::google::protobuf::Message {
   inline WelcomeMessage& operator=(const WelcomeMessage& from) {
     CopyFrom(from);
     return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
@@ -877,8 +786,7 @@ class WelcomeMessage : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required string buildTime = 1;
-  bool has_buildtime() const;
+  // optional string buildTime = 1;
   void clear_buildtime();
   static const int kBuildTimeFieldNumber = 1;
   const ::std::string& buildtime() const;
@@ -889,8 +797,7 @@ class WelcomeMessage : public ::google::protobuf::Message {
   ::std::string* release_buildtime();
   void set_allocated_buildtime(::std::string* buildtime);
 
-  // required string version = 2;
-  bool has_version() const;
+  // optional string version = 2;
   void clear_version();
   static const int kVersionFieldNumber = 2;
   const ::std::string& version() const;
@@ -903,19 +810,12 @@ class WelcomeMessage : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:WelcomeMessage)
  private:
-  inline void set_has_buildtime();
-  inline void clear_has_buildtime();
-  inline void set_has_version();
-  inline void clear_has_version();
-
-  // helper for ByteSize()
-  int RequiredFieldsByteSizeFallback() const;
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
+  bool _is_default_instance_;
   ::google::protobuf::internal::ArenaStringPtr buildtime_;
   ::google::protobuf::internal::ArenaStringPtr version_;
+  mutable int _cached_size_;
   friend void  protobuf_AddDesc_FabricProtos_2eproto();
   friend void protobuf_AssignDesc_FabricProtos_2eproto();
   friend void protobuf_ShutdownFile_FabricProtos_2eproto();
@@ -1179,246 +1079,170 @@ inline FabricWrapperMessage::MsgCase FabricWrapperMessage::msg_case() const {
 
 // HeartbeatMessage
 
-// required int32 messageTypeID = 1;
-inline bool HeartbeatMessage::has_messagetypeid() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void HeartbeatMessage::set_has_messagetypeid() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void HeartbeatMessage::clear_has_messagetypeid() {
-  _has_bits_[0] &= ~0x00000001u;
-}
+// optional int32 messageTypeID = 1;
 inline void HeartbeatMessage::clear_messagetypeid() {
   messagetypeid_ = 0;
-  clear_has_messagetypeid();
 }
 inline ::google::protobuf::int32 HeartbeatMessage::messagetypeid() const {
   // @@protoc_insertion_point(field_get:HeartbeatMessage.messageTypeID)
   return messagetypeid_;
 }
 inline void HeartbeatMessage::set_messagetypeid(::google::protobuf::int32 value) {
-  set_has_messagetypeid();
+  
   messagetypeid_ = value;
   // @@protoc_insertion_point(field_set:HeartbeatMessage.messageTypeID)
 }
 
-// required int32 versionID = 2;
-inline bool HeartbeatMessage::has_versionid() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void HeartbeatMessage::set_has_versionid() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void HeartbeatMessage::clear_has_versionid() {
-  _has_bits_[0] &= ~0x00000002u;
-}
+// optional int32 versionID = 2;
 inline void HeartbeatMessage::clear_versionid() {
   versionid_ = 0;
-  clear_has_versionid();
 }
 inline ::google::protobuf::int32 HeartbeatMessage::versionid() const {
   // @@protoc_insertion_point(field_get:HeartbeatMessage.versionID)
   return versionid_;
 }
 inline void HeartbeatMessage::set_versionid(::google::protobuf::int32 value) {
-  set_has_versionid();
+  
   versionid_ = value;
   // @@protoc_insertion_point(field_set:HeartbeatMessage.versionID)
 }
 
-// optional int32 frameLocation = 3;
-inline bool HeartbeatMessage::has_framelocation() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void HeartbeatMessage::set_has_framelocation() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void HeartbeatMessage::clear_has_framelocation() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void HeartbeatMessage::clear_framelocation() {
-  framelocation_ = 0;
-  clear_has_framelocation();
-}
-inline ::google::protobuf::int32 HeartbeatMessage::framelocation() const {
-  // @@protoc_insertion_point(field_get:HeartbeatMessage.frameLocation)
-  return framelocation_;
-}
-inline void HeartbeatMessage::set_framelocation(::google::protobuf::int32 value) {
-  set_has_framelocation();
-  framelocation_ = value;
-  // @@protoc_insertion_point(field_set:HeartbeatMessage.frameLocation)
-}
-
-// required int32 currentPattern = 4;
-inline bool HeartbeatMessage::has_currentpattern() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void HeartbeatMessage::set_has_currentpattern() {
-  _has_bits_[0] |= 0x00000008u;
-}
-inline void HeartbeatMessage::clear_has_currentpattern() {
-  _has_bits_[0] &= ~0x00000008u;
-}
+// optional int32 currentPattern = 3;
 inline void HeartbeatMessage::clear_currentpattern() {
   currentpattern_ = 0;
-  clear_has_currentpattern();
 }
 inline ::google::protobuf::int32 HeartbeatMessage::currentpattern() const {
   // @@protoc_insertion_point(field_get:HeartbeatMessage.currentPattern)
   return currentpattern_;
 }
 inline void HeartbeatMessage::set_currentpattern(::google::protobuf::int32 value) {
-  set_has_currentpattern();
+  
   currentpattern_ = value;
   // @@protoc_insertion_point(field_set:HeartbeatMessage.currentPattern)
 }
 
-// optional int32 batteryVoltage = 5;
-inline bool HeartbeatMessage::has_batteryvoltage() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+// optional int32 red = 4;
+inline void HeartbeatMessage::clear_red() {
+  red_ = 0;
 }
-inline void HeartbeatMessage::set_has_batteryvoltage() {
-  _has_bits_[0] |= 0x00000010u;
+inline ::google::protobuf::int32 HeartbeatMessage::red() const {
+  // @@protoc_insertion_point(field_get:HeartbeatMessage.red)
+  return red_;
 }
-inline void HeartbeatMessage::clear_has_batteryvoltage() {
-  _has_bits_[0] &= ~0x00000010u;
-}
-inline void HeartbeatMessage::clear_batteryvoltage() {
-  batteryvoltage_ = 0;
-  clear_has_batteryvoltage();
-}
-inline ::google::protobuf::int32 HeartbeatMessage::batteryvoltage() const {
-  // @@protoc_insertion_point(field_get:HeartbeatMessage.batteryVoltage)
-  return batteryvoltage_;
-}
-inline void HeartbeatMessage::set_batteryvoltage(::google::protobuf::int32 value) {
-  set_has_batteryvoltage();
-  batteryvoltage_ = value;
-  // @@protoc_insertion_point(field_set:HeartbeatMessage.batteryVoltage)
+inline void HeartbeatMessage::set_red(::google::protobuf::int32 value) {
+  
+  red_ = value;
+  // @@protoc_insertion_point(field_set:HeartbeatMessage.red)
 }
 
-// optional int32 frameRate = 6;
-inline bool HeartbeatMessage::has_framerate() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+// optional int32 green = 5;
+inline void HeartbeatMessage::clear_green() {
+  green_ = 0;
 }
-inline void HeartbeatMessage::set_has_framerate() {
-  _has_bits_[0] |= 0x00000020u;
+inline ::google::protobuf::int32 HeartbeatMessage::green() const {
+  // @@protoc_insertion_point(field_get:HeartbeatMessage.green)
+  return green_;
 }
-inline void HeartbeatMessage::clear_has_framerate() {
-  _has_bits_[0] &= ~0x00000020u;
-}
-inline void HeartbeatMessage::clear_framerate() {
-  framerate_ = 0;
-  clear_has_framerate();
-}
-inline ::google::protobuf::int32 HeartbeatMessage::framerate() const {
-  // @@protoc_insertion_point(field_get:HeartbeatMessage.frameRate)
-  return framerate_;
-}
-inline void HeartbeatMessage::set_framerate(::google::protobuf::int32 value) {
-  set_has_framerate();
-  framerate_ = value;
-  // @@protoc_insertion_point(field_set:HeartbeatMessage.frameRate)
+inline void HeartbeatMessage::set_green(::google::protobuf::int32 value) {
+  
+  green_ = value;
+  // @@protoc_insertion_point(field_set:HeartbeatMessage.green)
 }
 
-// required int32 memberType = 7;
-inline bool HeartbeatMessage::has_membertype() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
+// optional int32 blue = 6;
+inline void HeartbeatMessage::clear_blue() {
+  blue_ = 0;
 }
-inline void HeartbeatMessage::set_has_membertype() {
-  _has_bits_[0] |= 0x00000040u;
+inline ::google::protobuf::int32 HeartbeatMessage::blue() const {
+  // @@protoc_insertion_point(field_get:HeartbeatMessage.blue)
+  return blue_;
 }
-inline void HeartbeatMessage::clear_has_membertype() {
-  _has_bits_[0] &= ~0x00000040u;
+inline void HeartbeatMessage::set_blue(::google::protobuf::int32 value) {
+  
+  blue_ = value;
+  // @@protoc_insertion_point(field_set:HeartbeatMessage.blue)
 }
+
+// optional int32 speed = 7;
+inline void HeartbeatMessage::clear_speed() {
+  speed_ = 0;
+}
+inline ::google::protobuf::int32 HeartbeatMessage::speed() const {
+  // @@protoc_insertion_point(field_get:HeartbeatMessage.speed)
+  return speed_;
+}
+inline void HeartbeatMessage::set_speed(::google::protobuf::int32 value) {
+  
+  speed_ = value;
+  // @@protoc_insertion_point(field_set:HeartbeatMessage.speed)
+}
+
+// optional int32 intensity = 8;
+inline void HeartbeatMessage::clear_intensity() {
+  intensity_ = 0;
+}
+inline ::google::protobuf::int32 HeartbeatMessage::intensity() const {
+  // @@protoc_insertion_point(field_get:HeartbeatMessage.intensity)
+  return intensity_;
+}
+inline void HeartbeatMessage::set_intensity(::google::protobuf::int32 value) {
+  
+  intensity_ = value;
+  // @@protoc_insertion_point(field_set:HeartbeatMessage.intensity)
+}
+
+// optional int32 memberType = 9;
 inline void HeartbeatMessage::clear_membertype() {
   membertype_ = 0;
-  clear_has_membertype();
 }
 inline ::google::protobuf::int32 HeartbeatMessage::membertype() const {
   // @@protoc_insertion_point(field_get:HeartbeatMessage.memberType)
   return membertype_;
 }
 inline void HeartbeatMessage::set_membertype(::google::protobuf::int32 value) {
-  set_has_membertype();
+  
   membertype_ = value;
   // @@protoc_insertion_point(field_set:HeartbeatMessage.memberType)
 }
 
-// optional int32 failedMessages = 8;
-inline bool HeartbeatMessage::has_failedmessages() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
-}
-inline void HeartbeatMessage::set_has_failedmessages() {
-  _has_bits_[0] |= 0x00000080u;
-}
-inline void HeartbeatMessage::clear_has_failedmessages() {
-  _has_bits_[0] &= ~0x00000080u;
-}
-inline void HeartbeatMessage::clear_failedmessages() {
-  failedmessages_ = 0;
-  clear_has_failedmessages();
-}
-inline ::google::protobuf::int32 HeartbeatMessage::failedmessages() const {
-  // @@protoc_insertion_point(field_get:HeartbeatMessage.failedMessages)
-  return failedmessages_;
-}
-inline void HeartbeatMessage::set_failedmessages(::google::protobuf::int32 value) {
-  set_has_failedmessages();
-  failedmessages_ = value;
-  // @@protoc_insertion_point(field_set:HeartbeatMessage.failedMessages)
-}
-
-// required string currentPatternName = 9;
-inline bool HeartbeatMessage::has_currentpatternname() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
-}
-inline void HeartbeatMessage::set_has_currentpatternname() {
-  _has_bits_[0] |= 0x00000100u;
-}
-inline void HeartbeatMessage::clear_has_currentpatternname() {
-  _has_bits_[0] &= ~0x00000100u;
-}
+// optional string currentPatternName = 10;
 inline void HeartbeatMessage::clear_currentpatternname() {
   currentpatternname_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  clear_has_currentpatternname();
 }
 inline const ::std::string& HeartbeatMessage::currentpatternname() const {
   // @@protoc_insertion_point(field_get:HeartbeatMessage.currentPatternName)
   return currentpatternname_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void HeartbeatMessage::set_currentpatternname(const ::std::string& value) {
-  set_has_currentpatternname();
+  
   currentpatternname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:HeartbeatMessage.currentPatternName)
 }
 inline void HeartbeatMessage::set_currentpatternname(const char* value) {
-  set_has_currentpatternname();
+  
   currentpatternname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:HeartbeatMessage.currentPatternName)
 }
 inline void HeartbeatMessage::set_currentpatternname(const char* value, size_t size) {
-  set_has_currentpatternname();
+  
   currentpatternname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:HeartbeatMessage.currentPatternName)
 }
 inline ::std::string* HeartbeatMessage::mutable_currentpatternname() {
-  set_has_currentpatternname();
+  
   // @@protoc_insertion_point(field_mutable:HeartbeatMessage.currentPatternName)
   return currentpatternname_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* HeartbeatMessage::release_currentpatternname() {
-  clear_has_currentpatternname();
+  
   return currentpatternname_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void HeartbeatMessage::set_allocated_currentpatternname(::std::string* currentpatternname) {
   if (currentpatternname != NULL) {
-    set_has_currentpatternname();
+    
   } else {
-    clear_has_currentpatternname();
+    
   }
   currentpatternname_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), currentpatternname);
   // @@protoc_insertion_point(field_set_allocated:HeartbeatMessage.currentPatternName)
@@ -1486,146 +1310,86 @@ PatternNamesMessage::mutable_name() {
 
 // PatternCommand
 
-// required int32 patternNumber = 1;
-inline bool PatternCommand::has_patternnumber() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void PatternCommand::set_has_patternnumber() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void PatternCommand::clear_has_patternnumber() {
-  _has_bits_[0] &= ~0x00000001u;
-}
+// optional int32 patternNumber = 1;
 inline void PatternCommand::clear_patternnumber() {
   patternnumber_ = 0;
-  clear_has_patternnumber();
 }
 inline ::google::protobuf::int32 PatternCommand::patternnumber() const {
   // @@protoc_insertion_point(field_get:PatternCommand.patternNumber)
   return patternnumber_;
 }
 inline void PatternCommand::set_patternnumber(::google::protobuf::int32 value) {
-  set_has_patternnumber();
+  
   patternnumber_ = value;
   // @@protoc_insertion_point(field_set:PatternCommand.patternNumber)
 }
 
-// required int32 speed = 2;
-inline bool PatternCommand::has_speed() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void PatternCommand::set_has_speed() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void PatternCommand::clear_has_speed() {
-  _has_bits_[0] &= ~0x00000002u;
-}
+// optional int32 speed = 2;
 inline void PatternCommand::clear_speed() {
   speed_ = 0;
-  clear_has_speed();
 }
 inline ::google::protobuf::int32 PatternCommand::speed() const {
   // @@protoc_insertion_point(field_get:PatternCommand.speed)
   return speed_;
 }
 inline void PatternCommand::set_speed(::google::protobuf::int32 value) {
-  set_has_speed();
+  
   speed_ = value;
   // @@protoc_insertion_point(field_set:PatternCommand.speed)
 }
 
-// required int32 intensity = 3;
-inline bool PatternCommand::has_intensity() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void PatternCommand::set_has_intensity() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void PatternCommand::clear_has_intensity() {
-  _has_bits_[0] &= ~0x00000004u;
-}
+// optional int32 intensity = 3;
 inline void PatternCommand::clear_intensity() {
   intensity_ = 0;
-  clear_has_intensity();
 }
 inline ::google::protobuf::int32 PatternCommand::intensity() const {
   // @@protoc_insertion_point(field_get:PatternCommand.intensity)
   return intensity_;
 }
 inline void PatternCommand::set_intensity(::google::protobuf::int32 value) {
-  set_has_intensity();
+  
   intensity_ = value;
   // @@protoc_insertion_point(field_set:PatternCommand.intensity)
 }
 
-// required int32 red = 4;
-inline bool PatternCommand::has_red() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void PatternCommand::set_has_red() {
-  _has_bits_[0] |= 0x00000008u;
-}
-inline void PatternCommand::clear_has_red() {
-  _has_bits_[0] &= ~0x00000008u;
-}
+// optional int32 red = 4;
 inline void PatternCommand::clear_red() {
   red_ = 0;
-  clear_has_red();
 }
 inline ::google::protobuf::int32 PatternCommand::red() const {
   // @@protoc_insertion_point(field_get:PatternCommand.red)
   return red_;
 }
 inline void PatternCommand::set_red(::google::protobuf::int32 value) {
-  set_has_red();
+  
   red_ = value;
   // @@protoc_insertion_point(field_set:PatternCommand.red)
 }
 
-// required int32 green = 5;
-inline bool PatternCommand::has_green() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
-inline void PatternCommand::set_has_green() {
-  _has_bits_[0] |= 0x00000010u;
-}
-inline void PatternCommand::clear_has_green() {
-  _has_bits_[0] &= ~0x00000010u;
-}
+// optional int32 green = 5;
 inline void PatternCommand::clear_green() {
   green_ = 0;
-  clear_has_green();
 }
 inline ::google::protobuf::int32 PatternCommand::green() const {
   // @@protoc_insertion_point(field_get:PatternCommand.green)
   return green_;
 }
 inline void PatternCommand::set_green(::google::protobuf::int32 value) {
-  set_has_green();
+  
   green_ = value;
   // @@protoc_insertion_point(field_set:PatternCommand.green)
 }
 
-// required int32 blue = 6;
-inline bool PatternCommand::has_blue() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
-}
-inline void PatternCommand::set_has_blue() {
-  _has_bits_[0] |= 0x00000020u;
-}
-inline void PatternCommand::clear_has_blue() {
-  _has_bits_[0] &= ~0x00000020u;
-}
+// optional int32 blue = 6;
 inline void PatternCommand::clear_blue() {
   blue_ = 0;
-  clear_has_blue();
 }
 inline ::google::protobuf::int32 PatternCommand::blue() const {
   // @@protoc_insertion_point(field_get:PatternCommand.blue)
   return blue_;
 }
 inline void PatternCommand::set_blue(::google::protobuf::int32 value) {
-  set_has_blue();
+  
   blue_ = value;
   // @@protoc_insertion_point(field_set:PatternCommand.blue)
 }
@@ -1634,51 +1398,34 @@ inline void PatternCommand::set_blue(::google::protobuf::int32 value) {
 
 // CommandMessage
 
-// required .CommandMessage.CommandList command = 1;
-inline bool CommandMessage::has_command() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void CommandMessage::set_has_command() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void CommandMessage::clear_has_command() {
-  _has_bits_[0] &= ~0x00000001u;
-}
+// optional .CommandMessage.CommandList command = 1;
 inline void CommandMessage::clear_command() {
-  command_ = 1;
-  clear_has_command();
+  command_ = 0;
 }
 inline ::CommandMessage_CommandList CommandMessage::command() const {
   // @@protoc_insertion_point(field_get:CommandMessage.command)
   return static_cast< ::CommandMessage_CommandList >(command_);
 }
 inline void CommandMessage::set_command(::CommandMessage_CommandList value) {
-  assert(::CommandMessage_CommandList_IsValid(value));
-  set_has_command();
+  
   command_ = value;
   // @@protoc_insertion_point(field_set:CommandMessage.command)
 }
 
 // optional .PatternCommand patternCommand = 2;
 inline bool CommandMessage::has_patterncommand() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void CommandMessage::set_has_patterncommand() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void CommandMessage::clear_has_patterncommand() {
-  _has_bits_[0] &= ~0x00000002u;
+  return !_is_default_instance_ && patterncommand_ != NULL;
 }
 inline void CommandMessage::clear_patterncommand() {
-  if (patterncommand_ != NULL) patterncommand_->::PatternCommand::Clear();
-  clear_has_patterncommand();
+  if (GetArenaNoVirtual() == NULL && patterncommand_ != NULL) delete patterncommand_;
+  patterncommand_ = NULL;
 }
 inline const ::PatternCommand& CommandMessage::patterncommand() const {
   // @@protoc_insertion_point(field_get:CommandMessage.patternCommand)
   return patterncommand_ != NULL ? *patterncommand_ : *default_instance_->patterncommand_;
 }
 inline ::PatternCommand* CommandMessage::mutable_patterncommand() {
-  set_has_patterncommand();
+  
   if (patterncommand_ == NULL) {
     patterncommand_ = new ::PatternCommand;
   }
@@ -1686,7 +1433,7 @@ inline ::PatternCommand* CommandMessage::mutable_patterncommand() {
   return patterncommand_;
 }
 inline ::PatternCommand* CommandMessage::release_patterncommand() {
-  clear_has_patterncommand();
+  
   ::PatternCommand* temp = patterncommand_;
   patterncommand_ = NULL;
   return temp;
@@ -1695,9 +1442,9 @@ inline void CommandMessage::set_allocated_patterncommand(::PatternCommand* patte
   delete patterncommand_;
   patterncommand_ = patterncommand;
   if (patterncommand) {
-    set_has_patterncommand();
+    
   } else {
-    clear_has_patterncommand();
+    
   }
   // @@protoc_insertion_point(field_set_allocated:CommandMessage.patternCommand)
 }
@@ -1706,107 +1453,87 @@ inline void CommandMessage::set_allocated_patterncommand(::PatternCommand* patte
 
 // WelcomeMessage
 
-// required string buildTime = 1;
-inline bool WelcomeMessage::has_buildtime() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void WelcomeMessage::set_has_buildtime() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void WelcomeMessage::clear_has_buildtime() {
-  _has_bits_[0] &= ~0x00000001u;
-}
+// optional string buildTime = 1;
 inline void WelcomeMessage::clear_buildtime() {
   buildtime_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  clear_has_buildtime();
 }
 inline const ::std::string& WelcomeMessage::buildtime() const {
   // @@protoc_insertion_point(field_get:WelcomeMessage.buildTime)
   return buildtime_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void WelcomeMessage::set_buildtime(const ::std::string& value) {
-  set_has_buildtime();
+  
   buildtime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:WelcomeMessage.buildTime)
 }
 inline void WelcomeMessage::set_buildtime(const char* value) {
-  set_has_buildtime();
+  
   buildtime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:WelcomeMessage.buildTime)
 }
 inline void WelcomeMessage::set_buildtime(const char* value, size_t size) {
-  set_has_buildtime();
+  
   buildtime_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:WelcomeMessage.buildTime)
 }
 inline ::std::string* WelcomeMessage::mutable_buildtime() {
-  set_has_buildtime();
+  
   // @@protoc_insertion_point(field_mutable:WelcomeMessage.buildTime)
   return buildtime_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* WelcomeMessage::release_buildtime() {
-  clear_has_buildtime();
+  
   return buildtime_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void WelcomeMessage::set_allocated_buildtime(::std::string* buildtime) {
   if (buildtime != NULL) {
-    set_has_buildtime();
+    
   } else {
-    clear_has_buildtime();
+    
   }
   buildtime_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), buildtime);
   // @@protoc_insertion_point(field_set_allocated:WelcomeMessage.buildTime)
 }
 
-// required string version = 2;
-inline bool WelcomeMessage::has_version() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void WelcomeMessage::set_has_version() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void WelcomeMessage::clear_has_version() {
-  _has_bits_[0] &= ~0x00000002u;
-}
+// optional string version = 2;
 inline void WelcomeMessage::clear_version() {
   version_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  clear_has_version();
 }
 inline const ::std::string& WelcomeMessage::version() const {
   // @@protoc_insertion_point(field_get:WelcomeMessage.version)
   return version_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void WelcomeMessage::set_version(const ::std::string& value) {
-  set_has_version();
+  
   version_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:WelcomeMessage.version)
 }
 inline void WelcomeMessage::set_version(const char* value) {
-  set_has_version();
+  
   version_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:WelcomeMessage.version)
 }
 inline void WelcomeMessage::set_version(const char* value, size_t size) {
-  set_has_version();
+  
   version_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:WelcomeMessage.version)
 }
 inline ::std::string* WelcomeMessage::mutable_version() {
-  set_has_version();
+  
   // @@protoc_insertion_point(field_mutable:WelcomeMessage.version)
   return version_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline ::std::string* WelcomeMessage::release_version() {
-  clear_has_version();
+  
   return version_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void WelcomeMessage::set_allocated_version(::std::string* version) {
   if (version != NULL) {
-    set_has_version();
+    
   } else {
-    clear_has_version();
+    
   }
   version_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), version);
   // @@protoc_insertion_point(field_set_allocated:WelcomeMessage.version)

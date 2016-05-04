@@ -35,7 +35,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define PORT 8888
 #define MAX_CLIENTS (30)
 
 #define STRINGIZE(x) #x
@@ -55,6 +54,11 @@ furSwarmMemberLinux* member;
 void setupServer() {
     int opt = 1;
     
+    const char* envPort = getenv("FABRIC_LED_PORT");
+    int port = 0;
+    if (envPort) port = atoi(envPort);
+    else port = 8801;
+
     for (int i = 0; i < MAX_CLIENTS; i++) {
         client_socket[i] = 0;
     }
@@ -68,12 +72,12 @@ void setupServer() {
     }
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons( PORT );
+    address.sin_port = htons(port);
     if (::bind(master_socket, (struct sockaddr *)&address, sizeof(address)) < 0) {
         LOG_WARNING << "bind failed";
         exit(EXIT_FAILURE);
     }
-    LOG_INFO  << "Listener on port " << PORT;
+    LOG_INFO  << "Listener on port " << port;
     if (listen(master_socket, 3) < 0) {
         LOG_WARNING << "could not set listen";
         exit(EXIT_FAILURE);
@@ -147,6 +151,14 @@ int main() {
         
         int selectResult = select(max_sd + 1, &readfds, NULL, NULL, &tv);
         
+        if (selectResult < 0) {
+            LOG_INFO << errno;
+            LOG_INFO << EAGAIN;
+            LOG_INFO << EBADF;
+            LOG_INFO << EINTR;
+            LOG_INFO << EINVAL;
+        }
+
         if (selectResult > 0) {
             if (FD_ISSET(master_socket, &readfds)) {
                 if ((new_socket = accept(master_socket, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {

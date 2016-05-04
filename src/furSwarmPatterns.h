@@ -95,6 +95,7 @@ class furSwarmPatterns {
   uint8_t breatheUpperLevel;
   uint8_t heartbeatIntensity;
   uint8_t patternSpeed;
+  uint8_t patternSpeedLevel;
   bool patternForward;
   uint8_t characterIndex; // Index of currently displayed character
   uint8_t characterIndexUpper; // Count of characters available in PROGMEM
