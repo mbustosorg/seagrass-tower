@@ -75,11 +75,11 @@ void furSwarmMemberLinux::updateHeartbeatMessage(HeartbeatMessage* heartbeat) {
     heartbeat->set_messagetypeid(heartbeatPayload[0]);
     heartbeat->set_versionid(heartbeatPayload[1]);
     heartbeat->set_currentpattern(platform->pattern);
-    heartbeat->set_red(platform->redLevel);
-    heartbeat->set_green(platform->greenLevel);
-    heartbeat->set_blue(platform->blueLevel);
+    heartbeat->set_red(platform->unadjustedRed);
+    heartbeat->set_green(platform->unadjustedGreen);
+    heartbeat->set_blue(platform->unadjustedBlue);
     heartbeat->set_speed(platform->patternSpeedLevel);
-    heartbeat->set_intensity(platform->intensityLevel);
+    heartbeat->set_intensity(platform->unadjustedIntensity);
     heartbeat->set_membertype(heartbeatPayload[8]);
     heartbeat->set_currentpatternname(patternNames[platform->pattern]);
 }

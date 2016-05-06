@@ -151,14 +151,6 @@ int main() {
         
         int selectResult = select(max_sd + 1, &readfds, NULL, NULL, &tv);
         
-        if (selectResult < 0) {
-            LOG_INFO << errno;
-            LOG_INFO << EAGAIN;
-            LOG_INFO << EBADF;
-            LOG_INFO << EINTR;
-            LOG_INFO << EINVAL;
-        }
-
         if (selectResult > 0) {
             if (FD_ISSET(master_socket, &readfds)) {
                 if ((new_socket = accept(master_socket, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {

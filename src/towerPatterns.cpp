@@ -151,11 +151,11 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   transitionRequested = 0x80 & data[0];
   patternSpeed = (int) data[1];
   patternSpeedLevel = patternSpeed;
+  setBasicParameters (data[5], data[2], data[3], data[4]);
   switch (messageType) {
   case FS_ID_DANCING:
     patternSpeed = 255 - (int) data [1];
     setPatternSpeedWithFactor(10);
-    setBasicParameters (data[5], data[2], data[3], data[4]);
     initializeDancing();
     pattern = messageType;
     break;
@@ -171,7 +171,6 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   case FS_ID_SPARKLER:
     //setPatternSpeedWithFactor(1);
     setPatternSpeedWithFactor(20);
-    setBasicParameters (data[5], data[2], data[3], data[4]);
     pattern = messageType;
     break;
   case FS_ID_GRASS_WAVE:
@@ -195,7 +194,6 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
       useTiltForBounceColor = true;
     } else {
       useTiltForBounceColor = false;
-      setBasicParameters(data[5], data[2], data[3], data[4]);
     }
     pattern = messageType;
     break;
@@ -207,7 +205,6 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   case FS_ID_FOREST_RUN:
     patternSpeed = (int) data [1];
     setPatternSpeedWithFactor(15);
-    setBasicParameters(data[5], data[2], data[3], data[4]);
     for (int i = 0; i < LED_COUNT; i++) {
       ledRed[i] = unadjustedRed;
       ledGreen[i] = unadjustedGreen;
@@ -227,13 +224,11 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
     pattern = messageType;
     setPatternSpeedWithFactor(10);
     patternSpeed = random (patternSpeed, patternSpeed + 2);
-    setBasicParameters(data[5], data[2], data[3], data[4]);
     break;
   case FS_ID_BUBBLE_WAVE:
     pattern = messageType;
     setPatternSpeedWithFactor(10);
     patternSpeed = random (patternSpeed, patternSpeed + 2);
-    setBasicParameters(data[5], data[2], data[3], data[4]);
     break;
   case FS_ID_BROKEN:
     pattern = messageType;
@@ -247,7 +242,6 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
     if (pattern != messageType) {
       ball.initialize(data[2], data[3]);
     }
-    setBasicParameters(data[5], data[2], data[3], data[4]);
     if (ball.xSpeed != 0.0 && ball.ySpeed != 0.0) {
       ball.setSpeed (((float) data [1]) / 20.0 * (ball.xSpeed / fabs (ball.xSpeed)), ((float) data [1]) / 30.0 * (ball.ySpeed / fabs (ball.ySpeed)));
     } else {
@@ -271,7 +265,6 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
     pattern = messageType;
     break;
   case FS_ID_CANDLE:
-    setBasicParameters(data[5], data[2], data[3], data[4]);
     setPatternSpeedWithFactor(5);
     initializeCandle();
     pattern = messageType;

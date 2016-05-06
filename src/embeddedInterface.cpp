@@ -56,11 +56,13 @@ unsigned long rtc_get() {
 }
 
 uint32_t random(uint32_t val) {
-  return rand() % val;
+    if (val == 0) return 0;
+    else return rand() % val;
 }
 
 uint32_t random(uint32_t val0, uint32_t val1) {
-  return rand() % (val1 - val0) + val0;
+    if (val1 == val0) return val1;
+    else return rand() % (val1 - val0) + val0;
 }
 
 void randomSeed(unsigned int val) {
