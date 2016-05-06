@@ -224,8 +224,8 @@ static const char fabricPatternNames[FS_ID_MAX_ID + 1][MAX_PATTERN_NAME_LENGTH] 
   FS_NAME_NULL,
   FS_NAME_NULL,
   FS_NAME_NULL,
-  FS_NAME_POOF_1,
-  FS_NAME_POOF_2
+  FS_NAME_NULL,
+  FS_NAME_NULL
 };
 
 #define FS_TYPE_VEST (0x01)
