@@ -130,6 +130,8 @@ int commandIntensityPin = 11;
 int suicidePin;
 int aux1pin = 28;
 int aux2pin = 29;
+int aux3pin = 30;
+int aux4pin = 31;
 const int AUDIO_INPUT_PIN = 14;        // Input ADC pin for audio data.
 const int ANALOG_READ_RESOLUTION = 10; // Bits of resolution for the ADC.
 const int ANALOG_READ_AVERAGING = 16;  // Number of samples to average with each ADC reading.
@@ -251,6 +253,8 @@ void setup() {
   digitalWrite(suicidePin, HIGH);
   pinMode(aux1pin, INPUT);
   pinMode(aux2pin, INPUT);
+  pinMode(aux3pin, INPUT);
+  pinMode(aux4pin, INPUT);
   // Initialize client heartbeat timestamp
   heartbeatTimestamp = millis();
   // Initialize the radio
@@ -658,6 +662,8 @@ void updateDisplay() {
 void processAuxCommands() {
   Control.pooferControl.poof(0, digitalRead(aux1pin));
   Control.pooferControl.poof(1, digitalRead(aux2pin));
+  if (digitalRead(aux3pin) == HIGH) Control.startPattern(0);
+  if (digitalRead(aux4pin) == HIGH) Control.startPattern(1);
 }
 
 //! Process incoming radio commands
