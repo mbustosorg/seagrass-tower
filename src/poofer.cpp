@@ -43,17 +43,30 @@ poofer::poofer() {
 
   // Single Blast
   patternStep* pattern1steps = (patternStep *) malloc(PATTERN_1_COUNT * sizeof(patternStep));
-  pattern1steps[0] = {0, {HIGH, HIGH}};
-  pattern1steps[1] = {1000, {LOW, LOW}};
+  pattern1steps[0] = {0, {HIGH, LOW}};
+  pattern1steps[1] = {500, {LOW, HIGH}};
+  pattern1steps[2] = {1000, {HIGH, LOW}};
+  pattern1steps[3] = {1500, {LOW, HIGH}};
+  pattern1steps[4] = {2000, {HIGH, LOW}};
+  pattern1steps[5] = {2500, {LOW, HIGH}};
+  pattern1steps[6] = {3000, {HIGH, LOW}};
+  pattern1steps[7] = {3500, {LOW, HIGH}};
+  pattern1steps[8] = {4000, {HIGH, LOW}};
+  pattern1steps[9] = {4500, {LOW, HIGH}};
   patterns[0] = {PATTERN_1_COUNT, pattern1steps};
 
   // Alternating Blasts
   patternStep* pattern2steps = (patternStep *) malloc(PATTERN_2_COUNT * sizeof(patternStep));
   pattern2steps[0] = {0, {HIGH, LOW}};
-  pattern2steps[1] = {500, {LOW, HIGH}};
-  pattern2steps[2] = {1000, {HIGH, LOW}};
-  pattern2steps[3] = {1500, {LOW, HIGH}};
-  pattern2steps[4] = {2000, {LOW, LOW}};
+  pattern2steps[1] = {50, {LOW, HIGH}};
+  pattern2steps[2] = {100, {HIGH, LOW}};
+  pattern2steps[3] = {150, {LOW, HIGH}};
+  pattern2steps[4] = {200, {HIGH, LOW}};
+  pattern2steps[5] = {250, {LOW, HIGH}};
+  pattern2steps[6] = {300, {HIGH, LOW}};
+  pattern2steps[7] = {350, {LOW, HIGH}};
+  pattern2steps[8] = {400, {HIGH, LOW}};
+  pattern2steps[9] = {450, {LOW, HIGH}};
   patterns[1] = {PATTERN_2_COUNT, pattern2steps};
 }
 
@@ -64,31 +77,35 @@ poofer::~poofer() {
 //! Create multi poofers
 void poofer::startPattern(int id) {
   if (id >= 0 && id < PATTERN_COUNT) {
-    runningPattern = id;
-    patternStartTime = millis();
-    stepNumber = 0;
-    for (int i = 0; i < POOFER_COUNT; i++) {
-      digitalWrite(pooferPins[i], patterns[runningPattern].steps[stepNumber].pooferState[i]);
+    if (runningPattern != id) {
+      runningPattern = id;
+      patternStartTime = millis();
+      stepNumber = 0;
+      for (int i = 0; i < POOFER_COUNT; i++) {
+	digitalWrite(pooferPins[i], patterns[runningPattern].steps[stepNumber].pooferState[i]);
+      }
+      stepNumber++;
     }
-    stepNumber++;
   }
 }
 
 //! Iterate the current pattern
 void poofer::iteratePattern() {
-  if (stepNumber >= patterns[runningPattern].numberOfSteps) {
-    runningPattern = PATTERNS_OFF;
-    // Safety Shutdown
-    for (int i = 0; i < POOFER_COUNT; i++) {
-      digitalWrite(pooferPins[i], LOW);
-    }
-  } else if (runningPattern >= 0) {
-    unsigned long currentDiff = millis() - patternStartTime;
-    if (currentDiff >= patterns[runningPattern].steps[stepNumber].stepStart) {
+  if (runningPattern != PATTERNS_OFF) {
+    if (stepNumber >= patterns[runningPattern].numberOfSteps) {
+      runningPattern = PATTERNS_OFF;
+      // Safety Shutdown
       for (int i = 0; i < POOFER_COUNT; i++) {
-	digitalWrite(pooferPins[i], patterns[runningPattern].steps[stepNumber].pooferState[i]);
+	digitalWrite(pooferPins[i], LOW);
       }
-      stepNumber++;
+    } else if (runningPattern >= 0) {
+      unsigned long currentDiff = millis() - patternStartTime;
+      if (currentDiff >= patterns[runningPattern].steps[stepNumber].stepStart) {
+	for (int i = 0; i < POOFER_COUNT; i++) {
+	  digitalWrite(pooferPins[i], patterns[runningPattern].steps[stepNumber].pooferState[i]);
+	}
+	stepNumber++;
+      }
     }
   }
 }

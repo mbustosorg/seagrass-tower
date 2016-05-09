@@ -128,10 +128,10 @@ int commandSpeedUpPin = 10;
 int commandSpeedDownPin = 12;
 int commandIntensityPin = 11;
 int suicidePin;
-int aux1pin = 28;
-int aux2pin = 29;
-int aux3pin = 30;
-int aux4pin = 31;
+int aux1pin = 27;
+int aux2pin = 28;
+int aux3pin = 29;
+int aux4pin = 30;
 const int AUDIO_INPUT_PIN = 14;        // Input ADC pin for audio data.
 const int ANALOG_READ_RESOLUTION = 10; // Bits of resolution for the ADC.
 const int ANALOG_READ_AVERAGING = 16;  // Number of samples to average with each ADC reading.
@@ -503,7 +503,8 @@ void setStartupPattern() {
 #elif FS_TOWN_CENTER
   uint8_t data[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
 #elif FS_TOWER_EYE
-  uint8_t data[] = {FS_ID_POOF_2, 0, 228, 0, 0, 228};
+  //uint8_t data[] = {FS_ID_POOF_2, 0, 228, 0, 0, 228};
+  uint8_t data[] = {FS_ID_ORGANIC, 10, 200, 200, 200, 128};
 #else
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
@@ -660,10 +661,26 @@ void updateDisplay() {
 
 //! Process incoming aux commands
 void processAuxCommands() {
-  Control.pooferControl.poof(0, digitalRead(aux1pin));
-  Control.pooferControl.poof(1, digitalRead(aux2pin));
-  if (digitalRead(aux3pin) == HIGH) Control.startPattern(0);
-  if (digitalRead(aux4pin) == HIGH) Control.startPattern(1);
+  if (digitalRead(aux1pin) == HIGH) {
+    Serial.print("1");
+    Control.pooferControl.poof(0, digitalRead(aux1pin));
+  } else {
+    Control.pooferControl.poof(0, LOW);
+  }
+  if (digitalRead(aux2pin) == HIGH) {
+    Serial.print("2");
+    Control.pooferControl.poof(1, digitalRead(aux2pin));
+  } else {
+    Control.pooferControl.poof(1, LOW);
+  }
+  if (digitalRead(aux3pin) == HIGH) {
+    Serial.print("3");
+    Control.pooferControl.startPattern(0);
+  }
+  if (digitalRead(aux4pin) == HIGH) {
+    Serial.print("4");
+    Control.pooferControl.startPattern(1);
+  }
 }
 
 //! Process incoming radio commands

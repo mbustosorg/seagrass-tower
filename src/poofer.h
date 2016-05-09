@@ -21,12 +21,12 @@
 #define poofer_h
 
 #define POOFER_COUNT (2)
-#define POOFER_1_PIN (30)
-#define POOFER_2_PIN (27)
+#define POOFER_1_PIN (31)
+#define POOFER_2_PIN (26)
 
 #define PATTERN_COUNT (2)
-#define PATTERN_1_COUNT (2)
-#define PATTERN_2_COUNT (5)
+#define PATTERN_1_COUNT (10)
+#define PATTERN_2_COUNT (10)
 
 #define PATTERNS_OFF (-1)
 
