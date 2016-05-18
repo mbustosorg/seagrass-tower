@@ -23,6 +23,8 @@
 const int animationCount = 18;
 #elif defined FS_TOWN_CENTER
 const int animationCount = 15;
+#elif defined FS_TOWER_EYE
+const int animationCount = 15;
 #else
 const int animationCount = 1;
 #endif
@@ -64,6 +66,23 @@ const uint8_t animationPatterns[animationCount][ANIMATION_COMMAND_LENGTH] = {
   {FS_ID_BOUNCING_BALL, 126, 255, 0, 0, 123, 0},
   {FS_ID_SPARKLER, 126, 134, 0, 255, 123, 0},
   {FS_ID_GRASS_WAVE, 218, 0, 255, 0, 255, 0},
+  {FS_ID_SPARKLE, 163, 0, 255, 0, 255, 0}
+#elif defined FS_TOWER_EYE
+    // ID, Speed, Red, Green, Blue, Intensity, Delay
+  {FS_ID_FULL_COLOR, 255, 0, 0, 255, 255, 0},
+  {FS_ID_FULL_COLOR, 255, 0, 255, 255, 255, 0},
+  {FS_ID_FULL_COLOR, 255, 0, 255, 0, 255, 0},
+  {FS_ID_FULL_COLOR, 255, 255, 0, 0, 255, 0},
+  {FS_ID_CYLON_PONG, 81, 255, 0, 0, 255, 0},
+  {FS_ID_CYLON_PONG, 81, 0, 0, 255, 255, 0},
+  {FS_ID_CYLON_PONG, 81, 255, 255, 255, 255, 0},
+  {FS_ID_CYLON, 51, 255, 0, 153, 255, 0},
+  {FS_ID_CYLON, 214, 255, 119, 0, 255, 0},
+  {FS_ID_CYLON, 147, 104, 45, 255, 255, 0},
+  {FS_ID_RAINBOW_CHASE, 147, 255, 255, 255, 255, 0},
+  {FS_ID_STARFIELD, 74, 255, 255, 255, 123, 0},
+  {FS_ID_SPARKLER, 126, 134, 0, 255, 123, 0},
+  {FS_ID_MATRIX, 128, 255, 255, 255, 255, 0},
   {FS_ID_SPARKLE, 163, 0, 255, 0, 255, 0} 
 #else
   {FS_ID_CYLON, 150, 50, 220, 75, 120, 0},
@@ -94,8 +113,24 @@ const uint32_t animationTimes[] = {
   300000,
   180000,
   180000,
-  300000,
+  300000
 #elif defined FS_TOWN_CENTER
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000,
+  120000
+#elif defined FS_TOWER_EYE
   120000,
   120000,
   120000,

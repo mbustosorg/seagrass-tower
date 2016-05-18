@@ -504,7 +504,7 @@ void setStartupPattern() {
   uint8_t data[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
 #elif FS_TOWER_EYE
   //uint8_t data[] = {FS_ID_POOF_2, 0, 228, 0, 0, 228};
-  uint8_t data[] = {FS_ID_ORGANIC, 10, 200, 200, 200, 128};
+  uint8_t data[] = {FS_ID_MATRIX, 170, 255, 255, 255, 255};
 #else
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
@@ -661,26 +661,24 @@ void updateDisplay() {
 
 //! Process incoming aux commands
 void processAuxCommands() {
+#ifdef FS_TOWER_EYE
   if (digitalRead(aux1pin) == HIGH) {
-    Serial.print("1");
     Control.pooferControl.poof(0, digitalRead(aux1pin));
   } else {
     Control.pooferControl.poof(0, LOW);
   }
   if (digitalRead(aux2pin) == HIGH) {
-    Serial.print("2");
     Control.pooferControl.poof(1, digitalRead(aux2pin));
   } else {
     Control.pooferControl.poof(1, LOW);
   }
   if (digitalRead(aux3pin) == HIGH) {
-    Serial.print("3");
     Control.pooferControl.startPattern(0);
   }
   if (digitalRead(aux4pin) == HIGH) {
-    Serial.print("4");
     Control.pooferControl.startPattern(1);
   }
+#endif	
 }
 
 //! Process incoming radio commands

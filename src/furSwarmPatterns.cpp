@@ -1232,7 +1232,7 @@ void furSwarmPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
         case FS_ID_ORGANIC:
             setPatternSpeedWithFactor(10);
             if (pattern != messageType) {
-                initializeRandom(STARFIELD_UPPER_LEVEL, 255, 0xff, 0xff, 0xff, true);
+                initializeRandom(ORGANIC_UPPER_LEVEL, 255, 0xff, 0xff, 0xff, true);
                 for (int i = 0; i < LED_COUNT; i++) {
                     if (i % 2 == 0) {
                         ledRedDirection[i] = 1;

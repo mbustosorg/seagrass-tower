@@ -44,29 +44,39 @@ poofer::poofer() {
   // Single Blast
   patternStep* pattern1steps = (patternStep *) malloc(PATTERN_1_COUNT * sizeof(patternStep));
   pattern1steps[0] = {0, {HIGH, LOW}};
-  pattern1steps[1] = {500, {LOW, HIGH}};
-  pattern1steps[2] = {1000, {HIGH, LOW}};
-  pattern1steps[3] = {1500, {LOW, HIGH}};
-  pattern1steps[4] = {2000, {HIGH, LOW}};
-  pattern1steps[5] = {2500, {LOW, HIGH}};
-  pattern1steps[6] = {3000, {HIGH, LOW}};
-  pattern1steps[7] = {3500, {LOW, HIGH}};
-  pattern1steps[8] = {4000, {HIGH, LOW}};
-  pattern1steps[9] = {4500, {LOW, HIGH}};
+  pattern1steps[1] = {100, {LOW, LOW}};
+  pattern1steps[2] = {500, {LOW, HIGH}};
+  pattern1steps[3] = {600, {LOW, LOW}};
+  pattern1steps[4] = {1000, {HIGH, LOW}};
+  pattern1steps[5] = {1100, {LOW, LOW}};
+  pattern1steps[6] = {1300, {LOW, HIGH}};
+  pattern1steps[7] = {1400, {LOW, LOW}};
+  
+  pattern1steps[8] = {2000, {HIGH, HIGH}};
+  pattern1steps[9] = {2500, {LOW, LOW}};
+  pattern1steps[10] = {3000, {HIGH, HIGH}};
+  pattern1steps[11] = {3500, {LOW, LOW}};
+  pattern1steps[12] = {4500, {HIGH, HIGH}};
+  pattern1steps[13] = {5000, {HIGH, HIGH}};
+  pattern1steps[14] = {5500, {HIGH, HIGH}};
+  pattern1steps[15] = {6000, {HIGH, HIGH}};
+  pattern1steps[16] = {6500, {HIGH, HIGH}};
+  pattern1steps[17] = {8000, {HIGH, HIGH}};
   patterns[0] = {PATTERN_1_COUNT, pattern1steps};
 
   // Alternating Blasts
   patternStep* pattern2steps = (patternStep *) malloc(PATTERN_2_COUNT * sizeof(patternStep));
   pattern2steps[0] = {0, {HIGH, LOW}};
-  pattern2steps[1] = {50, {LOW, HIGH}};
-  pattern2steps[2] = {100, {HIGH, LOW}};
-  pattern2steps[3] = {150, {LOW, HIGH}};
-  pattern2steps[4] = {200, {HIGH, LOW}};
-  pattern2steps[5] = {250, {LOW, HIGH}};
-  pattern2steps[6] = {300, {HIGH, LOW}};
-  pattern2steps[7] = {350, {LOW, HIGH}};
-  pattern2steps[8] = {400, {HIGH, LOW}};
-  pattern2steps[9] = {450, {LOW, HIGH}};
+  pattern2steps[1] = {100, {LOW, HIGH}};
+  pattern2steps[2] = {200, {HIGH, LOW}};
+  pattern2steps[3] = {300, {LOW, HIGH}};
+  pattern2steps[4] = {400, {HIGH, LOW}};
+  pattern2steps[5] = {500, {LOW, HIGH}};
+  pattern2steps[6] = {600, {HIGH, LOW}};
+  pattern2steps[7] = {700, {LOW, HIGH}};
+  pattern2steps[8] = {800, {HIGH, LOW}};
+  pattern2steps[9] = {900, {LOW, HIGH}};
+  pattern2steps[10] = {1000, {LOW, LOW}};
   patterns[1] = {PATTERN_2_COUNT, pattern2steps};
 }
 

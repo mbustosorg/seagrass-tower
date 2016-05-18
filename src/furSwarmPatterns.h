@@ -41,7 +41,8 @@ extern const uint8_t memberType;
 #define IN_OUT_BREAK_POINT (150)
 #define PUMP_UPPER_LEVEL (150)
 #define PUMP_LOWER_LEVEL (10)
-#define STARFIELD_UPPER_LEVEL (1)
+#define ORGANIC_UPPER_LEVEL (1)
+#define STARFIELD_UPPER_LEVEL (150)
 #define PWM_COUNTER_OFFSET (1) // 80% Duty cycle: 1 - PWM_COUNTER_OFFSET / PWM_COUNTER_RESET
 #define PWM_DIMMER_THRESHOLD (3) // Dim values lower than this based on above duty cycle
 
