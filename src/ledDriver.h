@@ -52,6 +52,8 @@ const int lpdClockPin = 2;
 #define LED_COUNT (75)
 #elif FS_WINDFLOWERS
 #define LED_COUNT (250)
+#elif FS_DRESS
+#define LED_COUNT (44)
 #else
 #define LED_COUNT (50)
 #endif

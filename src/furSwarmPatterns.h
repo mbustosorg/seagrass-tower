@@ -42,7 +42,7 @@ extern const uint8_t memberType;
 #define PUMP_UPPER_LEVEL (150)
 #define PUMP_LOWER_LEVEL (10)
 #define ORGANIC_UPPER_LEVEL (1)
-#define STARFIELD_UPPER_LEVEL (150)
+#define STARFIELD_UPPER_LEVEL (200)
 #define PWM_COUNTER_OFFSET (1) // 80% Duty cycle: 1 - PWM_COUNTER_OFFSET / PWM_COUNTER_RESET
 #define PWM_DIMMER_THRESHOLD (3) // Dim values lower than this based on above duty cycle
 
@@ -153,7 +153,7 @@ class furSwarmPatterns {
   void descendPumpDataScaled(int step);
   void displayData(bool red, bool green, bool blue);
   void displayDataWithOverlay(bool red, bool green, bool blue,
-							  uint8_t redOverlay, uint8_t greenOverlay, uint8_t blueOverlay);
+			      uint8_t redOverlay, uint8_t greenOverlay, uint8_t blueOverlay);
   void displayPumpData(bool red, bool green, bool blue);
   void initializeRandom(uint8_t low, uint8_t high, uint8_t red, uint8_t green, uint8_t blue, bool single);
   void initializeHeartbeatPattern(uint8_t red, uint8_t green, uint8_t blue);
