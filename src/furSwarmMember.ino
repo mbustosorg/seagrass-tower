@@ -505,6 +505,9 @@ void setStartupPattern() {
 #elif FS_TOWER_EYE
   //uint8_t data[] = {FS_ID_POOF_2, 0, 228, 0, 0, 228};
   uint8_t data[] = {FS_ID_MATRIX, 170, 255, 255, 255, 255};
+#elif FS_DRESS
+  //uint8_t data[] = {FS_ID_POOF_2, 0, 228, 0, 0, 228};
+  uint8_t data[] = {FS_ID_RAINBOW_CHASE, 250, 200, 100, 130, 150};
 #else
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};

@@ -53,7 +53,7 @@ const int lpdClockPin = 2;
 #elif FS_WINDFLOWERS
 #define LED_COUNT (250)
 #elif FS_DRESS
-#define LED_COUNT (44)
+#define LED_COUNT (46)
 #else
 #define LED_COUNT (50)
 #endif
@@ -81,7 +81,7 @@ class ledDriver {
 #endif
 
 #ifdef USE_NEOPIXEL
-  Adafruit_NeoPixel NEOPIXEL = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL_DATA_PIN, NEO_GRB + NEO_KHZ400);
+  Adafruit_NeoPixel NEOPIXEL = Adafruit_NeoPixel(LED_COUNT, NEOPIXEL_DATA_PIN, NEO_GRB + NEO_KHZ800);
 #endif
 
 };
