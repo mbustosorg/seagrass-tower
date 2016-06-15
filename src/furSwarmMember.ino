@@ -67,6 +67,10 @@ const uint8_t memberType = FS_TYPE_HAT;
 const uint8_t memberType = FS_TYPE_TOWER;
 #elif FS_TOWN_CENTER
 const uint8_t memberType = FS_TYPE_TOWN_CENTER;
+#elif FS_REEDS
+const uint8_t memberType = FS_TYPE_REEDS;
+#elif FS_WINDFLOWERS
+const uint8_t memberType = FS_TYPE_WINDFLOWERS;
 #elif FS_DRESS
 const uint8_t memberType = FS_TYPE_DRESS;
 #endif
@@ -146,6 +150,8 @@ bool daytimeShutdown = false;
 unsigned long OnTime = 1 * 3600 + 30 * 60; // 01:30 UTC == 18:30 PDT
 unsigned long OffTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
 #if (defined(FS_TOWER)) && !defined(FS_TOWER_EYE)
+bool allowDaytimeShutdown = true;
+#elif defined(FS_REEDS) || defined(FS_WINDFLOWERS)
 bool allowDaytimeShutdown = true;
 #elif defined(FS_TOWN_CENTER)
 bool allowDaytimeShutdown = false;
@@ -501,6 +507,8 @@ void setStartupPattern() {
   Control.triggerPattern = 22;
   uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
 #elif FS_TOWN_CENTER
+  uint8_t data[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
+#elif defined(FS_REEDS) || defined(FS_WINDFLOWERS)
   uint8_t data[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
 #elif FS_TOWER_EYE
   //uint8_t data[] = {FS_ID_POOF_2, 0, 228, 0, 0, 228};
