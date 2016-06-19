@@ -117,7 +117,8 @@ void ledDriver::sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t b
      }
      */
 #if defined(FS_REEDS) || defined(FS_WINDFLOWERS)
-    TCL.sendColor (trueBlue, trueRed, trueGreen);
+    //TCL.sendColor (trueBlue, trueRed, trueGreen);
+    TCL.sendColor (trueRed, trueGreen, trueBlue);
 #elif USE_TCL
     TCL.sendColor (trueRed, trueGreen, trueBlue);
 #elif USE_NEOPIXEL
