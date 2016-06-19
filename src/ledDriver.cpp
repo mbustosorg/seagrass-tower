@@ -38,9 +38,15 @@ void ledDriver::sendStartFrame() {
 //! Send the end frame to complete the display
 void ledDriver::sendEndFrame() {
   for (int i = 0; i < LED_COUNT; i++) {
+#ifdef FS_REEDS
+        pixels[i].r = nonEmbedBlue[i];
+        pixels[i].g = nonEmbedRed[i];
+        pixels[i].b = nonEmbedGreen[i];
+#else
         pixels[i].r = nonEmbedRed[i];
         pixels[i].g = nonEmbedGreen[i];
         pixels[i].b = nonEmbedBlue[i];
+#endif
   }
 #ifndef NOT_OPC
   opc_put_pixels(opcSink, 0, LED_COUNT, pixels);
@@ -116,10 +122,7 @@ void ledDriver::sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t b
      trueBlue = 0;
      }
      */
-#if defined(FS_REEDS) || defined(FS_WINDFLOWERS)
-    TCL.sendColor (trueBlue, trueRed, trueGreen);
-    //TCL.sendColor (trueRed, trueGreen, trueBlue);
-#elif USE_TCL
+#ifdef USE_TCL
     TCL.sendColor (trueRed, trueGreen, trueBlue);
 #elif USE_NEOPIXEL
     NEOPIXEL.setPixelColor(pixelIndex, trueRed, trueGreen, trueBlue);
