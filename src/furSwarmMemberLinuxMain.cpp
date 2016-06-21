@@ -89,7 +89,7 @@ void setupServer() {
 void updateMember() {
     member->update();
     counter++;
-    if (counter == 1) {
+    if (counter == 60) {
         uint8_t command[] = {FS_ID_FULL_COLOR, 255, 255, 0, 0, 255, 0};
         member->setPattern(command);
         LOG_INFO << "Red Initialization";
@@ -102,9 +102,9 @@ void updateMember() {
         member->setPattern(command);
         LOG_INFO << "Blue Initialization";
     } else if (counter == 185) {
-        uint8_t command[] = {FS_ID_RAINBOW_CHASE, 10, 130, 100, 130, 240, 0};
+        uint8_t command[] = {FS_ID_FULL_COLOR, 150, 0, 255, 150, 150, 0};
         member->setPattern(command);
-        LOG_INFO << "RAINBOW_CHASE";
+        LOG_INFO << "Initial Pattern";
     }
 }
 
@@ -189,7 +189,7 @@ int main() {
                         LOG_INFO << "Host " << inet_ntoa(address.sin_addr) << ":" << ntohs(address.sin_port) << " disconnected";
                         close(sd);
                         client_socket[i] = 0;
-                    } else {
+                    } else if (received > 0L) {
                         //LOG_DEBUG << "From " << inet_ntoa(address.sin_addr) << ":" << ntohs(address.sin_port) << " - " << buffer;
                         FabricWrapperMessage wrapperMessage;
                         wrapperMessage.ParseFromArray(buffer, (int)received);

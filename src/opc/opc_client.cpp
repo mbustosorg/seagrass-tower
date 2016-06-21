@@ -144,7 +144,7 @@ static u8 opc_connect(opc_sink sink, u32 timeout_ms) {
 }
 
 /* Closes the connection for a sink. */
-static void opc_close(opc_sink sink) {
+void opc_close(opc_sink sink) {
   opc_sink_info* info = &opc_sinks[sink];
 
   if (sink < 0 || sink >= opc_next_sink) {

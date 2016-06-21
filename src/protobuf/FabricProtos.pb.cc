@@ -242,15 +242,17 @@ void protobuf_AddDesc_FabricProtos_2eproto() {
     "tternNamesMessage\022\014\n\004name\030\001 \003(\t\"s\n\016Patte"
     "rnCommand\022\025\n\rpatternNumber\030\001 \001(\005\022\r\n\005spee"
     "d\030\002 \001(\005\022\021\n\tintensity\030\003 \001(\005\022\013\n\003red\030\004 \001(\005\022"
-    "\r\n\005green\030\005 \001(\005\022\014\n\004blue\030\006 \001(\005\"\310\001\n\016Command"
+    "\r\n\005green\030\005 \001(\005\022\014\n\004blue\030\006 \001(\005\"\200\002\n\016Command"
     "Message\022,\n\007command\030\001 \001(\0162\033.CommandMessag"
     "e.CommandList\022\'\n\016patternCommand\030\002 \001(\0132\017."
-    "PatternCommand\"_\n\013CommandList\022\026\n\022PROTOBU"
-    "F_HEARTBEAT\020\000\022\032\n\026PROTOBUF_PATTERN_NAMES\020"
-    "\001\022\034\n\030PROTOBUF_PATTERN_COMMAND\020\002\"4\n\016Welco"
-    "meMessage\022\021\n\tbuildTime\030\001 \001(\t\022\017\n\007version\030"
-    "\002 \001(\tB9\n)com._338oaklandcreations.fabric"
-    ".machineryB\014FabricProtosb\006proto3", 1152);
+    "PatternCommand\"\226\001\n\013CommandList\022\026\n\022PROTOB"
+    "UF_HEARTBEAT\020\000\022\032\n\026PROTOBUF_PATTERN_NAMES"
+    "\020\001\022\034\n\030PROTOBUF_PATTERN_COMMAND\020\002\022\033\n\027PROT"
+    "OBUF_OPC_DISCONNECT\020\003\022\030\n\024PROTOBUF_OPC_CO"
+    "NNECT\020\004\"4\n\016WelcomeMessage\022\021\n\tbuildTime\030\001"
+    " \001(\t\022\017\n\007version\030\002 \001(\tB9\n)com._338oakland"
+    "creations.fabric.machineryB\014FabricProtos"
+    "b\006proto3", 1208);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "FabricProtos.proto", &protobuf_RegisterTypes);
   FabricWrapperMessage::default_instance_ = new FabricWrapperMessage();
@@ -2521,6 +2523,8 @@ bool CommandMessage_CommandList_IsValid(int value) {
     case 0:
     case 1:
     case 2:
+    case 3:
+    case 4:
       return true;
     default:
       return false;
@@ -2531,6 +2535,8 @@ bool CommandMessage_CommandList_IsValid(int value) {
 const CommandMessage_CommandList CommandMessage::PROTOBUF_HEARTBEAT;
 const CommandMessage_CommandList CommandMessage::PROTOBUF_PATTERN_NAMES;
 const CommandMessage_CommandList CommandMessage::PROTOBUF_PATTERN_COMMAND;
+const CommandMessage_CommandList CommandMessage::PROTOBUF_OPC_DISCONNECT;
+const CommandMessage_CommandList CommandMessage::PROTOBUF_OPC_CONNECT;
 const CommandMessage_CommandList CommandMessage::CommandList_MIN;
 const CommandMessage_CommandList CommandMessage::CommandList_MAX;
 const int CommandMessage::CommandList_ARRAYSIZE;

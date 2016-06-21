@@ -42,6 +42,9 @@ opc_sink opc_new_sink(char* hostport);
 /* the data is not sent.  Returns 1 if the data was sent, 0 otherwise. */
 u8 opc_put_pixels(opc_sink sink, u8 channel, u16 count, pixel* pixels);
 
+/* Close OPC sink so that it can be used by another client. */
+void opc_close(opc_sink sink);
+
 // OPC server functions ----------------------------------------------------
 
 /* Handle for an OPC source created by opc_new_source. */

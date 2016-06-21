@@ -66,11 +66,13 @@ class ledDriver {
 
   uint8_t lowLevelPWMCounter;
 
+  void connect();
+  void disconnect();
   void sendStartFrame();
   void sendEndFrame();
   void sendColor (int pixelIndex, uint8_t red, uint8_t green, uint8_t blue);
 
-  // Definitions for use by the simulator
+  // Definitions for use by non-embedded systems
 #ifdef NOT_EMBEDDED
   opc_sink opcSink;
   pixel pixels[LED_COUNT];

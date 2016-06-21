@@ -96,6 +96,12 @@ void furSwarmMemberLinux::handleMessage(const CommandMessage command, uint8_t* b
         for (int i = 1; i < FS_ID_MAX_ID_COUNT; i++) {
             patternName->add_name(fabricPatternNames[i]);
         }
+    } else if (command.command() == command.PROTOBUF_OPC_DISCONNECT) {
+        LOG_INFO << "Received OPC Disconnect request";
+        platform->leds.disconnect();
+    } else if (command.command() == command.PROTOBUF_OPC_CONNECT) {
+        LOG_INFO << "Received OPC Connect request";
+        platform->leds.connect();
     }
     wrapperMessage.SerializeToArray(buffer, wrapperMessage.ByteSize());
     *messageSize = wrapperMessage.ByteSize();

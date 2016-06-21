@@ -22,11 +22,24 @@
 #ifdef NOT_EMBEDDED
 
 ledDriver::ledDriver() {
+    connect();
+    lowLevelPWMCounter = 0;
+}
+
+//! Connect to the LED Server
+void ledDriver::connect() {
 #ifndef NOT_OPC
     char opc_target[] = "127.0.0.1:7890";
+    if (opcSink >= 0 || opcSink < OPC_MAX_SINKS) disconnect();
     opcSink = opc_new_sink(opc_target);
 #endif
-    lowLevelPWMCounter = 0;
+}
+
+//! Disconnect from the LED Server
+void ledDriver::disconnect() {
+#ifndef NOT_OPC
+    opc_close(opcSink);
+#endif
 }
 
 //! Send the start frame to start the display update
@@ -75,6 +88,14 @@ ledDriver::ledDriver() {
     pinMode(lpdClockPin, OUTPUT);
 #endif
     lowLevelPWMCounter = 0;
+}
+
+//! Connect to the LED Server
+void ledDriver::connect() {
+}
+
+//! Disconnect from the LED Server
+void ledDriver::disconnect() {
 }
 
 //! Send the start frame to start the display update

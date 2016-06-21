@@ -74,12 +74,14 @@ enum CommandMessage_CommandList {
   CommandMessage_CommandList_PROTOBUF_HEARTBEAT = 0,
   CommandMessage_CommandList_PROTOBUF_PATTERN_NAMES = 1,
   CommandMessage_CommandList_PROTOBUF_PATTERN_COMMAND = 2,
+  CommandMessage_CommandList_PROTOBUF_OPC_DISCONNECT = 3,
+  CommandMessage_CommandList_PROTOBUF_OPC_CONNECT = 4,
   CommandMessage_CommandList_CommandMessage_CommandList_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
   CommandMessage_CommandList_CommandMessage_CommandList_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
 };
 bool CommandMessage_CommandList_IsValid(int value);
 const CommandMessage_CommandList CommandMessage_CommandList_CommandList_MIN = CommandMessage_CommandList_PROTOBUF_HEARTBEAT;
-const CommandMessage_CommandList CommandMessage_CommandList_CommandList_MAX = CommandMessage_CommandList_PROTOBUF_PATTERN_COMMAND;
+const CommandMessage_CommandList CommandMessage_CommandList_CommandList_MAX = CommandMessage_CommandList_PROTOBUF_OPC_CONNECT;
 const int CommandMessage_CommandList_CommandList_ARRAYSIZE = CommandMessage_CommandList_CommandList_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* CommandMessage_CommandList_descriptor();
@@ -675,6 +677,8 @@ class CommandMessage : public ::google::protobuf::Message {
   static const CommandList PROTOBUF_HEARTBEAT = CommandMessage_CommandList_PROTOBUF_HEARTBEAT;
   static const CommandList PROTOBUF_PATTERN_NAMES = CommandMessage_CommandList_PROTOBUF_PATTERN_NAMES;
   static const CommandList PROTOBUF_PATTERN_COMMAND = CommandMessage_CommandList_PROTOBUF_PATTERN_COMMAND;
+  static const CommandList PROTOBUF_OPC_DISCONNECT = CommandMessage_CommandList_PROTOBUF_OPC_DISCONNECT;
+  static const CommandList PROTOBUF_OPC_CONNECT = CommandMessage_CommandList_PROTOBUF_OPC_CONNECT;
   static inline bool CommandList_IsValid(int value) {
     return CommandMessage_CommandList_IsValid(value);
   }
