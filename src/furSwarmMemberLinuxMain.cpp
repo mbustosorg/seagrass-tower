@@ -102,7 +102,8 @@ void updateMember() {
         member->setPattern(command);
         LOG_INFO << "Blue Initialization";
     } else if (counter == 185) {
-        uint8_t command[] = {FS_ID_FULL_COLOR, 150, 0, 255, 150, 150, 0};
+        //uint8_t command[] = {FS_ID_FULL_COLOR, 150, 0, 255, 150, 150, 0};
+        uint8_t command[] = {FS_ID_RAINBOW_CHASE, 150, 150, 255, 150, 150, 0};
         member->setPattern(command);
         LOG_INFO << "Initial Pattern";
     }
