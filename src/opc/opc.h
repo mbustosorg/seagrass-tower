@@ -32,6 +32,14 @@ specific language governing permissions and limitations under the License. */
 /* Handle for an OPC sink created by opc_new_sink. */
 typedef s8 opc_sink;
 
+/* Is sink connected? */
+u8 opc_connected(opc_sink sink);
+
+
+/* Makes one attempt to open the connection for a sink if needed, timing out */
+/* after timeout_ms.  Returns 1 if connected, 0 if the timeout expired. */
+u8 opc_connect(opc_sink sink, u32 timeout_ms);
+    
 /* Creates a new OPC sink.  hostport should be in "host" or "host:port" form. */
 /* No TCP connection is attempted yet; the connection will be automatically */
 /* opened as necessary by opc_put_pixels, and reopened if it closes. */

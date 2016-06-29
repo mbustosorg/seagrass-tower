@@ -86,9 +86,18 @@ opc_sink opc_new_sink(char* hostport) {
   return opc_next_sink++;
 }
 
+
+/* Is sink connected? */
+u8 opc_connected(opc_sink sink) {
+    opc_sink_info* info = &opc_sinks[sink];
+    if (info->sock >= 0) {
+        return 1;
+    } else return 0;
+}
+
 /* Makes one attempt to open the connection for a sink if needed, timing out */
 /* after timeout_ms.  Returns 1 if connected, 0 if the timeout expired. */
-static u8 opc_connect(opc_sink sink, u32 timeout_ms) {
+u8 opc_connect(opc_sink sink, u32 timeout_ms) {
   int sock;
   struct timeval timeout;
   opc_sink_info* info = &opc_sinks[sink];

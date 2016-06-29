@@ -22,6 +22,9 @@
 #ifdef NOT_EMBEDDED
 
 ledDriver::ledDriver() {
+#ifndef NOT_OPC
+    opcSink = -1;
+#endif
     connect();
     lowLevelPWMCounter = 0;
 }
@@ -29,9 +32,11 @@ ledDriver::ledDriver() {
 //! Connect to the LED Server
 void ledDriver::connect() {
 #ifndef NOT_OPC
-    char opc_target[] = "127.0.0.1:7890";
-    if (opcSink >= 0 || opcSink < OPC_MAX_SINKS) disconnect();
-    opcSink = opc_new_sink(opc_target);
+    if (opcSink < 0 || opcSink > OPC_MAX_SINKS) {
+        char opc_target[] = "127.0.0.1:7890";
+        opcSink = opc_new_sink(opc_target);
+    }
+    opc_connect(opcSink, 1000);
 #endif
 }
 
@@ -62,7 +67,7 @@ void ledDriver::sendEndFrame() {
 #endif
   }
 #ifndef NOT_OPC
-  opc_put_pixels(opcSink, 0, LED_COUNT, pixels);
+  if (opc_connected(opcSink)) opc_put_pixels(opcSink, 0, LED_COUNT, pixels);
 #endif
 }
 
