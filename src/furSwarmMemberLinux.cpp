@@ -17,7 +17,6 @@
  
  */
 
-
 #include "furSwarmMemberLinux.h"
 #include "furSwarmPatternConst.h"
 #include "embeddedInterface.h"

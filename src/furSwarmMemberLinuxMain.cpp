@@ -90,18 +90,18 @@ void updateMember() {
     member->update();
     counter++;
     if (counter == 60) {
-        uint8_t command[] = {FS_ID_FULL_COLOR, 255, 255, 0, 0, 255, 0};
+        uint8_t command[] = {FS_ID_FULL_COLOR, 255, 0, 0, 255, 255};
         member->setPattern(command);
         LOG_INFO << "Red Initialization";
     } else if (counter == 120) {
-        uint8_t command[] = {FS_ID_FULL_COLOR, 255, 0, 255, 0, 255, 0};
+        uint8_t command[] = {FS_ID_FULL_COLOR, 255, 255, 0, 0, 255};
         member->setPattern(command);
         LOG_INFO << "Green Initialization";
     } else if (counter == 180) {
-        uint8_t command[] = {FS_ID_FULL_COLOR, 255, 0, 0, 255, 255, 0};
+        uint8_t command[] = {FS_ID_FULL_COLOR, 255, 0, 255, 0, 255};
         member->setPattern(command);
         LOG_INFO << "Blue Initialization";
-    } else if (counter == 185) {
+    } else if (counter == 240) {
         //uint8_t command[] = {FS_ID_FULL_COLOR, 150, 0, 255, 150, 150, 0};
         uint8_t command[] = {FS_ID_RAINBOW_CHASE, 150, 150, 255, 150, 150, 0};
         member->setPattern(command);

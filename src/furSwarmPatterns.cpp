@@ -701,8 +701,9 @@ void furSwarmPatterns::initializeHSVstrand() {
     toConvert.s = 1.0;
     toConvert.v = prismValue;
     for (int i = 0; i < LED_COUNT; i++) {
-        toConvert.h += 360.0 / (float) LED_COUNT;
+        toConvert.h += 360.0 / (float) (LED_COUNT - 1);
         converted = hsv2rgb(toConvert);
+    
         ledRed[i] = (uint8_t) (converted.r * 255.0);
         ledGreen[i] = (uint8_t) (converted.g * 255.0);
         ledBlue[i] = (uint8_t) (converted.b * 255.0);
