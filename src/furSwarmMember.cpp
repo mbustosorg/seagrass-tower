@@ -73,6 +73,8 @@ const uint8_t memberType = FS_TYPE_REEDS;
 const uint8_t memberType = FS_TYPE_WINDFLOWERS;
 #elif FS_DRESS
 const uint8_t memberType = FS_TYPE_DRESS;
+#elif FS_ROTOFUEGO
+const uint8_t memberType = FS_TYPE_ROTOFUEGO;
 #endif
 
 // Heartbeat message layout
@@ -149,7 +151,7 @@ volatile int frameStarted = 0;
 bool daytimeShutdown = false;
 unsigned long OnTime = 1 * 3600 + 30 * 60; // 01:30 UTC == 18:30 PDT
 unsigned long OffTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
-#if (defined(FS_TOWER)) && !defined(FS_TOWER_EYE)
+#if defined(FS_TOWER) && !defined(FS_TOWER_EYE)
 bool allowDaytimeShutdown = true;
 #elif defined(FS_REEDS) || defined(FS_WINDFLOWERS)
 bool allowDaytimeShutdown = true;
@@ -158,6 +160,7 @@ bool allowDaytimeShutdown = false;
 #else
 bool allowDaytimeShutdown = false;
 #endif
+#define FIVE_MINUTES (300) // 5 Minutes in seconds
 #define TEN_MINUTES (600) // 10 Minutes in seconds
 #define THIRTY_MINUTES (1800) // 10 Minutes in seconds
 #ifdef FS_TOWN_CENTER
@@ -600,72 +603,70 @@ void updateDisplay() {
   if (lowBatteryWarningTime != 0 && (frameNumber == 0 || frameNumber == 29)) {
 	pulseStatusLED (40, 0, 0, 100, true);
   } else if (frameNumber == 0) {
-	unsigned long timeStamp = millis();
-	if (gps2rtc.last_sentence_receipt == 0 || timeStamp - gps2rtc.last_sentence_receipt > GPS_DISPLAY_TIME) {
-	  // No NMEA data
-	  pulseStatusLED (40, 0, 0, 500, true);
-	} else if (gps2rtc.lastPPSTime == 0 || timeStamp - gps2rtc.lastPPSTime > GPS_DISPLAY_TIME) {
-	  // NMEA data but no 1pps
-	  pulseStatusLED (40, 40, 0, 500, true);
-	} else {
-	  // NMEA data and 1pps
-	  if (clock.seconds % 10 == 0) pulseStatusLED (0, 40, 40, 500, true);
-	  else pulseStatusLED (0, 40, 0, 500, true);
-	  // Reset GPS every GPS_RESET_TIME (10 minutes) to keep things fresh
-	  if (gps2rtc.gps_time != 0 && gpsTimeStamp == 0) {
-	    updateGPSdata();
-	  } else if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp > GPS_RESET_TIME) {
-	    gpsTimeStamp = 0;
-	  }
-	}
-	//float Vtemp = analogRead(38) * 0.0029296875;
-	//float Temp1;
-	//if (Vtemp >= 0.7012) {
-	//Temp1 = 25 - ((Vtemp - 0.7012) / 0.001646);
-	//} else {
-	//Temp1 = 25 - ((Vtemp - 0.7012) / 0.001749);
-	//}
+    unsigned long timeStamp = millis();
+    if (gps2rtc.last_sentence_receipt == 0 || timeStamp - gps2rtc.last_sentence_receipt > GPS_DISPLAY_TIME) {
+      // No NMEA data
+      pulseStatusLED (40, 0, 0, 500, true);
+    } else if (gps2rtc.lastPPSTime == 0 || timeStamp - gps2rtc.lastPPSTime > GPS_DISPLAY_TIME) {
+      // NMEA data but no 1pps
+      pulseStatusLED (40, 40, 0, 500, true);
+    } else {
+      // NMEA data and 1pps
+      if (clock.seconds % 10 == 0) pulseStatusLED (0, 40, 40, 500, true);
+      else pulseStatusLED (0, 40, 0, 500, true);
+      // Reset GPS every GPS_RESET_TIME (10 minutes) to keep things fresh
+      if (gps2rtc.gps_time != 0 && gpsTimeStamp == 0) {
+	updateGPSdata();
+      } else if (gpsTimeStamp != 0 && timeStamp - gpsTimeStamp > GPS_RESET_TIME) {
+	gpsTimeStamp = 0;
+      }
+    }
+    //float Vtemp = analogRead(38) * 0.0029296875;
+    //float Temp1;
+    //if (Vtemp >= 0.7012) {
+    //Temp1 = 25 - ((Vtemp - 0.7012) / 0.001646);
+    //} else {
+    //Temp1 = 25 - ((Vtemp - 0.7012) / 0.001749);
+    //}
 #ifdef SERIAL_DIAGNOSTICS
-	displayGPSdata(Control.latitude, Control.longitude);
+    displayGPSdata(Control.latitude, Control.longitude);
 #endif
-	if (gps2rtc.gps_time > 0) {
-	  unsigned long gpsTime = gps2rtc.gps_time;
-	  clock.hours = gpsTime / 3600;
-	  clock.minutes = (int) (((float) gpsTime / 3600.0 - clock.hours) * 60);
-	  clock.seconds = gpsTime - clock.hours * 3600 - clock.minutes * 60;
-	  Control.clock = clock;
-	  bool dormant = false;
+    if (gps2rtc.gps_time > 0) {
+      unsigned long gpsTime = gps2rtc.gps_time;
+      clock.hours = gpsTime / 3600;
+      clock.minutes = (int) (((float) gpsTime / 3600.0 - clock.hours) * 60);
+      clock.seconds = gpsTime - clock.hours * 3600 - clock.minutes * 60;
+      Control.clock = clock;
+      bool dormant = false;
 #ifdef FS_TOWER
-	  dormant = gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating;
-#elif defined FS_TOWN_CENTER
-	  dormant = gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % THIRTY_MINUTES == 0;
+      dormant = gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating;
+#elif FS_TOWN_CENTER
+      dormant = gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % THIRTY_MINUTES == 0 && !Control.animations.isAnimating;
 #endif
-	  bool inTheZone = OnTime < OffTime ? (gpsTime > OnTime) && (gpsTime < OffTime) : (gpsTime > OnTime) || (gpsTime < OffTime);
-	  if (daytimeShutdown) {
-	    pulseStatusLED (50, 0, 50, 100, false);
-	    if (Control.pattern != FS_ID_OFF) {
-	      uint8_t data[] = {FS_ID_OFF};
-	      Control.initializePattern(data, 1);
-	    }
-	    if (inTheZone) {
-	      daytimeShutdown = false;
-	      uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170}; // Aquamarine at startup
-	      Control.initializePattern(data, 6);
-	    }
-	  } else {
-	    if (!inTheZone) {
-	      if (allowDaytimeShutdown) {
-		uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
-		Control.initializePattern(data, 6);
-		daytimeShutdown = true;
-		Control.animations.isAnimating = false;
-	      }
- 	    } else if (dormant) {
-	      uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
-	      Control.initializePattern(data, 2);
-	    }
-	  }
+      bool inTheZone = OnTime < OffTime ? (gpsTime > OnTime) && (gpsTime < OffTime) : (gpsTime > OnTime) || (gpsTime < OffTime);
+      if (daytimeShutdown) {
+	pulseStatusLED (50, 0, 50, 100, false);
+	if (Control.pattern != FS_ID_OFF) {
+	  uint8_t data[] = {FS_ID_OFF};
+	  Control.initializePattern(data, 1);
 	}
+	if (inTheZone) {
+	  daytimeShutdown = false;
+	  uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170}; // Aquamarine at startup
+	  Control.initializePattern(data, 6);
+	}
+      } else {
+	if (!inTheZone && allowDaytimeShutdown) {
+	  uint8_t data[] = {FS_ID_OFF, 100, 100, 100, 100, 100};
+	  Control.initializePattern(data, 6);
+	  daytimeShutdown = true;
+	  Control.animations.isAnimating = false;
+	} else if (dormant) {
+	  uint8_t data[] = {FS_ID_ANIMATE_1, 100, 100, 100, 100, 100};
+	  Control.initializePattern(data, 2);
+	}
+      }
+    }
   }
 #endif
 }
