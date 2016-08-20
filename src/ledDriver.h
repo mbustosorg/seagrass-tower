@@ -47,13 +47,17 @@ const int lpdClockPin = 2;
 
 // LED parameters
 #ifdef FS_TOWER_EYE
-#define LED_COUNT (100)
+#define LED_COUNT (101)
 #elif FS_REEDS
-#define LED_COUNT (72)
+#define LED_COUNT (57)
 #elif FS_WINDFLOWERS
 #define LED_COUNT (250)
 #elif FS_DRESS
 #define LED_COUNT (46)
+#elif FS_ROTOFUEGO
+#define LED_COUNT (20)
+#elif FS_BUZZ_INN
+#define LED_COUNT (50)
 #else
 #define LED_COUNT (50)
 #endif

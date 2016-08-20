@@ -237,5 +237,6 @@ static const char fabricPatternNames[FS_ID_MAX_ID + 1][MAX_PATTERN_NAME_LENGTH] 
 #define FS_TYPE_WINDFLOWERS (0x07)
 #define FS_TYPE_REEDS (0x08)
 #define FS_TYPE_ROTOFUEGO (0x09)
+#define FS_TYPE_BUZZ_INN (0x0a)
 
 #endif

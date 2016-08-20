@@ -75,6 +75,8 @@ const uint8_t memberType = FS_TYPE_WINDFLOWERS;
 const uint8_t memberType = FS_TYPE_DRESS;
 #elif FS_ROTOFUEGO
 const uint8_t memberType = FS_TYPE_ROTOFUEGO;
+#elif FS_BUZZ_INN
+const uint8_t memberType = FS_TYPE_BUZZ_INN;
 #endif
 
 // Heartbeat message layout
@@ -631,19 +633,23 @@ void updateDisplay() {
 #ifdef SERIAL_DIAGNOSTICS
     displayGPSdata(Control.latitude, Control.longitude);
 #endif
+#ifdef NOT_EMBEDDED
+    unsigned long currentTime = gps2rtc.gps_time;
+#else
+    unsigned long currentTime = millis() / 1000;
+#endif
     if (gps2rtc.gps_time > 0) {
-      unsigned long gpsTime = gps2rtc.gps_time;
-      clock.hours = gpsTime / 3600;
-      clock.minutes = (int) (((float) gpsTime / 3600.0 - clock.hours) * 60);
-      clock.seconds = gpsTime - clock.hours * 3600 - clock.minutes * 60;
+      clock.hours = currentTime / 3600;
+      clock.minutes = (int) (((float) currentTime / 3600.0 - clock.hours) * 60);
+      clock.seconds = currentTime - clock.hours * 3600 - clock.minutes * 60;
       Control.clock = clock;
       bool dormant = false;
 #ifdef FS_TOWER
-      dormant = gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % TEN_MINUTES == 0 && !Control.animations.isAnimating;
+      dormant = currentTime - lastMessageReceipt > DORMANT_TIME_LIMIT && currentTime % TEN_MINUTES == 0 && !Control.animations.isAnimating;
 #elif FS_TOWN_CENTER
-      dormant = gpsTime - lastMessageReceipt > DORMANT_TIME_LIMIT && gpsTime % THIRTY_MINUTES == 0 && !Control.animations.isAnimating;
+      dormant = currentTime - lastMessageReceipt > DORMANT_TIME_LIMIT && currentTime % THIRTY_MINUTES == 0 && !Control.animations.isAnimating;
 #endif
-      bool inTheZone = OnTime < OffTime ? (gpsTime > OnTime) && (gpsTime < OffTime) : (gpsTime > OnTime) || (gpsTime < OffTime);
+      bool inTheZone = OnTime < OffTime ? (currentTime > OnTime) && (currentTime < OffTime) : (currentTime > OnTime) || (currentTime < OffTime);
       if (daytimeShutdown) {
 	pulseStatusLED (50, 0, 50, 100, false);
 	if (Control.pattern != FS_ID_OFF) {
@@ -766,7 +772,11 @@ void processRXResponse() {
   }
 #ifdef TEENSY
   if (!daytimeShutdown) {
+#ifdef NOT_EMBEDDED
     lastMessageReceipt = gps2rtc.gps_time;
+#else
+    lastMessageReceipt = millis() / 1000;
+#endif
     Control.animations.isAnimating = data[0] == FS_ID_ANIMATE_1;
   }
 #endif
