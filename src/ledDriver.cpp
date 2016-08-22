@@ -57,13 +57,22 @@ void ledDriver::sendStartFrame() {
 void ledDriver::sendEndFrame() {
   for (int i = 0; i < LED_COUNT; i++) {
 #ifdef FS_REEDS
-        pixels[i].r = nonEmbedBlue[i];
-        pixels[i].g = nonEmbedRed[i];
-        pixels[i].b = nonEmbedGreen[i];
+    pixels[i].r = nonEmbedBlue[i];
+    pixels[i].g = nonEmbedRed[i];
+    pixels[i].b = nonEmbedGreen[i];
+#elif FS_TOWER_EYE
+    if (i < LED_COUNT - 1) {
+      pixels[i + 1].r = nonEmbedRed[i];
+      pixels[i + 1].g = nonEmbedGreen[i];
+      pixels[i + 1].b = nonEmbedBlue[i];
+    }
+    pixels[0].r = 255;
+    pixels[0].g = 0;
+    pixels[0].b = 0;
 #else
-        pixels[i].r = nonEmbedRed[i];
-        pixels[i].g = nonEmbedGreen[i];
-        pixels[i].b = nonEmbedBlue[i];
+    pixels[i].r = nonEmbedRed[i];
+    pixels[i].g = nonEmbedGreen[i];
+    pixels[i].b = nonEmbedBlue[i];
 #endif
   }
 #ifndef NOT_OPC
