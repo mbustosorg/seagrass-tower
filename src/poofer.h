@@ -24,9 +24,11 @@
 #define POOFER_1_PIN (31)
 #define POOFER_2_PIN (26)
 
-#define PATTERN_COUNT (2)
+#define PATTERN_COUNT (4)
 #define PATTERN_1_COUNT (18)
-#define PATTERN_2_COUNT (11)
+#define PATTERN_2_COUNT (26)
+#define PATTERN_3_COUNT (18)
+#define PATTERN_4_COUNT (24)
 
 #define PATTERNS_OFF (-1)
 

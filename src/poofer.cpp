@@ -41,7 +41,7 @@ poofer::poofer() {
   pattern* patternsSetup = (pattern *) malloc(PATTERN_COUNT * sizeof(pattern));
   patterns = patternsSetup;
 
-  // Single Blast
+  // Pattern 1
   patternStep* pattern1steps = (patternStep *) malloc(PATTERN_1_COUNT * sizeof(patternStep));
   pattern1steps[0] = {0, {HIGH, LOW}};
   pattern1steps[1] = {100, {LOW, LOW}};
@@ -50,8 +50,7 @@ poofer::poofer() {
   pattern1steps[4] = {1000, {HIGH, LOW}};
   pattern1steps[5] = {1100, {LOW, LOW}};
   pattern1steps[6] = {1300, {LOW, HIGH}};
-  pattern1steps[7] = {1400, {LOW, LOW}};
-  
+  pattern1steps[7] = {1400, {LOW, LOW}};  
   pattern1steps[8] = {2000, {HIGH, HIGH}};
   pattern1steps[9] = {2500, {LOW, LOW}};
   pattern1steps[10] = {3000, {HIGH, HIGH}};
@@ -64,7 +63,7 @@ poofer::poofer() {
   pattern1steps[17] = {8000, {HIGH, HIGH}};
   patterns[0] = {PATTERN_1_COUNT, pattern1steps};
 
-  // Alternating Blasts
+  // Pattern 2
   patternStep* pattern2steps = (patternStep *) malloc(PATTERN_2_COUNT * sizeof(patternStep));
   pattern2steps[0] = {0, {HIGH, LOW}};
   pattern2steps[1] = {100, {LOW, HIGH}};
@@ -76,8 +75,73 @@ poofer::poofer() {
   pattern2steps[7] = {700, {LOW, HIGH}};
   pattern2steps[8] = {800, {HIGH, LOW}};
   pattern2steps[9] = {900, {LOW, HIGH}};
-  pattern2steps[10] = {1000, {LOW, LOW}};
+  pattern2steps[10] = {1000, {HIGH, LOW}};
+  pattern2steps[11] = {1100, {LOW, HIGH}};
+  pattern2steps[12] = {1200, {HIGH, LOW}};
+  pattern2steps[13] = {1300, {LOW, HIGH}};
+  pattern2steps[14] = {1400, {HIGH, LOW}};
+  pattern2steps[15] = {1500, {LOW, HIGH}};
+  pattern2steps[16] = {1600, {HIGH, LOW}};
+  pattern2steps[17] = {1700, {LOW, HIGH}};
+  pattern2steps[18] = {1800, {HIGH, LOW}};
+  pattern2steps[19] = {1900, {LOW, HIGH}};
+  pattern2steps[20] = {2000, {HIGH, LOW}};
+  pattern2steps[21] = {2100, {LOW, HIGH}};
+  pattern2steps[22] = {2200, {HIGH, LOW}};
+  pattern2steps[23] = {2300, {LOW, HIGH}};
+  pattern2steps[24] = {2400, {HIGH, LOW}};
+  pattern2steps[25] = {2500, {LOW, LOW}};
   patterns[1] = {PATTERN_2_COUNT, pattern2steps};
+
+  // Pattern 3
+  patternStep* pattern3steps = (patternStep *) malloc(PATTERN_3_COUNT * sizeof(patternStep));
+  pattern3steps[0] = {0, {HIGH, LOW}};
+  pattern3steps[1] = {100, {LOW, HIGH}};
+  pattern3steps[2] = {200, {LOW, LOW}};
+  pattern3steps[3] = {300, {LOW, HIGH}};
+  pattern3steps[4] = {400, {HIGH, LOW}};
+  pattern3steps[5] = {500, {LOW, LOW}};
+  pattern3steps[6] = {600, {HIGH, LOW}};
+  pattern3steps[7] = {700, {LOW, HIGH}};
+  pattern3steps[8] = {800, {LOW, LOW}};
+  pattern3steps[9] = {900, {LOW, HIGH}};
+  pattern3steps[10] = {1000, {HIGH, LOW}};
+  pattern3steps[11] = {1100, {LOW, LOW}};
+  pattern3steps[12] = {1200, {HIGH, HIGH}};
+  pattern3steps[13] = {1500, {LOW, LOW}};
+  pattern3steps[14] = {2000, {HIGH, HIGH}};
+  pattern3steps[15] = {2500, {LOW, LOW}};
+  pattern3steps[16] = {3000, {HIGH, HIGH}};
+  pattern3steps[17] = {3500, {LOW, LOW}};
+  patterns[2] = {PATTERN_3_COUNT, pattern3steps};
+
+  // Pattern 4
+  patternStep* pattern4steps = (patternStep *) malloc(PATTERN_4_COUNT * sizeof(patternStep));
+  pattern4steps[0] = {0, {HIGH, LOW}};
+  pattern4steps[1] = {100, {LOW, LOW}};
+  pattern4steps[2] = {200, {HIGH, LOW}};
+  pattern4steps[3] = {300, {LOW, LOW}};
+  pattern4steps[4] = {400, {HIGH, LOW}};
+  pattern4steps[5] = {500, {LOW, LOW}};
+  pattern4steps[6] = {600, {HIGH, LOW}};
+  pattern4steps[7] = {700, {LOW, HIGH}};
+  pattern4steps[8] = {800, {LOW, LOW}};
+  pattern4steps[9] = {900, {LOW, HIGH}};
+  pattern4steps[10] = {1000, {LOW, LOW}};
+  pattern4steps[11] = {1100, {LOW, HIGH}};
+  pattern4steps[12] = {1200, {LOW, LOW}};
+  pattern4steps[13] = {1300, {LOW, HIGH}};
+  pattern4steps[14] = {1400, {LOW, LOW}};
+  pattern4steps[15] = {1500, {HIGH, HIGH}};
+  pattern4steps[16] = {2000, {HIGH, HIGH}};
+  pattern4steps[17] = {2200, {LOW, LOW}};
+  pattern4steps[18] = {2500, {HIGH, HIGH}};
+  pattern4steps[19] = {2700, {HIGH, HIGH}};
+  pattern4steps[20] = {2900, {LOW, LOW}};
+  pattern4steps[21] = {3200, {HIGH, HIGH}};
+  pattern4steps[22] = {3400, {HIGH, HIGH}};
+  pattern4steps[23] = {3600, {LOW, LOW}};
+  patterns[3] = {PATTERN_4_COUNT, pattern4steps};
 }
 
 //! Destroy the object

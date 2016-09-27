@@ -146,12 +146,15 @@ const int ANALOG_READ_AVERAGING = 16;  // Number of samples to average with each
 const unsigned long FRAME_LENGTH = 16;
 
 // Timing & frame execution control
+#define POOFER_DEBOUNCE (50)
+long pooferStartControl = 0;
 volatile int frameNumber = 0;
 volatile uint16_t frameCount = 0;
 volatile unsigned long frameRateCount = 0;
 volatile int frameStarted = 0;
 bool daytimeShutdown = false;
 unsigned long OnTime = 1 * 3600 + 30 * 60; // 01:30 UTC == 18:30 PDT
+//unsigned long OnTime = 20 * 3600 + 35 * 60;
 unsigned long OffTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
 #if defined(FS_TOWER) && !defined(FS_TOWER_EYE)
 bool allowDaytimeShutdown = true;
@@ -159,6 +162,8 @@ bool allowDaytimeShutdown = true;
 bool allowDaytimeShutdown = true;
 #elif defined(FS_TOWN_CENTER)
 bool allowDaytimeShutdown = false;
+#elif defined(FS_ROTOFUEGO)
+bool allowDaytimeShutdown = true;
 #else
 bool allowDaytimeShutdown = false;
 #endif
@@ -166,6 +171,8 @@ bool allowDaytimeShutdown = false;
 #define TEN_MINUTES (600) // 10 Minutes in seconds
 #define THIRTY_MINUTES (1800) // 10 Minutes in seconds
 #ifdef FS_TOWN_CENTER
+#define DORMANT_TIME_LIMIT (300) // 5 Minutes in seconds
+#elif FS_ROTOFUEGO
 #define DORMANT_TIME_LIMIT (300) // 5 Minutes in seconds
 #else
 #define DORMANT_TIME_LIMIT (1200) // 20 Minutes in seconds
@@ -522,9 +529,10 @@ void setStartupPattern() {
   //uint8_t data[] = {FS_ID_POOF_2, 0, 228, 0, 0, 228};
   uint8_t data[] = {FS_ID_RAINBOW_CHASE, 250, 200, 100, 130, 150};
 #else
+  uint8_t data[] = {FS_ID_CYLON, 51, 255, 0, 153, 255, 0};
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
-  uint8_t data[] = {FS_ID_RAINBOW_CHASE, 250, 200, 100, 130, 150};
+  //uint8_t data[] = {FS_ID_RAINBOW_CHASE, 250, 200, 100, 130, 150};
   //uint8_t data[] = {FS_ID_CYLON_VERTICAL, 200, 0, 200, 0, 120};
   //uint8_t data[] = {FS_ID_TILT, 100, 200, 0, 40, 120};
 #endif
@@ -634,9 +642,9 @@ void updateDisplay() {
     displayGPSdata(Control.latitude, Control.longitude);
 #endif
 #ifdef NOT_EMBEDDED
-    unsigned long currentTime = gps2rtc.gps_time;
-#else
     unsigned long currentTime = millis() / 1000;
+#else
+    unsigned long currentTime = gps2rtc.gps_time;
 #endif
     if (gps2rtc.gps_time > 0) {
       clock.hours = currentTime / 3600;
@@ -646,6 +654,8 @@ void updateDisplay() {
       bool dormant = false;
 #ifdef FS_TOWER
       dormant = currentTime - lastMessageReceipt > DORMANT_TIME_LIMIT && currentTime % TEN_MINUTES == 0 && !Control.animations.isAnimating;
+#elif FS_ROTOFUEGO
+      dormant = currentTime - lastMessageReceipt > DORMANT_TIME_LIMIT && currentTime % FIVE_MINUTES == 0 && !Control.animations.isAnimating;
 #elif FS_TOWN_CENTER
       dormant = currentTime - lastMessageReceipt > DORMANT_TIME_LIMIT && currentTime % THIRTY_MINUTES == 0 && !Control.animations.isAnimating;
 #endif
@@ -681,20 +691,42 @@ void updateDisplay() {
 void processAuxCommands() {
 #ifdef FS_TOWER_EYE
   if (digitalRead(aux1pin) == HIGH) {
-    Control.pooferControl.poof(0, digitalRead(aux1pin));
+    if (pooferStartControl > 0 && millis() - pooferStartControl > POOFER_DEBOUNCE) {
+      Control.pooferControl.startPattern(0);
+      //Control.pooferControl.poof(0, digitalRead(aux1pin));
+      pooferStartControl = 0;
+    } else {
+      pooferStartControl = millis();
+    }
   } else {
     Control.pooferControl.poof(0, LOW);
   }
   if (digitalRead(aux2pin) == HIGH) {
-    Control.pooferControl.poof(1, digitalRead(aux2pin));
+    if (pooferStartControl > 0 && millis() - pooferStartControl > POOFER_DEBOUNCE) {
+      Control.pooferControl.startPattern(1);
+      //Control.pooferControl.poof(1, digitalRead(aux2pin));
+      pooferStartControl = 0;
+    } else {
+      pooferStartControl = millis();
+    }
   } else {
     Control.pooferControl.poof(1, LOW);
   }
   if (digitalRead(aux3pin) == HIGH) {
-    Control.pooferControl.startPattern(0);
+    if (pooferStartControl > 0 && millis() - pooferStartControl > POOFER_DEBOUNCE) {
+      Control.pooferControl.startPattern(2);
+      pooferStartControl = 0;
+    } else {
+      pooferStartControl = millis();
+    }
   }
   if (digitalRead(aux4pin) == HIGH) {
-    Control.pooferControl.startPattern(1);
+    if (pooferStartControl > 0 && millis() - pooferStartControl > POOFER_DEBOUNCE) {
+      Control.pooferControl.startPattern(3);
+      pooferStartControl = 0;
+    } else {
+      pooferStartControl = millis();
+    }
   }
 #endif	
 }
