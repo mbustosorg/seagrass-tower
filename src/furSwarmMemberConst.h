@@ -156,7 +156,7 @@ PROGMEM prog_uint8_t cyLEDMap[] = {
     0x2d, 0x2e, 0x2f, 0x30, 0x31
 };
 #else
-const uint8_t LED_CYMAP = LED_COUNT;  // Number of bytes using the bitmap scheme
+const int LED_CYMAP = LED_COUNT;  // Number of bytes using the bitmap scheme
 #endif
 
 /*

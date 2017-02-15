@@ -74,7 +74,7 @@ class furSwarmPatterns {
   void setSecondsIntoMinute(unsigned long newSecondsIntoMinute);
   void iterateForTransition();
   uint8_t timeToDrop;
-  uint8_t cycleSpot;
+  uint16_t cycleSpot;
   
   uint8_t ledRed[LED_COUNT];
   uint8_t ledGreen[LED_COUNT];
@@ -100,7 +100,7 @@ class furSwarmPatterns {
   bool patternForward;
   uint8_t characterIndex; // Index of currently displayed character
   uint8_t characterIndexUpper; // Count of characters available in PROGMEM
-  uint8_t frameIndex; // Index for frame based patterns
+  uint16_t frameIndex; // Index for frame based patterns
   uint16_t frameRelease; // Counter to aid with pattern iteration speed
   uint8_t redLevel;
   uint8_t greenLevel;
@@ -110,7 +110,7 @@ class furSwarmPatterns {
   float prismValue;
  
   // Searching eye pattern variables
-  uint8_t maxEye, minEye;
+  uint16_t maxEye, minEye;
 
   // Sound Activate pattern variables
   uint8_t audioAnalogPin;

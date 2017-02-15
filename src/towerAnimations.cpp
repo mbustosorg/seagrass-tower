@@ -55,7 +55,7 @@ const uint8_t animationPatterns[animationCount][ANIMATION_COMMAND_LENGTH] = {
 #elif defined FS_TOWN_CENTER
   // ID, Speed, Red, Green, Blue, Intensity, Delay
   {FS_ID_FULL_COLOR, 255, 0, 0, 255, 255, 0},
-  {FS_ID_FULL_COLOR, 255, 0, 255, 255, 255, 0},
+  {FS_ID_FULL_COLOR, 255, 0, 255, 255, 150, 0},
   {FS_ID_FULL_COLOR, 255, 0, 255, 0, 255, 0},
   {FS_ID_FULL_COLOR, 255, 255, 0, 0, 255, 0},
   {FS_ID_CYLON_PONG, 81, 255, 0, 0, 255, 0},

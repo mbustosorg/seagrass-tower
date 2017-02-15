@@ -36,6 +36,9 @@
 #include <unistd.h>
 
 #define MAX_CLIENTS (30)
+static int frameCount = 0;
+#define FRAME_RATE_INTERVAL_OUT (500)
+#define TIMING_OUT (false)
 
 #define STRINGIZE(x) #x
 #define STRINGIZE_VALUE_OF(x) STRINGIZE(x)
@@ -43,7 +46,7 @@
 using namespace std;
 
 int counter = 0;
-const long long framePeriod = 16667;
+const long long FramePeriod = 32000; // 60Hz
 const char* logFileName = "logs/furSwarmLinux.log";
 int master_socket, addrlen, client_socket[30];
 struct sockaddr_in address;
@@ -84,6 +87,10 @@ void setupServer() {
     }
     addrlen = sizeof(address);
     LOG_INFO << "Waiting for connections ...";
+}
+
+bool timingOutput(int frameCount) {
+    return TIMING_OUT && frameCount % FRAME_RATE_INTERVAL_OUT == 0;
 }
 
 void updateMember() {
@@ -131,16 +138,22 @@ int main() {
     member->setup();
     setupServer();
     
-    struct timeval tv = {0, framePeriod};
+    struct timeval tv = {0, FramePeriod};
+    
+    auto frameRateMonitorStart = chrono::high_resolution_clock::now();
     
     while (1) {
-        auto start = chrono::high_resolution_clock::now();
+        auto frameStart = chrono::high_resolution_clock::now();
+
+        frameCount++;
+        if (timingOutput(frameCount)) {
+            auto frameRateMonitorStop = std::chrono::high_resolution_clock::now();
+            long long updateLength = std::chrono::duration_cast<std::chrono::microseconds>(frameRateMonitorStop - frameRateMonitorStart).count();
+            LOG_INFO << "Average Frame Time (ms): " << updateLength / FRAME_RATE_INTERVAL_OUT;
+            frameRateMonitorStart = std::chrono::high_resolution_clock::now();
+        }
+
         updateMember();
-        auto elapsed = chrono::high_resolution_clock::now() - start;
-        long long updateLength = chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        
-        tv.tv_sec = 0;
-        tv.tv_usec = framePeriod - updateLength;
         
         FD_ZERO(&readfds);
         FD_SET(master_socket, &readfds);
@@ -151,7 +164,21 @@ int main() {
             if (sd > max_sd) max_sd = sd;
         }
         
+        auto frameStop = chrono::high_resolution_clock::now();
+        long long updateLength = chrono::duration_cast<std::chrono::microseconds>(frameStop - frameStart).count();
+        
+        tv.tv_sec = 0;
+        tv.tv_usec = FramePeriod - 1500 - updateLength;
+        
+        if (timingOutput(frameCount)) {
+            LOG_INFO << "start: " << frameStart.time_since_epoch().count();
+        }
+        
         int selectResult = select(max_sd + 1, &readfds, NULL, NULL, &tv);
+        
+        if (timingOutput(frameCount)) {
+            LOG_INFO << "stop: " << frameStop.time_since_epoch().count();
+        }
         
         if (selectResult > 0) {
             if (FD_ISSET(master_socket, &readfds)) {

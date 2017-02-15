@@ -392,6 +392,10 @@ void towerPatterns::continuePatternDisplay() {
 	animationData[ANIMATION_COMMAND_LENGTH - 1] = randomValue;
 	}
       */
+#ifdef SERIAL_DIAGNOSTICS
+      Serial.print("New Pattern: ");
+      Serial.println(animationData[0]);
+#endif
       setPatternData(animationData, ANIMATION_COMMAND_LENGTH);
     }
   }

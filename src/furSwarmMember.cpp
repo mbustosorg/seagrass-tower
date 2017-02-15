@@ -153,15 +153,20 @@ volatile uint16_t frameCount = 0;
 volatile unsigned long frameRateCount = 0;
 volatile int frameStarted = 0;
 bool daytimeShutdown = false;
+#if (FS_TOWN_CENTER)
+unsigned long OnTime = 10 * 3600; // 10:00 UTC == 3:00 PDT
+unsigned long OffTime = 19 * 3600; // 19:00 UTC == 12:00 PDT
+#else
 unsigned long OnTime = 1 * 3600 + 30 * 60; // 01:30 UTC == 18:30 PDT
 //unsigned long OnTime = 20 * 3600 + 35 * 60;
 unsigned long OffTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
+#endif
 #if defined(FS_TOWER) && !defined(FS_TOWER_EYE)
 bool allowDaytimeShutdown = true;
 #elif defined(FS_REEDS) || defined(FS_WINDFLOWERS)
 bool allowDaytimeShutdown = true;
 #elif defined(FS_TOWN_CENTER)
-bool allowDaytimeShutdown = false;
+bool allowDaytimeShutdown = true;
 #elif defined(FS_ROTOFUEGO)
 bool allowDaytimeShutdown = true;
 #else
@@ -218,18 +223,15 @@ void pulseStatusLED(uint8_t red, uint8_t green, uint8_t blue, int duration, bool
 
 //! Initialize the system
 void setup() {
+  suicidePin = 5;
+  commandPatternPin = 6;
+  Control.FS_BREATHE_MULTIPLIER = 50.0;
   if (legacyPro) {
 	batteryVoltagePin = 1;
-	suicidePin = 5;
-	commandPatternPin = 6;
-	Control.FS_BREATHE_MULTIPLIER = 50.0;
 	Control.randomSeedPin = 0;
 	Control.audioAnalogPin = 0;
   } else {
 	batteryVoltagePin = 0;
-	suicidePin = 5;
-	commandPatternPin = 6;
-	Control.FS_BREATHE_MULTIPLIER = 50.0;
 	Control.randomSeedPin = 8;
 #ifdef TEENSY
 	batteryVoltagePin = 15;
@@ -593,9 +595,9 @@ void updateGPSdata() {
 void displayGPSdata(float lat, float lon) {
 #ifdef TEENSY
   Serial.print("lat:");
-  Serial.print(lat);
+  Serial.print(lat / 100000);
   Serial.print(", lon:");
-  Serial.print(lon);
+  Serial.print(lon / 100000);
   Serial.print(", time:");
   if (clock.hours < 10) Serial.print ("0");
   Serial.print(clock.hours); Serial.print(":"); 
@@ -765,6 +767,9 @@ void processIncoming() {
     Control.ledRed[LED_COUNT - 1] = 30;
     Control.displayData(true, true, true);
     delay(60000);
+#ifdef SERIAL_DIAGNOSTICS
+    Serial.println ("Suicide");
+#endif
     digitalWrite(suicidePin, LOW);
   } else if (commandPatternMode) {
     Control.triggerPatternChange(commandPatternMode == 1);
