@@ -97,6 +97,14 @@ void furSwarmMemberLinux::handleMessage(const CommandMessage command, uint8_t* b
         }
     } else if (command.command() == command.PROTOBUF_OPC_DISCONNECT) {
         LOG_INFO << "Received OPC Disconnect request";
+        PatternCommand offCommand;
+        offCommand.set_patternnumber(FS_ID_OFF);
+        offCommand.set_red(0);
+        offCommand.set_green(0);
+        offCommand.set_blue(0);
+        offCommand.set_speed(0);
+        offCommand.set_intensity(0);
+        handlePatternCommand(offCommand, NULL, NULL);
         platform->leds.disconnect();
     } else if (command.command() == command.PROTOBUF_OPC_CONNECT) {
         LOG_INFO << "Received OPC Connect request";
@@ -128,8 +136,10 @@ void furSwarmMemberLinux::handlePatternCommand(const PatternCommand patterncomma
         
         LOG_INFO << "Pattern Set - " << patternNames[platform->pattern];
 
-        updateHeartbeatMessage(wrapperMessage.mutable_heartbeat());
-        wrapperMessage.SerializeToArray(buffer, wrapperMessage.ByteSize());
-        *messageSize = wrapperMessage.ByteSize();
+        if (buffer) {
+            updateHeartbeatMessage(wrapperMessage.mutable_heartbeat());
+            wrapperMessage.SerializeToArray(buffer, wrapperMessage.ByteSize());
+            *messageSize = wrapperMessage.ByteSize();
+        }
     }
 }
