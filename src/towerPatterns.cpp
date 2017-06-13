@@ -152,6 +152,15 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   patternSpeed = (int) data[1];
   patternSpeedLevel = patternSpeed;
   setBasicParameters (data[5], data[2], data[3], data[4]);
+  
+  // Get ready for blending
+  blendingStart = BLENDING_FRAME_COUNT; // 120 Frames to blend to current pattern
+  for (int i = 0; i < LED_COUNT; i++) {
+    blendingLedRed[i] = ledRed[i];
+    blendingLedGreen[i] = ledGreen[i];
+    blendingLedBlue[i] = ledBlue[i];
+  }
+  
   switch (messageType) {
   case FS_ID_DANCING:
     patternSpeed = 255 - (int) data [1];
@@ -294,6 +303,19 @@ void towerPatterns::continuePatternDisplay() {
   if (millis() - shakeStart > 180000) isShaking = false;
 #endif
   pooferControl.iteratePattern();
+  // Blend from latest pattern request
+  if (blendingStart > 0) {
+    blendingStart--;
+    for (int i = 0; i < LED_COUNT; i++) {
+      leds.sendStartFrame();
+      float red = blendingLedRed[i] + ((float) ledRed[i] - (float) blendingLedRed[i]) * (1.0 - (float) blendingStart / (float) BLENDING_FRAME_COUNT);
+      float green = blendingLedGreen[i] + ((float) ledGreen[i] - (float) blendingLedGreen[i]) * (1.0 - (float) blendingStart / (float) BLENDING_FRAME_COUNT);
+      float blue = blendingLedBlue[i] + ((float) ledBlue[i] - (float) blendingLedBlue[i]) * (1.0 - (float) blendingStart / (float) BLENDING_FRAME_COUNT);
+      leds.sendColor(i, red, green, blue);
+      leds.sendEndFrame();
+    }
+    return;
+  }
   // Continue with pattern display
   switch (pattern) {
   case FS_ID_DANCING:

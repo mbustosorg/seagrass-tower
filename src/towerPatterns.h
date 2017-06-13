@@ -50,6 +50,7 @@ typedef float float32_t;
 #define FLAME_HEIGHT (5)
 #define SPECTRUM_MIN_DB (30.0)          // Audio intensity (in decibels) that maps to low LED brightness.
 #define SPECTRUM_MAX_DB (60.0)          // Audio intensity (in decibels) that maps to high LED brightness.
+#define BLENDING_FRAME_COUNT (60)
 
 const int MAX_TOWER_COUNT = 35;
 

@@ -75,6 +75,11 @@ class furSwarmPatterns {
   void iterateForTransition();
   uint8_t timeToDrop;
   uint16_t cycleSpot;
+    
+  uint8_t blendingLedRed[LED_COUNT];
+  uint8_t blendingLedGreen[LED_COUNT];
+  uint8_t blendingLedBlue[LED_COUNT];
+    unsigned long blendingStart = 0;
   
   uint8_t ledRed[LED_COUNT];
   uint8_t ledGreen[LED_COUNT];
@@ -89,7 +94,12 @@ class furSwarmPatterns {
   uint32_t flashStartTime; 
   uint8_t ledChangeRate;
   uint8_t flashLedChangeRate;
- 
+
+  uint8_t lastLedRed[LED_COUNT];
+  uint8_t lastLedGreen[LED_COUNT];
+  uint8_t lastLedBlue[LED_COUNT];
+  int transitioning = 0;
+  
   unsigned long heartbeatPumpShortStart;
   unsigned long heartbeatPumpShortPeriod;
   unsigned long heartbeatPumpLongStart;
