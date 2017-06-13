@@ -79,7 +79,7 @@ class furSwarmPatterns {
   uint8_t blendingLedRed[LED_COUNT];
   uint8_t blendingLedGreen[LED_COUNT];
   uint8_t blendingLedBlue[LED_COUNT];
-    unsigned long blendingStart = 0;
+  unsigned long blendingStart;
   
   uint8_t ledRed[LED_COUNT];
   uint8_t ledGreen[LED_COUNT];
@@ -98,7 +98,6 @@ class furSwarmPatterns {
   uint8_t lastLedRed[LED_COUNT];
   uint8_t lastLedGreen[LED_COUNT];
   uint8_t lastLedBlue[LED_COUNT];
-  int transitioning = 0;
   
   unsigned long heartbeatPumpShortStart;
   unsigned long heartbeatPumpShortPeriod;

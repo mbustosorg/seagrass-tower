@@ -186,6 +186,7 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
     patternSpeed = 255 - (int) data [1];
     setPatternSpeedWithFactor(15);
     initializeGrassWave(data[5], data[2], data[3], data[4], pattern != messageType);
+    iterateGrassWave();
     pattern = messageType;
     break;
   case FS_ID_RADIO_TOWER:
@@ -276,6 +277,7 @@ void towerPatterns::initializePattern(uint8_t *data, uint8_t dataLength) {
   case FS_ID_CANDLE:
     setPatternSpeedWithFactor(5);
     initializeCandle();
+    iterateCandle();
     pattern = messageType;
     break;
   case FS_ID_POOF_1:

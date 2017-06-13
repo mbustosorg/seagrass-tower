@@ -38,6 +38,7 @@ furSwarmPatterns::furSwarmPatterns() {
     minEye = 0;
     timeToDrop = 0;
     cycleSpot = 0;
+    blendingStart = 0;
     
     ledChangeRate = 3;
     flashLedChangeRate = 3;
