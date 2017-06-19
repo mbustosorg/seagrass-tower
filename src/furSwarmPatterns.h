@@ -79,7 +79,7 @@ class furSwarmPatterns {
   uint8_t blendingLedRed[LED_COUNT];
   uint8_t blendingLedGreen[LED_COUNT];
   uint8_t blendingLedBlue[LED_COUNT];
-  unsigned long blendingStart;
+  long blendingStart;
   
   uint8_t ledRed[LED_COUNT];
   uint8_t ledGreen[LED_COUNT];
