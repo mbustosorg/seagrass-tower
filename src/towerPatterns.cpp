@@ -306,6 +306,7 @@ void towerPatterns::continuePatternDisplay() {
 #endif
   pooferControl.iteratePattern();
   // Blend from latest pattern request
+  /*
   if (blendingStart > 0) {
     blendingStart--;
     for (int i = 0; i < LED_COUNT; i++) {
@@ -318,6 +319,7 @@ void towerPatterns::continuePatternDisplay() {
     }
     return;
   }
+  */
   // Continue with pattern display
   switch (pattern) {
   case FS_ID_DANCING:
