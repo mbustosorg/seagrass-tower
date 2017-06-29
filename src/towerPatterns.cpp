@@ -318,7 +318,6 @@ void towerPatterns::continuePatternDisplay() {
     leds.sendEndFrame();
     return;
   }
-  */
   // Continue with pattern display
   switch (pattern) {
   case FS_ID_DANCING:
