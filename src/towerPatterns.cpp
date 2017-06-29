@@ -306,17 +306,16 @@ void towerPatterns::continuePatternDisplay() {
 #endif
   pooferControl.iteratePattern();
   // Blend from latest pattern request
-  /*
   if (blendingStart > 0) {
     blendingStart--;
+    leds.sendStartFrame();
     for (int i = 0; i < LED_COUNT; i++) {
-      leds.sendStartFrame();
       uint8_t red = blendingLedRed[i] + ((float) ledRed[i] - (float) blendingLedRed[i]) * (1.0 - (float) blendingStart / (float) BLENDING_FRAME_COUNT);
       uint8_t green = blendingLedGreen[i] + ((float) ledGreen[i] - (float) blendingLedGreen[i]) * (1.0 - (float) blendingStart / (float) BLENDING_FRAME_COUNT);
       uint8_t blue = blendingLedBlue[i] + ((float) ledBlue[i] - (float) blendingLedBlue[i]) * (1.0 - (float) blendingStart / (float) BLENDING_FRAME_COUNT);
       leds.sendColor(i, red, green, blue);
-      leds.sendEndFrame();
     }
+    leds.sendEndFrame();
     return;
   }
   */
