@@ -285,7 +285,7 @@ void setup() {
   Control.heartbeatIntensity = 150;
   Control.characterIndex = 1;
   Control.frameIndex = 1;
-  Control.initializeRandom(160, 255, 0xff, 0xff, 0xff, false); 
+  //Control.initializeRandom(160, 255, 0xff, 0xff, 0xff, false); 
   setStartupPattern();
   setupTimers();
 }

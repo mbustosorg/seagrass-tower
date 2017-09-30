@@ -127,6 +127,26 @@ towerPatterns::towerPatterns() : furSwarmPatterns(){
   arm_cfft_radix4_instance_f32 fft_inst;  /* CFFT Structure instance */
   arm_cfft_radix4_init_f32(&fft_inst, FFT_LEN, ifftFlag, doBitReverse);
 #endif
+
+    for (int i = 0; i < LED_COUNT; i++) {
+      blendingLedRed[i] = 0;
+      blendingLedGreen[i] = 0;
+      blendingLedBlue[i] = 0;
+      ledRed[i] = 0;
+      ledGreen[i] = 0;
+      ledBlue[i] = 0;
+      ledCycleColor[i] = 0;
+      ledRedDirection[i] = 0;
+      ledGreenDirection[i] = 0;
+      ledBlueDirection[i] = 0;
+      breatheBorderRed[i] = 0;
+      breatheBorderGreen[i] = 0;
+      breatheBorderBlue[i] = 0;
+      lastLedRed[i] = 0;
+      lastLedGreen[i] = 0;
+      lastLedBlue[i] = 0;
+    }
+
 }
 
 //! Set the current frame
