@@ -1,6 +1,11 @@
-PLATFORM := -DFS_REEDS
 
 ifeq "$(hostname)" "apis"
+PLATFORM := -DFS_TOWER_EYE
+else ifeq "$(hostname)" "reeds"
+PLATFORM := -DFS_REEDS
+else ifeq "$(hostname)" "windflowers"
+PLATFORM := -DFS_WINDFLOWERS
+else
 PLATFORM := -DFS_TOWER_EYE
 endif
 
