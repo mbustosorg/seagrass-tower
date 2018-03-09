@@ -157,9 +157,11 @@ bool daytimeShutdown = false;
 unsigned long OnTime = 10 * 3600; // 10:00 UTC == 3:00 PDT
 unsigned long OffTime = 19 * 3600; // 19:00 UTC == 12:00 PDT
 #else
-unsigned long OnTime = 1 * 3600 + 30 * 60; // 01:30 UTC == 18:30 PDT
+//unsigned long OnTime = 1 * 3600 + 30 * 60; // 01:30 UTC == 18:30 PDT
 //unsigned long OnTime = 20 * 3600 + 35 * 60;
-unsigned long OffTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
+//unsigned long OffTime = 12 * 3600 + 30 * 60; // 12:30 UTC == 05:30 PDT
+unsigned long OnTime = 1 * 3600 + 0 * 60; // 01:00 UTC == 17:00 PDT
+unsigned long OffTime = 15 * 3600 + 0 * 60; // 15:00 UTC == 07:00 PDT
 #endif
 #if defined(FS_TOWER) && !defined(FS_TOWER_EYE)
 bool allowDaytimeShutdown = true;

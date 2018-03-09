@@ -69,6 +69,7 @@ class ledDriver {
   ledDriver();
 
   uint8_t lowLevelPWMCounter;
+  bool isShaking;
 
   void connect();
   void disconnect();

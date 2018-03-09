@@ -319,12 +319,17 @@ void towerPatterns::continuePatternDisplay() {
   if (checkShaking()) {
 #if !defined(FS_TOWER_EYE)
     isShaking = true;
+    leds.isShaking = true;
 #endif
     shakeStart = millis();
   }
-  if (millis() - shakeStart > 180000) isShaking = false;
+  if (millis() - shakeStart > 180000) {
+    isShaking = false;
+    leds.isShaking = false;
+  }
 #endif
   pooferControl.iteratePattern();
+  /*  
   // Blend from latest pattern request
   if (blendingStart > 0) {
     blendingStart--;
@@ -338,6 +343,7 @@ void towerPatterns::continuePatternDisplay() {
     leds.sendEndFrame();
     return;
   }
+  */
   // Continue with pattern display
   switch (pattern) {
   case FS_ID_DANCING:
@@ -447,19 +453,15 @@ void towerPatterns::continuePatternDisplay() {
 
 //! Display the data currently stored in `led*'
 void towerPatterns::displayData(bool red, bool green, bool blue) {
-  if (isShaking) {
-    setfullStrand(0, 0, 0, 0, false);
-  } else {
-    leds.sendStartFrame();
-    for (int i = 0; i < LED_COUNT; i++) {
-        if (red && green && blue) {
-            leds.sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
-        } else {
-            leds.sendColor(i, red?ledRed[i]:0, green?ledGreen[i]:0, blue?ledBlue[i]:0);
-        }
+  leds.sendStartFrame();
+  for (int i = 0; i < LED_COUNT; i++) {
+    if (red && green && blue) {
+      leds.sendColor(i, ledRed[i], ledGreen[i], ledBlue[i]);
+    } else {
+      leds.sendColor(i, red?ledRed[i]:0, green?ledGreen[i]:0, blue?ledBlue[i]:0);
     }
-    leds.sendEndFrame();
   }
+  leds.sendEndFrame();
 }
 
 //! Initialize the dancing pattern
