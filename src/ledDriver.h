@@ -58,6 +58,8 @@ const int lpdClockPin = 2;
 #define LED_COUNT (20)
 #elif FS_BUZZ_INN
 #define LED_COUNT (50)
+#elif FS_TOWER_TIKI
+#define LED_COUNT (10)
 #else
 #define LED_COUNT (50)
 #endif

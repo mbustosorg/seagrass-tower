@@ -493,22 +493,6 @@ void setupRadio() {
 //! Setup the last set startup pattern
 void setStartupPattern() {
   // Cycle patterns at startup
-  //pattern = EEPROM.read(0);
-  //EEPROM.write(0, pattern);
-  //uint8_t data[] = {FS_ID_RAINBOW_CHASE, 250, 200, 100, 130, 150};
-  //Control.initializePattern(data, 6);
-  //uint8_t data[] = {FS_ID_RANDOM_FLASH, 250, 200, 10, 130, 200};
-  //Control.initializePattern(data, 6);
-  //uint8_t data[] = {FS_ID_IMAGE_SCROLL, 20, 200, 10, 130, 200};
-  //Control.initializePattern(data, 6);
-  //uint8_t data[] = {FS_ID_ORGANIC, 10};
-  //Control.initializePattern(data, 2);
-  //uint8_t data[] = {FS_ID_STARFIELD, 10, 100, 100, 100};
-  //Control.initializePattern(data, 5);
-  //uint8_t data[] = {FS_ID_SPIRAL, 100, 200, 0, 40};
-  //Control.initializePattern(data, 5);
-  //uint8_t data[] = {FS_ID_TILT, 100, 200, 0, 40};
-  //Control.initializePattern(data, 5);
 #ifdef TEENSY
   //uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_SPIRAL, 100, 200, 0, 40, 120};
@@ -522,6 +506,9 @@ void setStartupPattern() {
   //uint8_t data[] = {FS_ID_DANCING, 100, 200, 0, 40, 0};
   Control.triggerPattern = 22;
   uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
+#elif FS_TOWER_HAT
+  Control.triggerPattern = 22;
+  uint8_t data[] = {FS_ID_RADIO_TOWER, 200, 0, 200, 0, 120};
 #elif FS_TOWN_CENTER
   uint8_t data[] = {FS_ID_RADIO_TOWER, 0, 228, 0, 0, 228};
 #elif defined(FS_REEDS) || defined(FS_WINDFLOWERS)
@@ -532,6 +519,8 @@ void setStartupPattern() {
 #elif FS_DRESS
   //uint8_t data[] = {FS_ID_POOF_2, 0, 228, 0, 0, 228};
   uint8_t data[] = {FS_ID_RAINBOW_CHASE, 250, 200, 100, 130, 150};
+#elif FS_TOWER_TIKI
+  uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
 #else
   uint8_t data[] = {FS_ID_CYLON, 51, 255, 0, 153, 255, 0};
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
