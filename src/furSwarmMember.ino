@@ -808,6 +808,12 @@ void processRXResponse() {
     Control.animations.isAnimating = data[0] == FS_ID_ANIMATE_1;
   }
 #endif
+#ifdef FS_TOWER_TIKI
+ if ((0x7F & data[0]) == FS_ID_FULL_COLOR) {
+    Control.pooferControl.startPattern(0);
+    Serial.println ("xxx");
+ }
+#endif
   Control.setPatternData(data, dataLength);
 }
 

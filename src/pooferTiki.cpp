@@ -40,24 +40,16 @@ pooferTiki::pooferTiki() {
 
   // Pattern 1
   patternTikiStep* pattern1steps = (patternTikiStep *) malloc(PATTERN_TIKI_1_COUNT * sizeof(patternTikiStep));
-  pattern1steps[0] = {0, {LOW}};
+  pattern1steps[0] = {0, {HIGH}};
   pattern1steps[1] = {100, {LOW}};
-  pattern1steps[2] = {500, {LOW}};
-  pattern1steps[3] = {600, {LOW}};
-  pattern1steps[4] = {1000, {LOW}};
+  pattern1steps[2] = {500, {HIGH}};
+  pattern1steps[3] = {600, {HIGH}};
+  pattern1steps[4] = {1000, {HIGH}};
   pattern1steps[5] = {1100, {LOW}};
   pattern1steps[6] = {1300, {LOW}};
   pattern1steps[7] = {1400, {LOW}};  
   pattern1steps[8] = {2000, {LOW}};
   pattern1steps[9] = {2500, {LOW}};
-  pattern1steps[10] = {3000, {LOW}};
-  pattern1steps[11] = {3500, {LOW}};
-  pattern1steps[12] = {4500, {LOW}};
-  pattern1steps[13] = {5000, {LOW}};
-  pattern1steps[14] = {5500, {LOW}};
-  pattern1steps[15] = {6000, {LOW}};
-  pattern1steps[16] = {6500, {LOW}};
-  pattern1steps[17] = {8000, {LOW}};
   patterns[0] = {PATTERN_TIKI_1_COUNT, pattern1steps};
 
   // Pattern 2

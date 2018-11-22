@@ -1046,15 +1046,16 @@ void furSwarmPatterns::updateSoundActivateParameters(uint8_t thresholdData, uint
     float newSampleNumber;
     float newAveragedOver;
     newThreshold = (float) thresholdData;
-    newThreshold = 10000 + newThreshold * 10000.0 / 255.0; // Threshold can range from 10k to 20k
+    newThreshold = 1000.0 + newThreshold * 5000.0 / 255.0; // Threshold can range from 10k to 20k
     newSampleNumber = (float) sampleData;
-    newSampleNumber = 78 + newSampleNumber * 32.0 / 255.0; // Number of samples can range from 78 to 110
+    newSampleNumber = 40;// + newSampleNumber * 32.0 / 255.0; // Number of samples can range from 78 to 110
     newAveragedOver = (float) averageData;
-    newAveragedOver = 12 - (float) newAveragedOver * 11.0 / 255.0; // Averaged over count can range from 12 to 1
+    newAveragedOver = 1;//12 - (float) newAveragedOver * 11.0 / 255.0; // Averaged over count can range from 12 to 1
     saThreshold = (long) newThreshold;
     saTargetThreshold = saThreshold * 0.90;
     saNumberOfSamples = (int) newSampleNumber;
     saAveragedOver = (int) newAveragedOver;
+    saGain = 1.0 + (float) averageData * 20.0 / 255.0;
 }
 
 //! Sum of squared audio signal
@@ -1064,10 +1065,10 @@ float furSwarmPatterns::sumOfSquareAudio() {
     float saSignal;
     for (int i = 0; i < saNumberOfSamples; i++) {
         saSample = analogRead(audioAnalogPin);
-        saSignal = (saSample - SA_MIDDLE_VALUE);
-        if (saSignal < 0) {
-            saSignal = 0;
-        }
+        saSignal = abs(saSample - SA_MIDDLE_VALUE);
+        //if (saSignal < 0) {
+        //    saSignal = 0;
+        //}
         saSignal *= saSignal;
         saSumOfSquare += saSignal * saGain;
     }
@@ -1080,15 +1081,23 @@ void furSwarmPatterns::iterateSoundActivate() {
     float saAverageReading;
     
     saAverageReading = saSumOfSquare / saNumberOfSamples;
-    float saPrevRunningAverage = saRunningAverage;
-    saRunningAverage = (((saAveragedOver - 1) * saRunningAverage) + saAverageReading) / saAveragedOver;
-    saMovingAverage = saMovingAverage + saRunningAverage / saMovingAverageCount - saMovingAverage / saMovingAverageCount;
+    saRunningAverageHistory[saRunningAveragePosition] = saAverageReading;
+    saRunningAveragePosition++;
+    if (saRunningAveragePosition >= SA_RUNNING_AVG_HISTORY) saRunningAveragePosition = 0;
+    saRunningAverage = 0.0;
+    for (int i = 0; i < SA_RUNNING_AVG_HISTORY; i++) {
+      saRunningAverage += saRunningAverageHistory[i];
+    }
+    saRunningAverage /= (float) SA_RUNNING_AVG_HISTORY;
+    //float saPrevRunningAverage = saRunningAverage;
+    //saRunningAverage = (((saAveragedOver - 1) * saRunningAverage) + saAverageReading) / saAveragedOver;
+    saMovingAverage = 0.0; //saMovingAverage + saRunningAverage / saMovingAverageCount - saMovingAverage / saMovingAverageCount;
     
     // PID Controller
     float saProportional = (saMovingAverage - saTargetThreshold) / 1000.0;
-    float saDamper = (saRunningAverage - saPrevRunningAverage) / 500.0;
-    float saPressure = 0;
-    saPressure = saProportional + saDamper;
+    //float saDamper = (saRunningAverage - saPrevRunningAverage) / 500.0;
+    //float saPressure = 0;
+    //saPressure = saProportional + saDamper;
     /*
      if (saProportional > 0.0 && saDamper > 0.0) {
      saPressure = saProportional + saDamper;
@@ -1099,7 +1108,6 @@ void furSwarmPatterns::iterateSoundActivate() {
      } else if (saProportional < 0.0 && saDamper < 0.0) {
      saPressure = saProportional - saDamper;
      }
-     */
     if (saPressure < 0.0) {
         saPressure *= -1.0;
     }
@@ -1116,6 +1124,9 @@ void furSwarmPatterns::iterateSoundActivate() {
     } else if (saGain < SA_GAIN_LOWER) {
         saGain = SA_GAIN_LOWER;
     }
+    saGain = SA_GAIN_UPPER;
+    */
+
 #ifdef FFT_DIAGNOSTICS
     Serial.print ("RUN:");
     Serial.print (saTargetThreshold);
@@ -1143,6 +1154,9 @@ void furSwarmPatterns::iterateSoundActivate() {
             Serial.print (",");
         }
     }
+    Serial.println ("|");
+    Serial.print ("TIM:");
+    Serial.print ("0.0");
     Serial.println ("|");
 #endif
 }

@@ -134,6 +134,9 @@ class furSwarmPatterns {
   float saMovingAverage;
   // Sound Activate - Running Average
   float saRunningAverage;
+  #define SA_RUNNING_AVG_HISTORY 5
+  float saRunningAverageHistory[SA_RUNNING_AVG_HISTORY];
+  uint8_t saRunningAveragePosition = 0;
  
   int saNumberOfSamples; // Higher to make running average more peak'y
   float saMovingAverageCount;
