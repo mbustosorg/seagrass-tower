@@ -20,16 +20,14 @@
 #ifndef pooferTiki_h
 #define pooferTiki_h
 
-#define POOFER_TIKI_ID (0)  // 1 - 5
-
 #define POOFER_TIKI_COUNT (1)
 #define POOFER_TIKI_1_PIN (31)
 
 #define PATTERN_TIKI_COUNT (4)
-#define PATTERN_TIKI_1_COUNT (10)
-#define PATTERN_TIKI_2_COUNT (26)
+#define PATTERN_TIKI_1_COUNT (8)
+#define PATTERN_TIKI_2_COUNT (25)
 #define PATTERN_TIKI_3_COUNT (18)
-#define PATTERN_TIKI_4_COUNT (24)
+#define PATTERN_TIKI_4_COUNT (12)
 
 #define PATTERNS_OFF (-1)
 

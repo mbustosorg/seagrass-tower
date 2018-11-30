@@ -520,7 +520,8 @@ void setStartupPattern() {
   //uint8_t data[] = {FS_ID_POOF_2, 0, 228, 0, 0, 228};
   uint8_t data[] = {FS_ID_RAINBOW_CHASE, 250, 200, 100, 130, 150};
 #elif FS_TOWER_TIKI
-  uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
+  //uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
+  uint8_t data[] = {FS_ID_FULL_COLOR, 100, 0, 50, 200, 170};
 #else
   uint8_t data[] = {FS_ID_CYLON, 51, 255, 0, 153, 255, 0};
   //uint8_t data[] = {FS_ID_SPECTRUM_ANALYZER, 128, 200, 200, 200, 128};
@@ -810,8 +811,19 @@ void processRXResponse() {
 #endif
 #ifdef FS_TOWER_TIKI
  if ((0x7F & data[0]) == FS_ID_FULL_COLOR) {
-    Control.pooferControl.startPattern(0);
-    Serial.println ("xxx");
+    if (data[1] == 255) {
+        Control.pooferControl.startPattern(0);
+    	Serial.println ("speed");
+    } else if (data[2] == 255) {
+        Control.pooferControl.startPattern(1);
+    	Serial.println ("red");
+    } else if (data[3] == 255) {
+        Control.pooferControl.startPattern(2);
+        Serial.println ("green");
+    } else if (data[4] == 255) {
+      	Control.pooferControl.startPattern(3);
+        Serial.println ("blue");
+    }
  }
 #endif
   Control.setPatternData(data, dataLength);
