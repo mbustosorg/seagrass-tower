@@ -34,11 +34,9 @@ void xBeeConfiguration::setRadio(XBee* anXbeeRadio) {
 
 //! Are we connected to the radio?
 bool xBeeConfiguration::connected() {
-#ifdef TEENSY
     // Pre-empt a read with the Teensy.  
     // It looks like it's quick to the setup
     xbeeRadio->readPacket(500);
-#endif
     uint8_t atCommand[]={'V','R'};
     AtCommandRequest atRequest = AtCommandRequest(atCommand, NULL, 0);
     outputMessage("connected", true);

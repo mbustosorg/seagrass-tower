@@ -19,19 +19,16 @@
 
 //
 // To run the simulator:
-// TOWER       : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER
-// TOWER_VEST  : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER_VEST
-// TOWER_EYE   : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER_EYE
-// TOWN_CENTER : -DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWN_CENTER
-// TOWER_HAT   : -DTEENSY -DADX345 -FS_TOWER_HAT
-// VEST        : -DUSE_TCL -DFS_VEST 
-// HAT         : -DFS_HAT
+// TOWER       : -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER
+// TOWER_VEST  : -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER_VEST
+// TOWER_EYE   : -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWER_EYE
+// TOWN_CENTER : -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_TOWN_CENTER
+// TOWER_HAT   : -DADX345 -FS_TOWER_HAT
 //
 
 #include "furSwarmPatternConst.h"
 #include "furSwarmControlMachine.h"
 #include "xBeeConfiguration.h"
-#ifdef TEENSY
 #include <EEPROM.h>
 #include <Wire.h>
 #include "TinyGPS.h"  
@@ -44,10 +41,12 @@ unsigned long gpsTimeStamp = 0;
 #define GPS_RESET_TIME (600000)
 #define GPS_DISPLAY_TIME (5000)
 statusLED led;
-#include "towerPatterns.h"
+#ifdef FS_RHB_SIGNAL
+#include "rhbSignal.h"
 #else
-#include "furSwarmPatterns.h"
+#include "towerPatterns.h"
 #endif
+
 timeStruct clock;
 
 #define Endian32_Swap(value) \
@@ -92,7 +91,6 @@ uint8_t heartbeatPayload[] = {
   memberType, // Byte 8: Member type
   0,          // Byte 9: Failed messages (2 bytes)
   0,
-#ifdef TEENSY
   0,          // Byte 11: Latitude (4 bytes)
   0,
   0,
@@ -101,7 +99,6 @@ uint8_t heartbeatPayload[] = {
   0,
   0,
   0
-#endif
 };
 uint8_t heartbeatCount = 0;
 #define FULL_HEARTBEAT_PERIOD (2)
@@ -116,8 +113,8 @@ uint8_t heartbeatCount = 0;
 XBee xbee = XBee();
 const uint32_t XBeeBaudRate = 57600;
 const uint32_t XBeePANID = 0x2014;
-XBeeAddress64 addr64 = XBeeAddress64(0x00000000, 0x00000000); // Coord ID free
-//XBeeAddress64 addr64 = XBeeAddress64(0x0013A200, 0x407C73CD); // Coord ID free
+//XBeeAddress64 addr64 = XBeeAddress64(0x00000000, 0x00000000); // Coord ID free
+XBeeAddress64 addr64 = XBeeAddress64(0x0013A200, 0x41A0504D);
 ZBTxRequest heartbeatMessage = ZBTxRequest(addr64, heartbeatPayload, sizeof(heartbeatPayload));
 ZBTxStatusResponse txStatus = ZBTxStatusResponse();
 ZBRxResponse rxResponse = ZBRxResponse();
@@ -185,26 +182,21 @@ bool allowDaytimeShutdown = false;
 #define DORMANT_TIME_LIMIT (1200) // 20 Minutes in seconds
 #endif
 
-#ifdef TEENSY
-towerPatterns Control;
 uint32_t heartbeatTimestampStart;
 const int latitudeStartByte = 0;
 const int longitudeStartByte = 4;
 unsigned long lastMessageReceipt = 0;
+#ifdef FS_RHB_SIGNAL
+rhbSignal Control;
 #else
-furSwarmPatterns Control;
+towerPatterns Control;
 #endif
 
 // Power management
 //const uint16_t batteryLimit = 839; // 8.0V
 //const uint16_t batteryLimit = 661; // 6.3V
-#ifdef TEENSY
 const uint16_t batteryLimit = 540; // 6.4V
 const uint16_t batteryWarningLimit = 560; // 6.7V
-#else
-const uint16_t batteryLimit = 624; // 6.0V
-const uint16_t batteryWarningLimit = 624; // 6.0V
-#endif
 const unsigned long lowBatteryTimeThreshold = 30000;
 //const unsigned long lowBatteryTimeThreshold = 300000;
 unsigned long lowBatteryTime = 0;
@@ -235,7 +227,6 @@ void setup() {
   } else {
 	batteryVoltagePin = 0;
 	Control.randomSeedPin = 8;
-#ifdef TEENSY
 	batteryVoltagePin = 15;
 	Control.audioAnalogPin = AUDIO_INPUT_PIN;
 	commandSpeedUpPin = 10;
@@ -264,9 +255,6 @@ void setup() {
 	Control.accel.setFilterLength(10);
 #ifdef FFT_DIAGNOSTICS
 	Serial.begin(115200);
-#endif
-#else
-	Control.audioAnalogPin = 9;
 #endif
   }
   pinMode(commandPatternPin, INPUT);
@@ -298,8 +286,6 @@ void displayMessage(const char* message) {
   Serial.println (message);
 #endif
 }
-
-#ifdef TEENSY
 
 //! Set up the frame rate timers
 void setupTimers() {
@@ -407,44 +393,10 @@ void disableTimers() {
 }
 }
 
-#else // not TEENSY
-
-//! Frame rate interrupt handler
-ISR(TIMER1_COMPA_vect) {
-  frameStarted = 1;
-  frameCount++;
-  frameRateCount++;
-}
-
-//! Set up the frame rate timers
-void setupTimers() {
-
-  cli();
-
-  TCCR1A = 0;  // set entire TCCR1A register to 0
-  TCCR1B = 0;  // same for TCCR1B
-  TCNT1  = 0;  //initialize counter value to 0
-  // set compare match register for 60hz increments
-  OCR1A = 33333 - 1;  // = (16*10^6) / (60 * 8) - 1 (must be < 65536)
-  // turn on CTC mode
-  TCCR1B |= (1 << WGM12);
-  // Set CS12 bits for 8 prescaler
-  TCCR1B |= (1 << CS11);
-  // enable timer compare interrupt
-  TIMSK1 |= (1 << OCIE1A);
-  
-  sei();
-}
-#endif
-
 //! Configure the XBee
 void setupRadio() {
   xBeeConfiguration XBconfiguration;
-#ifdef TEENSY
   HardwareSerial *radioSerial = &Serial1;
-#else
-  HardwareSerial *radioSerial = &Serial;
-#endif
   radioSerial->begin(XBeeBaudRate);
   xbee.setSerial(*radioSerial);
   XBconfiguration.setRadio(&xbee);
@@ -493,7 +445,6 @@ void setupRadio() {
 //! Setup the last set startup pattern
 void setStartupPattern() {
   // Cycle patterns at startup
-#ifdef TEENSY
   //uint8_t data[] = {FS_ID_SOUND_ACTIVATE, 128, 200, 200, 200, 128};
   //uint8_t data[] = {FS_ID_SPIRAL, 100, 200, 0, 40, 120};
   //uint8_t data[] = {FS_ID_ORGANIC, 10, 200, 200, 200, 128};
@@ -531,15 +482,10 @@ void setStartupPattern() {
   //uint8_t data[] = {FS_ID_TILT, 100, 200, 0, 40, 120};
 #endif
   Control.initializePattern(data, 6);
-#else
-  uint8_t data[] = {FS_ID_STARFIELD, 10, 100, 100, 100, 100};
-  Control.initializePattern(data, 6);
-#endif
 }
 
 //! Do we need to catchup to the 1PPS tick?
 void catchup() {
-#ifdef TEENSY
   unsigned long lastPPS = gps2rtc.lastPPSTime;
   if (lastPPS > 0) {
     unsigned long ppsGap = millis() - lastPPS;
@@ -549,16 +495,13 @@ void catchup() {
       Control.setRadioTowerSyncTimestamp (millis());
     }
   }
-#endif
 }
 
 //! Main loop
 void loop() {   
   if (frameStarted) {
 	Control.continuePatternDisplay();
-#ifdef TEENSY
 	Control.setFrameNumber(frameNumber);
-#endif
 	updateDisplay();
 	if (frameNumber == 0) {
 	  catchup();
@@ -570,7 +513,6 @@ void loop() {
   processIncoming();
 }
 
-#ifdef TEENSY
 //! Check if GPS data is available
 void updateGPSdata() {
   if (writeEepromLong (gps2rtc.latitude, latitudeStartByte) && writeEepromLong (gps2rtc.longitude, longitudeStartByte)) {
@@ -581,11 +523,9 @@ void updateGPSdata() {
 	displayMessage ("Could not write GPS data");
   }
 }
-#endif
 
 //! Debug output the GPS details
 void displayGPSdata(float lat, float lon) {
-#ifdef TEENSY
   Serial.print("lat:");
   Serial.print(lat / 100000);
   Serial.print(", lon:");
@@ -597,12 +537,10 @@ void displayGPSdata(float lat, float lon) {
   Serial.print(clock.minutes); Serial.print(":"); 
   if (clock.seconds < 10) Serial.print ("0");
   Serial.println(clock.seconds);
-#endif
 }
 
 //! Update the status display
 void updateDisplay() {
-#ifdef TEENSY
   led.update();
   if (lowBatteryWarningTime != 0 && (frameNumber == 0 || frameNumber == 29)) {
 	pulseStatusLED (40, 0, 0, 100, true);
@@ -678,7 +616,6 @@ void updateDisplay() {
       }
     }
   }
-#endif
 }
 
 //! Process incoming aux commands
@@ -799,7 +736,6 @@ void processRXResponse() {
   } else {
     heartbeatPeriod = defaultHeartbeatPeriod;
   }
-#ifdef TEENSY
   if (!daytimeShutdown) {
 #ifdef NOT_EMBEDDED
     lastMessageReceipt = gps2rtc.gps_time;
@@ -808,7 +744,6 @@ void processRXResponse() {
 #endif
     Control.animations.isAnimating = data[0] == FS_ID_ANIMATE_1;
   }
-#endif
 #ifdef FS_TOWER_TIKI
  if ((0x7F & data[0]) == FS_ID_FULL_COLOR) {
     if (data[1] == 255) {
@@ -867,7 +802,6 @@ void sendHeartbeat() {
 	  memcpy (&heartbeatPayload[voltagePosition], &batteryVoltage, sizeof(batteryVoltage));
 	  memcpy (&heartbeatPayload[frameRatePosition], &frameRateByte, sizeof(frameRateByte));
 	  memcpy (&heartbeatPayload[failedMessagePosition], &Control.failedMessageCount, sizeof(Control.failedMessageCount));
-#ifdef TEENSY
 	  heartbeatTimestampStart = currentTimestamp;
 	  memcpy (&heartbeatPayload[latitudePosition], &Control.latitude, sizeof(Control.latitude));
 	  memcpy (&heartbeatPayload[longitudePosition], &Control.longitude, sizeof(Control.longitude));
@@ -875,18 +809,19 @@ void sendHeartbeat() {
 		uint8_t shaking = FS_ID_SHAKING;
 		memcpy (&heartbeatPayload[patternPosition], &shaking, sizeof(Control.pattern));
 	  }
-#endif
 	  xbee.send(heartbeatMessage);
 	}
 	frameRateCount = 0;
 	heartbeatTimestamp = millis();
+#ifdef SERIAL_DIAGNOSTICS
+	Serial.print("Heartbeat: ");
+	Serial.println(heartbeatCount);
+#endif
   }
 }
 
 void pulseStatusLED(uint8_t red, uint8_t green, uint8_t blue, int duration, bool fade) {
-#ifdef TEENSY
   led.pulse(red, green, blue, duration, fade);
   led.update();
-#endif
 }
 

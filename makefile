@@ -1,6 +1,5 @@
-
-TRGTS = vest hat tower towerVest towerHat towerEye townCenter
-LIBS = arduinoLib teensyLib
+TRGTS = buzzInn rhbSignal rotoFuego tower towerDress towerEye towerHat towerTiki towerVest townCenter
+LIBS = teensyLib
 
 default: all
 
@@ -10,41 +9,37 @@ hex: $(TRGTS)
 
 lib: $(LIBS)
 
-arduinoLib:
-	cd ./build/lib/arduino ; make
-
 teensyLib:
-	cd ./build/lib/teensy ; make
+	cd ./build/lib/teensy ; make clean ; make
 
-vest:
-	cd ./build/vest ; make
+buzzInn:
+	cd ./build/buzzInn ; make clean ; make
 
-hat:
-	cd ./build/hat ; make
+rhbSignal:
+	cd ./build/rhbSignal ; make clean ; make
+
+rotoFuego:
+	cd ./build/rotoFuego ; make clean ; make
 
 tower:
-	cd ./build/tower ; make
+	cd ./build/tower ; make clean ; make
 
-towerVest:
-	cd ./build/towerVest ; make
-
-towerHat:
-	cd ./build/towerHat ; make
+towerDress:
+	cd ./build/towerDress ; make clean ; make
 
 towerEye:
-	cd ./build/towerEye ; make
+	cd ./build/towerEye ; make clean ; make
+
+towerHat:
+	cd ./build/towerHat ; make clean ; make
+
+towerTiki:
+	cd ./build/towerTiki ; make clean ; make
+
+towerVest:
+	cd ./build/towerVest ; make clean ; make
 
 townCenter:
-	cd ./build/townCenter ; make
+	cd ./build/townCenter ; make clean ; make
 
-clean:
-	cd ./build/tower ; make clean
-	cd ./build/vest ; make clean
-	cd ./build/hat ; make clean
-	cd ./build/towerVest ; make clean
-	cd ./build/towerHat ; make clean
-	cd ./build/towerEye ; make clean
-	cd ./build/townCenter ; make clean
-	cd ./build/lib/arduino ; make clean
-	cd ./build/lib/teensy ; make clean
 

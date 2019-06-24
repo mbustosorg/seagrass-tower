@@ -1,6 +1,14 @@
-DFLAGS=-DTEENSY -DUSE_NEOPIXEL -DFS_DRESS -DADXL345 -DTEENSYDUINO=120
+#DEBUG ?= 1
+#ifeq ($(DEBUG),1)
+#	DFLAGS=-DUSE_TCL -DTCL_DIO -DFS_TOWER -DADXL345 -DFFT_DIAGNOSTICS -DSERIAL_DIAGNOSTICS
+#	DFLAGS=-DUSE_TCL -DTCL_DIO -DFS_TOWER -DADXL345 -DFFT_DIAGNOSTICS
+#else
+	DFLAGS=-DUSE_TCL -DTCL_DIO -DFS_TOWER -DFS_RHB_SIGNAL -DADXL345 -DSERIAL_DIAGNOSTICS
+#	DFLAGS=-DUSE_TCL -DTCL_DIO -DFS_TOWER -DADXL345 -DSERIAL_DIAGNOSTICS -DGPS_DIAGNOSTICS
+#	DFLAGS=-DUSE_TCL -DTCL_DIO -DFS_TOWER -DADXL345
+#endif
 
-PRODUCT_NAME=dress
+PRODUCT_NAME=rhbSignal
 PROJECT_LOC=../../src/
 PROJECT_LIB_LOC=../../../teensy/lib/3.1/
 VPATH=$(PROJECT_LOC)
@@ -8,11 +16,11 @@ OBJECT_DIR=./
 
 include $(PROJECT_LIB_LOC)../../common/arm_common_31.txt
 
-APP_CPP_SOURCES=TCL.cpp towerPatterns.cpp colorUtilities.cpp \
-furSwarmControlMachine.cpp furSwarmMember.cpp furSwarmPatterns.cpp \
-xBeeConfiguration.cpp gps2rtc.cpp towerAnimations.cpp \
-towerBall.cpp accelerometer.cpp adxl345.cpp adxl335.cpp statusLED.cpp poofer.cpp \
-Adafruit_NeoPixel.cpp ledDriver.cpp XBee/XBee.cpp
+APP_CPP_SOURCES= \
+furSwarmControlMachine.cpp rhbSignal.cpp furSwarmMember.cpp towerAnimations.cpp \
+xBeeConfiguration.cpp gps2rtc.cpp \
+accelerometer.cpp adxl345.cpp adxl335.cpp statusLED.cpp \
+Adafruit_NeoPixel.cpp XBee/XBee.cpp
 
 APP_OBJECTS=$(addprefix $(OBJECT_DIR),$(APP_CPP_SOURCES:.cpp=.o))
 LIB_OBJECTS=$(addprefix $(PROJECT_LIB_LOC),*.o)
@@ -37,10 +45,6 @@ $(OBJECT_DIR)$(PRODUCT_NAME).elf: $(APP_OBJECTS) $(LIB_OBJECTS)
 	$(CC) -Os -Wl,--gc-sections $(MCU) -mthumb -T$(CORES)mk20dx256.ld -o $@ $^ -L. -larm_cortexM4l_math -lm
 
 furSwarmMember_copy: $(PROJECT_LOC)/furSwarmMember.cpp
-
-$(PROJECT_LOC)/furSwarmMember.cpp: furSwarmMember.ino
-	@echo Copy ino...
-	cp $(PROJECT_LOC)furSwarmMember.ino $(PROJECT_LOC)furSwarmMember.cpp
 
 $(OBJECT_DIR)%.o : %.c
 	$(CC) $< $(CFLAGS) $(DFLAGS) $(INCLUDE) -c -o $@

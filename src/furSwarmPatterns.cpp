@@ -62,15 +62,9 @@ furSwarmPatterns::furSwarmPatterns() {
     peakSoundLevel = 0;
     soundLevelRetractionTime = 0;
     peakRetractionTime = 0;
-#ifdef TEENSY
     saNumberOfSamples = 350;
     saMovingAverageCount = 10;
     saAveragedOver = 3;
-#else
-    saNumberOfSamples = 90;
-    saMovingAverageCount = 150;
-    saAveragedOver = 6;
-#endif
 
     for (int i = 0; i < LED_COUNT; i++) {
       blendingLedRed[i] = 0;
@@ -593,19 +587,11 @@ void furSwarmPatterns::initializeCharacter(uint8_t intensity, uint8_t red, uint8
     greenLevel = green;
     blueLevel = blue;
     for (int i = 0; i < LED_BMMAP; i++) {
-#ifdef TEENSY
         indexMap = bmLEDMap[i];
-#else
-        indexMap = pgm_read_byte(&bmLEDMap[i]);
-#endif
         if (indexMap != 0xFF) {
             byteNumber = i / 8;
             bitNumber = i % 8;
-#ifdef TEENSY
             patternByte = characterTable[characterIndex - 1][byteNumber];
-#else
-            patternByte = pgm_read_byte((uint8_t *)(pgm_read_word(&characterTable[characterIndex - 1])) + byteNumber);
-#endif
             if (patternByte & (1 << bitNumber)) {
                 ledRed[indexMap] = (uint8_t) ((float) intensity * (float) red / 255.0);
                 ledGreen[indexMap] = (uint8_t) ((float) intensity * (float) green / 255.0);
@@ -641,7 +627,6 @@ void furSwarmPatterns::initializeBitmapPattern(uint8_t red, uint8_t green, uint8
             byteNumber = i / 8;
             bitNumber = i % 8;
             patternByte = 0;
-#ifdef TEENSY
             if (patternId == FS_ID_CYLON_PONG) {
                 patternByte = cylonPongTable[index][byteNumber];
             } else if (patternId == FS_ID_SPIRAL) {
@@ -649,15 +634,6 @@ void furSwarmPatterns::initializeBitmapPattern(uint8_t red, uint8_t green, uint8
             } else if (patternId == FS_ID_CYLON_VERTICAL) {
                 patternByte = cylonVerticalTable[index][byteNumber];
             }
-#else
-            if (patternId == FS_ID_CYLON_PONG) {
-                patternByte = pgm_read_byte((uint8_t *)(pgm_read_word(&cylonPongTable[index])) + byteNumber);
-            } else if (patternId == FS_ID_SPIRAL) {
-                patternByte = pgm_read_byte((uint8_t *)(pgm_read_word(&spiralTable[index])) + byteNumber);
-            } else if (patternId == FS_ID_CYLON_VERTICAL) {
-                patternByte = pgm_read_byte((uint8_t *)(pgm_read_word(&cylonVerticalTable[index])) + byteNumber);
-            }
-#endif
             if (patternByte & (1 << bitNumber)) {
                 if (accum) {
                     ledRed[indexMap] = (float) redLevel * (1.0 - iterationProportion) + ledRed[indexMap];
@@ -1690,11 +1666,7 @@ void furSwarmPatterns::triggerPatternChange(bool forward) {
     heartbeatPumpLongStart = 0;
     breatheUpperLevel = 0;
     for (int i = 0; i < 6; i++) {
-#ifdef TEENSY
-        triggerData[i] = triggerPatterns[triggerPattern][i];
-#else
-        triggerData[i] = pgm_read_byte((uint8_t *)(pgm_read_word(&triggerPatterns[triggerPattern])) + i);
-#endif
+      triggerData[i] = triggerPatterns[triggerPattern][i];
     }
     initializePattern(triggerData, 6);
 }

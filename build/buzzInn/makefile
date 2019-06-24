@@ -1,4 +1,4 @@
-DFLAGS=-DTEENSY -DUSE_TCL -DTCL_DIO -DADXL345 -DFS_BUZZ_INN
+DFLAGS=-DUSE_TCL -DTCL_DIO -DADXL345 -DFS_BUZZ_INN
 
 PRODUCT_NAME=buzzInn
 PROJECT_LOC=../../src/
@@ -37,10 +37,6 @@ $(OBJECT_DIR)$(PRODUCT_NAME).elf: $(APP_OBJECTS) $(LIB_OBJECTS)
 	$(CC) -Os -Wl,--gc-sections $(MCU) -mthumb -T$(CORES)mk20dx256.ld -o $@ $^ -L. -larm_cortexM4l_math -lm
 
 furSwarmMember_copy: $(PROJECT_LOC)/furSwarmMember.cpp
-
-$(PROJECT_LOC)/furSwarmMember.cpp: furSwarmMember.ino
-	@echo Copy ino...
-	cp $(PROJECT_LOC)furSwarmMember.ino $(PROJECT_LOC)furSwarmMember.cpp
 
 $(OBJECT_DIR)%.o : %.c
 	$(CC) $< $(CFLAGS) $(DFLAGS) $(INCLUDE) -c -o $@

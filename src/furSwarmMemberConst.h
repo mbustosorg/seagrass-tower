@@ -32,7 +32,6 @@ typedef uint16_t PROGMEM prog_uint16_t;
 uint8_t* pgm_read_word(uint8_t** address) {
     return *address;
 }
-#elif TEENSY
 #else
 #include <avr/pgmspace.h>
 #include "Arduino.h"
