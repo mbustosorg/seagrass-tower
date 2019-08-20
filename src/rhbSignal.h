@@ -35,17 +35,19 @@ typedef float float32_t;
 
 #define LED_COUNT (1)
 
-#define FRAME_RATE (60)
-#define FFT_LEN (256)
-#define TEST_LENGTH_SAMPLES (2 * FFT_LEN)
-
-#define LIGHT_PIN (31)
-
 typedef struct {
   unsigned long hours;
   unsigned long minutes;
   unsigned long seconds;
 } timeStruct;
+
+#define DEVICE_COUNT (3)
+#define DEFAULT_PULSE_FREQUENCY (0.30)
+#define DEFAULT_PULSE_DURATION (1500.0)
+#define IN_RANGE_DISTANCE (2000.0)
+
+#define TEST_LENGTH_SAMPLES (1)
+#define FRAME_RATE (60)
 
 class rhbSignal {
 
@@ -53,7 +55,21 @@ class rhbSignal {
 
   rhbSignal();
 
+  int pwmPins[DEVICE_COUNT] = {20, 21, 22}; //, 23, 25, 32};
+  int pwmValues[DEVICE_COUNT] = {50, 50, 50}; //, 0, 0, 0};
+  float pulseDuration[DEVICE_COUNT] = {}; //, 1000.0, 1000.0, 5000.0};
+  float defaultPulseDuration[DEVICE_COUNT] = {DEFAULT_PULSE_DURATION, DEFAULT_PULSE_DURATION, DEFAULT_PULSE_DURATION};
+  float pulseFrequency[DEVICE_COUNT] = {DEFAULT_PULSE_FREQUENCY,
+					DEFAULT_PULSE_FREQUENCY + 0.01,
+					DEFAULT_PULSE_FREQUENCY + 0.02}; //, 0.25, 0.25, 0.25};
+  float defaultPulseFrequency[DEVICE_COUNT] = {DEFAULT_PULSE_FREQUENCY,
+					       DEFAULT_PULSE_FREQUENCY + 0.01,
+					       DEFAULT_PULSE_FREQUENCY + 0.02}; //, 0.25, 0.25, 0.25};
+  long pulseStart[DEVICE_COUNT] = {0, 0, 0}; //, 0, 0, 0};
+  
   bool light = false;
+  long initialDistanceTimestamp = 0;
+  bool inRange = false;
   
   // Redefinitions
   void initializePattern(uint8_t *data, uint8_t dataLength);
@@ -75,8 +91,8 @@ class rhbSignal {
   int frameNumber;
 
   // GPS data
-  int32_t latitude;
-  int32_t longitude;
+  float latitude;
+  float longitude;
 
   // Accelerometer data
   accelerometer accel;

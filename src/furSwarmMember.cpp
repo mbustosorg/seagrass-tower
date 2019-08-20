@@ -113,8 +113,8 @@ uint8_t heartbeatCount = 0;
 XBee xbee = XBee();
 const uint32_t XBeeBaudRate = 57600;
 const uint32_t XBeePANID = 0x2014;
-//XBeeAddress64 addr64 = XBeeAddress64(0x00000000, 0x00000000); // Coord ID free
-XBeeAddress64 addr64 = XBeeAddress64(0x0013A200, 0x41A0504D);
+XBeeAddress64 addr64 = XBeeAddress64(0x00000000, 0x00000000); // Coord ID free
+//XBeeAddress64 addr64 = XBeeAddress64(0x0013A200, 0x41A0504D);
 ZBTxRequest heartbeatMessage = ZBTxRequest(addr64, heartbeatPayload, sizeof(heartbeatPayload));
 ZBTxStatusResponse txStatus = ZBTxStatusResponse();
 ZBRxResponse rxResponse = ZBRxResponse();
@@ -241,8 +241,8 @@ void setup() {
 	pinMode(commandIntensityPin, INPUT_PULLUP); // Left
 	pinMode(commandSpeedDownPin, INPUT_PULLUP); // Right
 	//pinMode(commandOffPin, INPUT_PULLUP); // Center
-	Control.latitude = readEepromLong(latitudeStartByte);
-	Control.longitude = readEepromLong(longitudeStartByte);
+	Control.latitude = 0.1; //readEepromLong(latitudeStartByte);
+	Control.longitude = 0.0; //readEepromLong(longitudeStartByte);
 	// Fix to work when we don't have accurate GPS data available
 	Control.randomSeedPin = 5;
 	pinMode(7, INPUT);
